@@ -1,0 +1,10 @@
+{
+  "name": "wuxia-typing-legend",
+  "version": "1.0.0",
+  "description": "《武俠打字傳》新國風仙俠 × 打字戰鬥教育遊戲（Phaser 3 + DOM 混合架構）",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/typingEngine.test.js",
+    "dev": "npx --yes serve -l 5173 ."
+  }
+}
