@@ -68,13 +68,29 @@ class WuxiaGameApp {
   initDOM() {
     // 建立水墨半透明大千虛擬鍵盤
     const vkPanel = document.getElementById('vk-panel');
-    vkPanel.innerHTML = '';
+    vkPanel.innerHTML = `
+      <div class="vk-hint-row">
+        <span>左手聲母（黛藍）</span>
+        <span>・</span>
+        <span>右手韻母（翠綠）</span>
+        <span>・</span>
+        <span>聲調音律（赤金）</span>
+      </div>
+    `;
     KEYBOARD_ROWS.forEach((row) => {
       const rowEl = document.createElement('div');
       rowEl.className = 'vk-row';
       row.forEach((k) => {
         const keyEl = document.createElement('div');
-        keyEl.className = 'vk-key' + (k.isWide ? ' wide' : '');
+        let zoneClass = 'zone-left';
+        if (k.code === 'Space') {
+          zoneClass = 'zone-space';
+        } else if (k.isTone) {
+          zoneClass = 'zone-tone';
+        } else if (k.finger && k.finger.startsWith('右手')) {
+          zoneClass = 'zone-right';
+        }
+        keyEl.className = `vk-key ${zoneClass}` + (k.isWide ? ' wide' : '');
         keyEl.innerHTML = `<span class="vk-en">${k.en}</span><span class="vk-zy">${k.label || k.zy}</span>`;
         rowEl.appendChild(keyEl);
         this.keyDomMap.set(k.code, keyEl);

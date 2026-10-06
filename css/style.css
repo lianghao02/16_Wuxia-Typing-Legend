@@ -458,68 +458,119 @@ html, body {
 }
 
 .vk-panel {
-  background: rgba(16, 20, 26, 0.82);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(244, 240, 230, 0.16);
-  border-radius: 8px;
-  padding: 8px 10px;
+  background: rgba(14, 18, 24, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(245, 159, 0, 0.28);
+  border-radius: 12px;
+  padding: 6px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+  margin: 0 auto;
+  max-width: 820px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
 }
 
 .vk-panel.hidden {
   display: none;
 }
 
+.vk-hint-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  letter-spacing: 1.5px;
+  padding-bottom: 2px;
+}
+
 .vk-row {
   display: flex;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .vk-key {
-  width: 48px;
-  height: 38px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 5px;
-  padding: 2px 5px;
+  width: 58px;
+  height: 48px;
+  border-radius: 7px;
+  padding: 3px 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  transition: all 0.1s;
+  transition: all 0.12s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* 指法分區色彩（學童教學引導） */
+.vk-key.zone-left {
+  background: linear-gradient(180deg, rgba(26, 44, 70, 0.75), rgba(16, 28, 46, 0.85));
+  border: 1px solid rgba(72, 149, 239, 0.35);
+}
+
+.vk-key.zone-right {
+  background: linear-gradient(180deg, rgba(22, 50, 42, 0.75), rgba(14, 34, 28, 0.85));
+  border: 1px solid rgba(82, 183, 136, 0.35);
+}
+
+.vk-key.zone-tone {
+  background: linear-gradient(180deg, rgba(56, 42, 18, 0.75), rgba(38, 28, 12, 0.85));
+  border: 1px solid rgba(245, 159, 0, 0.45);
+}
+
+.vk-key.zone-space {
+  background: linear-gradient(180deg, rgba(34, 40, 52, 0.8), rgba(22, 26, 34, 0.9));
+  border: 1px solid rgba(255, 209, 102, 0.4);
 }
 
 .vk-key.wide {
-  width: 220px;
+  width: 280px;
+  height: 46px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* 目標按鍵高亮（金色 Spotlight 呼吸效果） */
 .vk-key.active-target {
-  background: rgba(72, 202, 228, 0.28);
-  border-color: var(--sword-cyan);
-  box-shadow: 0 0 10px rgba(72, 202, 228, 0.55);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ffd166, #f59f00) !important;
+  border-color: #fff !important;
+  box-shadow: 0 0 20px rgba(255, 209, 102, 0.9), 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  transform: translateY(-3px) scale(1.05);
+  z-index: 5;
 }
 
 .vk-en {
-  font-size: 0.66rem;
-  color: #868e96;
+  font-size: 0.72rem;
+  color: #8c9ba5;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .vk-zy {
-  font-size: 0.92rem;
-  font-weight: 700;
-  color: var(--paper-cream);
+  font-size: 1.42rem;
+  font-weight: 800;
+  color: #fff;
   align-self: flex-end;
+  line-height: 1;
+  font-family: var(--font-sans);
+}
+
+.vk-key.zone-tone .vk-zy {
+  color: var(--bright-gold);
 }
 
 .vk-key.active-target .vk-zy {
-  color: var(--bright-gold);
+  color: #111827 !important;
+  font-weight: 900;
+}
+
+.vk-key.active-target .vk-en {
+  color: #374151 !important;
 }
 
 /* 底部工具按鈕列 */
