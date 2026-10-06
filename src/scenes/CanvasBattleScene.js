@@ -48,6 +48,10 @@ export class CanvasBattleScene {
     this.afterImages = [];
     this.floatingTexts = [];
 
+    // 美術資產圖片快取（支援非同步載入與向量自動降級）
+    this.imageCache = new Map();
+    this.preloadImages();
+
     this.resize();
     window.addEventListener('resize', () => this.resize());
 
@@ -60,6 +64,32 @@ export class CanvasBattleScene {
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
+  }
+
+  preloadImages() {
+    const assets = {
+      mountain_gate: './assets/backgrounds/mountain_gate_v1.png',
+      yun_wood_sword: './assets/characters/yun_wood_idle_v1.png',
+      straw_dummy: './assets/enemies/straw_idle_v1.png'
+    };
+
+    Object.entries(assets).forEach(([key, src]) => {
+      const img = new Image();
+      const entry = { img, loaded: false, failed: false };
+      this.imageCache.set(key, entry);
+      img.onload = () => {
+        entry.loaded = true;
+      };
+      img.onerror = () => {
+        entry.failed = true;
+      };
+      img.src = src;
+    });
+  }
+
+  getImage(key) {
+    const entry = this.imageCache.get(key);
+    return (entry && entry.loaded) ? entry.img : null;
   }
 
   resize() {
@@ -670,6 +700,35 @@ export class CanvasBattleScene {
 
   drawBackdrop(ctx, w, h) {
     const theme = this.stageConfig?.sceneTheme || 'mountain_gate';
+
+    // 1. 若當前為山門演武場且有實體背景圖，以 cover 演算法填滿繪製
+    if (theme === 'mountain_gate') {
+      const bgImg = this.getImage('mountain_gate');
+      if (bgImg) {
+        const imgRatio = bgImg.width / bgImg.height;
+        const canvasRatio = w / h;
+        let dw, dh, dx, dy;
+        if (canvasRatio > imgRatio) {
+          dw = w;
+          dh = w / imgRatio;
+          dx = 0;
+          dy = (h - dh) * 0.5;
+        } else {
+          dh = h;
+          dw = h * imgRatio;
+          dx = (w - dw) * 0.5;
+          dy = 0;
+        }
+        ctx.drawImage(bgImg, dx, dy, dw, dh);
+
+        // 柔和暗角薄層，凸顯前方少俠與敵人
+        ctx.fillStyle = 'rgba(8, 12, 18, 0.22)';
+        ctx.fillRect(0, 0, w, h);
+        return;
+      }
+    }
+
+    // --- 備援降級向量背景繪製 ---
     const palettes = {
       mountain_gate: { top: '#1d2d3a', bottom: '#3b5249', mountain: 'rgba(22, 36, 45, 0.62)', moon: '#f4f0e6' },
       bamboo_forest: { top: '#132a13', bottom: '#2d6a4f', mountain: 'rgba(27, 67, 50, 0.62)', moon: '#d8f3dc' },
@@ -761,80 +820,97 @@ export class CanvasBattleScene {
     ctx.ellipse(0, 10, 52, 14, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 宗師階級（Tier 3）流雲披風與金色氣場
-    if (tier >= 3) {
-      ctx.fillStyle = 'rgba(245, 159, 0, 0.18)';
+    // 檢查是否有第一組 PoC 雲清川初階立繪（布衣桃木劍）
+    const heroImg = (hero.id === 'yun' && (weapon.id === 'wood_sword' || tier === 1))
+      ? this.getImage('yun_wood_sword')
+      : null;
+
+    if (heroImg) {
+      // 依交接規格渲染單張待機立繪
+      // 原始尺寸 1086 x 1448，長寬比約 0.75
+      // 腳底 anchor 約 (0.48, 0.981)，腳底對齊地面
+      const targetH = 220;
+      const targetW = targetH * (heroImg.width / heroImg.height);
+      const anchorX = 0.48 * targetW;
+      const anchorY = 0.981 * targetH;
+      ctx.drawImage(heroImg, -anchorX, -anchorY + 10, targetW, targetH);
+    } else {
+      // --- 備援降級向量繪製（無圖或換角/換高階神兵時） ---
+      // 宗師階級（Tier 3）流雲披風與金色氣場
+      if (tier >= 3) {
+        ctx.fillStyle = 'rgba(245, 159, 0, 0.18)';
+        ctx.beginPath();
+        ctx.arc(0, -56, 68, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1d3557';
+        ctx.beginPath();
+        ctx.moveTo(-10, -88);
+        ctx.lineTo(-68, -6);
+        ctx.lineTo(-8, -14);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // 隨風飄帶
+      const waveOffset = Math.sin(this.breathTime * 2) * 5;
+      ctx.strokeStyle = `rgba(${primaryRgb}, 0.9)`;
+      ctx.lineWidth = tier >= 2 ? 5 : 3;
       ctx.beginPath();
-      ctx.arc(0, -56, 68, 0, Math.PI * 2);
+      ctx.moveTo(-8, -108);
+      ctx.quadraticCurveTo(-42, -118 + waveOffset, -72, -104 - waveOffset);
+      ctx.stroke();
+
+      // 俠客身軀
+      ctx.fillStyle = tier === 1 ? '#495057' : hero.id === 'su' ? '#2d6a4f' : '#1d3557';
+      ctx.beginPath();
+      ctx.roundRect(-22, -86, 44, 74, 8);
       ctx.fill();
 
-      ctx.fillStyle = '#1d3557';
+      // 中式交領白邊
+      ctx.strokeStyle = '#f4f0e6';
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.moveTo(-10, -88);
-      ctx.lineTo(-68, -6);
-      ctx.lineTo(-8, -14);
-      ctx.closePath();
+      ctx.moveTo(-12, -85);
+      ctx.lineTo(6, -52);
+      ctx.moveTo(12, -85);
+      ctx.lineTo(-4, -52);
+      ctx.stroke();
+
+      // 腰封
+      ctx.fillStyle = tier >= 3 ? '#f59f00' : tier === 2 ? `rgb(${primaryRgb})` : '#adb5bd';
+      ctx.fillRect(-23, -46, 46, 8);
+
+      // 頭部與半束髮
+      ctx.fillStyle = '#ffe5d9';
+      ctx.beginPath();
+      ctx.arc(0, -104, 17, 0, Math.PI * 2);
       ctx.fill();
+
+      ctx.fillStyle = '#1b1f24';
+      ctx.beginPath();
+      ctx.arc(0, -108, 18, Math.PI * 0.95, Math.PI * 2.05);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(-6, -124, hero.id === 'su' ? 8 : 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 寶劍
+      ctx.strokeStyle = `rgba(${swordRgb}, 0.32)`;
+      ctx.lineWidth = tier >= 2 ? 12 : 6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(20, -58);
+      ctx.lineTo(88, -88);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgb(${swordRgb})`;
+      ctx.lineWidth = tier >= 3 ? 6 : 4;
+      ctx.beginPath();
+      ctx.moveTo(18, -57);
+      ctx.lineTo(86, -87);
+      ctx.stroke();
     }
-
-    // 隨風飄帶
-    const waveOffset = Math.sin(this.breathTime * 2) * 5;
-    ctx.strokeStyle = `rgba(${primaryRgb}, 0.9)`;
-    ctx.lineWidth = tier >= 2 ? 5 : 3;
-    ctx.beginPath();
-    ctx.moveTo(-8, -108);
-    ctx.quadraticCurveTo(-42, -118 + waveOffset, -72, -104 - waveOffset);
-    ctx.stroke();
-
-    // 俠客身軀
-    ctx.fillStyle = tier === 1 ? '#495057' : hero.id === 'su' ? '#2d6a4f' : '#1d3557';
-    ctx.beginPath();
-    ctx.roundRect(-22, -86, 44, 74, 8);
-    ctx.fill();
-
-    // 中式交領白邊
-    ctx.strokeStyle = '#f4f0e6';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(-12, -85);
-    ctx.lineTo(6, -52);
-    ctx.moveTo(12, -85);
-    ctx.lineTo(-4, -52);
-    ctx.stroke();
-
-    // 腰封
-    ctx.fillStyle = tier >= 3 ? '#f59f00' : tier === 2 ? `rgb(${primaryRgb})` : '#adb5bd';
-    ctx.fillRect(-23, -46, 46, 8);
-
-    // 頭部與半束髮
-    ctx.fillStyle = '#ffe5d9';
-    ctx.beginPath();
-    ctx.arc(0, -104, 17, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#1b1f24';
-    ctx.beginPath();
-    ctx.arc(0, -108, 18, Math.PI * 0.95, Math.PI * 2.05);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(-6, -124, hero.id === 'su' ? 8 : 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 寶劍
-    ctx.strokeStyle = `rgba(${swordRgb}, 0.32)`;
-    ctx.lineWidth = tier >= 2 ? 12 : 6;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(20, -58);
-    ctx.lineTo(88, -88);
-    ctx.stroke();
-
-    ctx.strokeStyle = `rgb(${swordRgb})`;
-    ctx.lineWidth = tier >= 3 ? 6 : 4;
-    ctx.beginPath();
-    ctx.moveTo(18, -57);
-    ctx.lineTo(86, -87);
-    ctx.stroke();
 
     // 角色名牌
     ctx.font = 'bold 13px "Microsoft JhengHei", sans-serif';
@@ -877,25 +953,36 @@ export class CanvasBattleScene {
     ctx.fill();
 
     if (type === 'straw') {
-      // 1. 稻草人
-      ctx.fillStyle = '#7f5539';
-      ctx.fillRect(-5, -96, 10, 106);
-      ctx.fillRect(-38, -72, 76, 8);
-      ctx.fillStyle = '#e9c46a';
-      ctx.beginPath();
-      ctx.roundRect(-22, -82, 44, 52, 10);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(0, -98, 16, 0, Math.PI * 2);
-      ctx.fill();
-      // 斗笠
-      ctx.fillStyle = '#d4a373';
-      ctx.beginPath();
-      ctx.moveTo(-36, -104);
-      ctx.lineTo(36, -104);
-      ctx.lineTo(0, -126);
-      ctx.closePath();
-      ctx.fill();
+      // 1. 稻草人（優先使用 PoC 立繪圖片）
+      const strawImg = this.getImage('straw_dummy');
+      if (strawImg) {
+        // 原始尺寸 1086 x 1448，木柱底部 anchor 約 (0.58, 0.990)
+        const targetH = 210;
+        const targetW = targetH * (strawImg.width / strawImg.height);
+        const anchorX = 0.58 * targetW;
+        const anchorY = 0.990 * targetH;
+        ctx.drawImage(strawImg, -anchorX, -anchorY + 12, targetW, targetH);
+      } else {
+        // 向量備援繪製稻草人
+        ctx.fillStyle = '#7f5539';
+        ctx.fillRect(-5, -96, 10, 106);
+        ctx.fillRect(-38, -72, 76, 8);
+        ctx.fillStyle = '#e9c46a';
+        ctx.beginPath();
+        ctx.roundRect(-22, -82, 44, 52, 10);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, -98, 16, 0, Math.PI * 2);
+        ctx.fill();
+        // 斗笠
+        ctx.fillStyle = '#d4a373';
+        ctx.beginPath();
+        ctx.moveTo(-36, -104);
+        ctx.lineTo(36, -104);
+        ctx.lineTo(0, -126);
+        ctx.closePath();
+        ctx.fill();
+      }
     } else if (type === 'wood') {
       // 2. 少林木人樁
       ctx.fillStyle = '#9c6644';
