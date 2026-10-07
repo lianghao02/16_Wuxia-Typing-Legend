@@ -55,8 +55,11 @@ export class CanvasBattleScene {
     this.afterImages = [];
     this.floatingTexts = [];
 
-    // 美術資產圖片快取（支援非同步載入與向量自動降級）
+    // 美術資產圖片快取（支援依當前關卡優先載入、自動重試與閒置背景佇列預載）
     this.imageCache = new Map();
+    this.highPriorityPending = 0;
+    this.bgPrefetchQueue = [];
+    this.isPrefetchingBg = false;
     this.preloadImages();
 
     this.resize();
@@ -75,20 +78,12 @@ export class CanvasBattleScene {
 
   preloadImages() {
     const assets = {
-      // 6 大水墨戰鬥場景背景 (1920x1080)
-      bg_mountain_gate: './assets/backgrounds/mountain_gate_v3.png',
-      bg_bamboo_forest: './assets/backgrounds/bamboo_forest_v3.png',
-      bg_ancient_inn: './assets/backgrounds/ancient_inn_v3.png',
-      bg_arena: './assets/backgrounds/arena_v3.png',
-      bg_moon_dojo: './assets/backgrounds/moon_dojo_v3.png',
-      bg_cloud_peak: './assets/backgrounds/cloud_peak_v3.png',
-
-      // 雙主角 × 3 階神兵全身立繪 (1080x1440)
+      // 雙主角 × 3 階神兵全身立繪 (1080x1440，優先註冊)
       yun_wood_sword: './assets/characters/yun_wood_idle_v3.png',
-      yun_qingfeng_sword: './assets/characters/yun_qingfeng_idle_v3.png',
-      yun_xuantie_sword: './assets/characters/yun_xuantie_idle_v3.png',
       su_wood_sword: './assets/characters/su_wood_idle_v3.png',
+      yun_qingfeng_sword: './assets/characters/yun_qingfeng_idle_v3.png',
       su_qingfeng_sword: './assets/characters/su_qingfeng_idle_v3.png',
+      yun_xuantie_sword: './assets/characters/yun_xuantie_idle_v3.png',
       su_xuantie_sword: './assets/characters/su_xuantie_idle_v3.png',
 
       // 初階主角專屬格擋／受擊姿態 v4 立繪 (1080x1440，僅限初階布衣＋桃木劍使用)
@@ -111,7 +106,15 @@ export class CanvasBattleScene {
 
       // 對手受擊專屬 v4 視覺特效 (512x512)
       fx_training_debris: './assets/effects/training_debris_v4.png',
-      fx_humanoid_hit: './assets/effects/humanoid_hit_flash_v4.png'
+      fx_humanoid_hit: './assets/effects/humanoid_hit_flash_v4.png',
+
+      // 6 大水墨戰鬥場景背景 (1920x1080，單檔 4~4.8MB，僅載入當前關卡，其餘排入最低優先閒置預載)
+      bg_mountain_gate: './assets/backgrounds/mountain_gate_v3.png',
+      bg_bamboo_forest: './assets/backgrounds/bamboo_forest_v3.png',
+      bg_ancient_inn: './assets/backgrounds/ancient_inn_v3.png',
+      bg_arena: './assets/backgrounds/arena_v3.png',
+      bg_moon_dojo: './assets/backgrounds/moon_dojo_v3.png',
+      bg_cloud_peak: './assets/backgrounds/cloud_peak_v3.png'
     };
 
     // 各立繪腳底接地 Y 軸錨點比例與姿態等高縮放係數（由 manifest visibleBounds 精算校正）
@@ -138,23 +141,99 @@ export class CanvasBattleScene {
       enemy_boss: { x: 0.50, y: 0.805 }
     };
 
+    // 僅先建立快取索引，不一口氣併發 28 個請求阻塞瀏覽器頻寬
     Object.entries(assets).forEach(([key, src]) => {
-      const img = new Image();
-      const entry = { img, loaded: false, failed: false };
-      this.imageCache.set(key, entry);
-      img.onload = () => {
-        entry.loaded = true;
-      };
-      img.onerror = () => {
-        entry.failed = true;
-      };
-      img.src = src;
+      this.imageCache.set(key, {
+        src,
+        img: null,
+        loaded: false,
+        loading: false,
+        failed: false,
+        retries: 0,
+        promise: null
+      });
     });
+
+    // 預先排入背景緩慢預載佇列（人物與敵人優先，大型場景圖殿後）
+    this.bgPrefetchQueue = Object.keys(assets);
+
+    // 啟動時立即高優先載入預設主角與第一關敵人
+    this.loadAsset('yun_wood_sword', 'high');
+    this.loadAsset('enemy_straw', 'high');
+    this.loadAsset('bg_mountain_gate', 'auto');
   }
 
-  getImage(key) {
+  loadAsset(key, priority = 'auto') {
     const entry = this.imageCache.get(key);
-    return (entry && entry.loaded) ? entry.img : null;
+    if (!entry) return Promise.resolve(null);
+    if (entry.loaded) return Promise.resolve(entry.img);
+    if (entry.loading && entry.promise) return entry.promise;
+
+    const isHigh = priority === 'high';
+    if (isHigh) this.highPriorityPending++;
+
+    entry.loading = true;
+    entry.failed = false;
+
+    entry.promise = new Promise((resolve) => {
+      const attemptLoad = () => {
+        const img = new Image();
+        img.decoding = 'async';
+        if ('fetchPriority' in img) {
+          img.fetchPriority = isHigh ? 'high' : 'low';
+        }
+        img.onload = () => {
+          entry.img = img;
+          entry.loaded = true;
+          entry.loading = false;
+          if (isHigh) this.highPriorityPending = Math.max(0, this.highPriorityPending - 1);
+          resolve(img);
+          this.pumpBackgroundPrefetch();
+        };
+        img.onerror = () => {
+          if (entry.retries < 2) {
+            entry.retries += 1;
+            setTimeout(attemptLoad, 350 * entry.retries);
+            return;
+          }
+          entry.loading = false;
+          entry.failed = true;
+          if (isHigh) this.highPriorityPending = Math.max(0, this.highPriorityPending - 1);
+          resolve(null);
+          this.pumpBackgroundPrefetch();
+        };
+        img.src = entry.src;
+      };
+      attemptLoad();
+    });
+
+    return entry.promise;
+  }
+
+  pumpBackgroundPrefetch() {
+    if (this.isPrefetchingBg || this.highPriorityPending > 0) return;
+    while (this.bgPrefetchQueue.length > 0) {
+      const nextKey = this.bgPrefetchQueue.shift();
+      const entry = this.imageCache.get(nextKey);
+      if (entry && !entry.loaded && !entry.loading && !entry.failed) {
+        this.isPrefetchingBg = true;
+        this.loadAsset(nextKey, 'low').finally(() => {
+          this.isPrefetchingBg = false;
+          this.pumpBackgroundPrefetch();
+        });
+        return;
+      }
+    }
+  }
+
+  getImage(key, priority = 'high') {
+    const entry = this.imageCache.get(key);
+    if (!entry) return null;
+    if (entry.loaded) return entry.img;
+    if (!entry.loading && !entry.failed) {
+      this.loadAsset(key, priority);
+    }
+    return null;
   }
 
   getFighterImageHeight() {
@@ -186,7 +265,29 @@ export class CanvasBattleScene {
     this.comboTier = 0;
     this.swordIntentActive = false;
     this.enemyDangerAlert = false;
-    this.initAmbientParticles(stage?.sceneTheme || 'mountain_gate');
+    const theme = stage?.sceneTheme || 'mountain_gate';
+    this.initAmbientParticles(theme);
+
+    // 優先載入當前關卡的「少俠立繪」與「對手立繪」，確保切換關卡或換角時秒開不塞車
+    const heroId = hero?.id || 'yun';
+    const weaponId = weapon?.id || 'wood_sword';
+    const enemyType = stage?.enemy?.visualType || 'straw';
+    const heroKey = `${heroId}_${weaponId}`;
+    const enemyKey = `enemy_${enemyType}`;
+    const bgKey = `bg_${theme}`;
+    const fxKey = (enemyType === 'straw' || enemyType === 'wood') ? 'fx_training_debris' : 'fx_humanoid_hit';
+
+    Promise.all([
+      this.loadAsset(heroKey, 'high'),
+      this.loadAsset(enemyKey, 'high')
+    ]).then(() => {
+      this.loadAsset(bgKey, 'high');
+      this.loadAsset(fxKey, 'auto');
+      if ((weapon?.tier || 1) === 1) {
+        this.loadAsset(`${heroId}_wood_block`, 'auto');
+        this.loadAsset(`${heroId}_wood_hurt`, 'auto');
+      }
+    });
   }
 
   initAmbientParticles(theme) {
@@ -745,9 +846,12 @@ export class CanvasBattleScene {
 
   drawBackdrop(ctx, w, h) {
     const theme = this.stageConfig?.sceneTheme || 'mountain_gate';
+    const bgKey = `bg_${theme}`;
 
     // 1. 優先使用對應主題的 v3 新國風水墨背景圖 (1920x1080)，並鎖定 Y=0.68 地面線對齊
-    const bgImg = this.getImage(`bg_${theme}`) || this.getImage('bg_mountain_gate');
+    const bgImg =
+      this.getImage(bgKey, 'auto') ||
+      (!this.imageCache.has(bgKey) ? this.getImage('bg_mountain_gate', 'auto') : null);
     if (bgImg) {
       const imgRatio = bgImg.width / bgImg.height;
       const canvasRatio = w / h;
@@ -873,13 +977,12 @@ export class CanvasBattleScene {
         ? `${hero.id}_wood_${this.heroPose}`
         : baseSpriteKey;
 
-    const poseImg = this.getImage(poseSpriteKey);
+    const poseImg = poseSpriteKey !== baseSpriteKey ? this.getImage(poseSpriteKey, 'auto') : null;
     const activeSpriteKey = poseImg ? poseSpriteKey : baseSpriteKey;
     const heroImg =
       poseImg ||
-      this.getImage(baseSpriteKey) ||
-      this.getImage(`${hero.id}_wood_sword`) ||
-      this.getImage('yun_wood_sword');
+      this.getImage(baseSpriteKey, 'high') ||
+      (!this.imageCache.has(baseSpriteKey) ? this.getImage('yun_wood_sword', 'high') : null);
 
     if (heroImg) {
       // v3/v4 立繪四周含 15% 安全留白，乘上 anchor.scale 確保 idle/block/hurt 切換時頭部與鞋底高度一致
@@ -1008,7 +1111,9 @@ export class CanvasBattleScene {
 
     // 優先使用 10 大代表敵人之 v3 全身立繪
     const enemyKey = `enemy_${type}`;
-    const enemyImg = this.getImage(enemyKey) || this.getImage('enemy_straw');
+    const enemyImg =
+      this.getImage(enemyKey, 'high') ||
+      (!this.imageCache.has(enemyKey) ? this.getImage('enemy_straw', 'high') : null);
     const baseH = this.getFighterImageHeight();
     const targetH = type === 'boss' ? baseH * 1.08 : baseH;
 

@@ -17,7 +17,7 @@ import { PRACTICE_CHOICES, MAIN_PRACTICE_CHOICES, ENGLISH_PRACTICE_BANKS } from 
 import { TypingEngine } from './engine/TypingEngine.js?v=20261007_fix6';
 import { AudioEngine } from './engine/AudioEngine.js?v=20261007_fix6';
 import { StorageEngine, MAX_HERO_HP_CAP } from './engine/StorageEngine.js?v=20261007_practice';
-import { CanvasBattleScene } from './scenes/CanvasBattleScene.js?v=20261007_corners';
+import { CanvasBattleScene } from './scenes/CanvasBattleScene.js?v=20261007_fastload';
 
 export function getSkillShortcut(event) {
   if (event.ctrlKey || event.metaKey) return null;
