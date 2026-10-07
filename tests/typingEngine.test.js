@@ -5,16 +5,92 @@ import { parseCustomVocabularyInput, DIFFICULTY_BANKS } from '../src/data/vocabu
 import { DIFFICULTY_CONFIG, DIABLO_STAGES } from '../src/data/enemies.js';
 import { TEXTBOOK_CATALOG, getGradeMixedWords } from '../src/data/textbooks.js';
 import { getOriginalProseWords } from '../src/data/originalProse.js';
+import { getGradeVocabulary } from '../src/data/gradeVocabulary.js';
+import { buildGradeQuestionQueue, getGradeQuestionRatio, getQuestionLengthGroup } from '../src/data/gradeQuestionMix.js';
 import { WEAPONS } from '../src/data/enemies.js';
 import { CanvasBattleScene } from '../src/scenes/CanvasBattleScene.js';
 import { WuxiaGameApp, getSkillShortcut, shuffleQuestions, getQuestionPage } from '../src/main.js';
 import { StorageEngine } from '../src/engine/StorageEngine.js';
 import { MOE_MINI_METADATA, getDictionaryEntries, getCharacterReadings,
-  getDictionaryExampleReading, isDictionaryReading } from '../src/data/moeDictionary.js';
+  getDictionaryExampleReading, getDictionaryUsage, isDictionaryReading } from '../src/data/moeDictionary.js';
 import { MOE_MINI_SHEETS } from '../src/data/moeMiniRecords.js';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { PRACTICE_CHOICES, MAIN_PRACTICE_CHOICES, ENGLISH_PRACTICE_BANKS } from '../src/data/practice.js';
+
+test('37. 計時從首次作答開始，暫停與續玩排除等待，中文與英文速度分開計算', () => {
+  const originalPerformance = globalThis.performance;
+  let now = 0;
+  globalThis.performance = { now: () => now };
+  try {
+    const engine = new TypingEngine();
+    engine.loadWord({ text: '天人', bopomofo: ['ㄊㄧㄢ', 'ㄖㄣˊ'] });
+    now = 60000;
+    assert.equal(engine.getProgress().elapsedMs, 0);
+    engine.processSymbolInput('ㄊ');
+    now += 60000;
+    for (const symbol of ['ㄧ', 'ㄢ', '␣']) engine.processSymbolInput(symbol);
+    assert.equal(engine.getStats().wpm, 1);
+    assert.equal(engine.getStats().speedUnit, '字／分');
+    engine.setPaused(true);
+    now += 300000;
+    assert.equal(engine.processSymbolInput('ㄖ'), false);
+    assert.equal(engine.getProgress().elapsedMs, 60000);
+    engine.setPaused(false);
+    assert.equal(engine.getStats().wpm, 1);
+    const progress = engine.getProgress();
+    const resumed = new TypingEngine();
+    resumed.loadWord(progress.word);
+    now += 600000;
+    assert.equal(resumed.restoreProgress(progress), true);
+    assert.equal(resumed.getProgress().elapsedMs, 60000);
+    const english = new TypingEngine();
+    english.loadWord({ text: 'water', mode: 'english' });
+    english.processSymbolInput('w');
+    now += 60000;
+    for (const char of 'ater') english.processSymbolInput(char);
+    assert.equal(english.getStats().wpm, 1);
+    assert.equal(english.getStats().speedUnit, 'WPM');
+    const blank = new TypingEngine();
+    blank.loadWord(progress.word);
+    const untouched = blank.getProgress();
+    now += 600000;
+    blank.restoreProgress(untouched);
+    assert.equal(blank.getProgress().elapsedMs, 0);
+  } finally { globalThis.performance = originalPerformance; }
+});
+
+test('38. 輕量索引保留官方全部字音、語境例詞，啟動模組不再靜態匯入完整字典', () => {
+  for (const [character,,,, reading] of MOE_MINI_SHEETS[0].rows.slice(1)) {
+    assert.ok(getCharacterReadings(character).includes(reading), `${character} ${reading}`);
+  }
+  assert.deepEqual(getDictionaryUsage('鵝', 'ㄜˊ'), []); // 原條目沒有例詞，不捏造字典內容。
+  assert.ok(getDictionaryUsage('行', 'ㄏㄤˊ').includes('銀行'));
+  const module = readFileSync(new URL('../src/data/moeDictionary.js', import.meta.url), 'utf8');
+  assert.doesNotMatch(module, /import\s*\{[^}]*\}\s*from\s*['"]\.\/moeMiniRecords/);
+});
+
+test('39. 戰鬥背景 WebP 載入失敗會退回 PNG，完成後釋放高優先計數', async () => {
+  const originalImage = globalThis.Image;
+  const requested = [];
+  globalThis.Image = class {
+    set src(value) {
+      requested.push(value);
+      queueMicrotask(() => value.endsWith('.webp') ? this.onerror() : this.onload());
+    }
+  };
+  try {
+    const scene = Object.create(CanvasBattleScene.prototype);
+    scene.imageCache = new Map([['bg_test', { src: 'test.webp', fallbackSrc: 'test.png', retries: 0 }]]);
+    scene.highPriorityPending = 0;
+    scene.pumpBackgroundPrefetch = () => {};
+    const image = await scene.loadAsset('bg_test', 'high');
+    assert.ok(image);
+    assert.deepEqual(requested, ['test.webp', 'test.png']);
+    assert.equal(scene.imageCache.get('bg_test').loaded, true);
+    assert.equal(scene.highPriorityPending, 0);
+  } finally { globalThis.Image = originalImage; }
+});
 
 test('25. 年級進度獨立，舊進度保留，預覽不切換，財產共用且可重新載入', () => {
   let raw = null;
@@ -523,7 +599,7 @@ test('17. 洗牌前的逐音存檔維持原順序，損壞隊列不套入進度'
   assert.equal(recovered.typing.symbolIndex, 0);
 });
 
-test('18. 教育部離線資料完整保存六欄、全數條目及原始檔雜湊', () => {
+test('18. 教育部離線資料完整保存六欄、全數條目及原始檔雜湊', async () => {
   const rows = MOE_MINI_SHEETS[0].rows;
   assert.equal(rows.length - 1, 4719);
   assert.equal(new Set(rows.slice(1).map((row) => row[0])).size, 4311);
@@ -531,7 +607,7 @@ test('18. 教育部離線資料完整保存六欄、全數條目及原始檔雜�
   assert.ok(rows.slice(1).every((row) => row.length === 6 && row.every((value) => typeof value === 'string')));
   const raw = readFileSync(new URL('../data/dictionaries/moe-mini/dict_mini_2019_20260929.xlsx', import.meta.url));
   assert.equal(createHash('sha256').update(raw).digest('hex'), MOE_MINI_METADATA.sha256);
-  const entry = getDictionaryEntries('橋')[0];
+  const entry = (await getDictionaryEntries('橋'))[0];
   const source = rows.find((row) => row[0] === '橋');
   assert.deepEqual(Object.values(entry), source);
   assert.ok(readFileSync(new URL('../data/dictionaries/moe-mini/使用說明.pdf', import.meta.url)).length > 1000);
@@ -672,6 +748,174 @@ test('23. 60 個原創散文短句都能完成注音輸入，六年級混合題�
   resumed.startStage('easy', 3, { resumeSession: true });
   assert.equal(resumed.typing.currentWord.text, app.typing.currentWord.text);
   assert.equal(resumed.typing.getExpectedSymbol(), app.typing.getExpectedSymbol());
+});
+
+test('31. 六年級三境界均按指定比例抽十題，題目不重複且不修改原題庫', () => {
+  for (let grade = 1; grade <= 6; grade++) {
+    const pool = getGradeMixedWords(grade);
+    const original = structuredClone(pool);
+    for (const difficulty of ['easy', 'medium', 'hard']) {
+      for (let sample = 0; sample < 20; sample++) {
+        const queue = buildGradeQuestionQueue(pool, grade, difficulty);
+        assert.equal(queue.length, 10);
+        assert.equal(new Set(queue.map(word => word.text)).size, 10);
+        assert.deepEqual([0, 1, 2].map(group => queue.filter(word => getQuestionLengthGroup(word) === group).length),
+          getGradeQuestionRatio(grade, difficulty));
+        assert.ok(queue.every(word => pool.includes(word) && word.gradeLevel === grade));
+      }
+    }
+    assert.deepEqual(pool, original);
+    const first = buildGradeQuestionQueue(pool, grade, 'easy', () => 0);
+    const second = buildGradeQuestionQueue(pool, grade, 'easy', () => 0.999);
+    assert.notDeepEqual(first.map(word => word.text), second.map(word => word.text));
+  }
+});
+
+test('32. 新編詞句逐字核對字典並可完整輸入，高年級宗師長句平均長於初階', () => {
+  for (let grade = 1; grade <= 6; grade++) {
+    for (const word of getGradeVocabulary(grade)) {
+      assert.equal(Array.from(word.text).length, word.bopomofo.length);
+      Array.from(word.text).forEach((character, index) => assert.ok(isDictionaryReading(character, word.bopomofo[index]), word.text));
+      const engine = new TypingEngine();
+      engine.active = true;
+      engine.loadWord(word);
+      let strokes = 0;
+      while (engine.getExpectedSymbol() && strokes++ < 300) engine.processSymbolInput(engine.getExpectedSymbol());
+      assert.equal(engine.completedWords, 1, word.text);
+    }
+    if (grade >= 5) {
+      const averageLength = difficulty => {
+        const queue = buildGradeQuestionQueue(getGradeMixedWords(grade), grade, difficulty, () => 0.5);
+        const long = queue.filter(word => getQuestionLengthGroup(word) === 2);
+        return long.reduce((sum, word) => sum + Array.from(word.text).length, 0) / long.length;
+      };
+      assert.ok(averageLength('hard') > averageLength('easy'));
+    }
+  }
+});
+
+test('33. 主控制器套用年級比例，重練重新抽題，續玩保留隊列與逐音位置', () => {
+  for (let grade = 1; grade <= 6; grade++) {
+    for (const difficulty of ['easy', 'medium', 'hard']) {
+      const app = makeGame();
+      app.storage.activatePracticeProfile(`grade-${grade}`, PRACTICE_CHOICES.find(choice => choice.key === `grade-${grade}`).source);
+      app.startStage(difficulty, 1);
+      assert.equal(app.stageGoal, 10);
+      assert.deepEqual([0, 1, 2].map(group => app.questionQueue.filter(word => getQuestionLengthGroup(word) === group).length),
+        getGradeQuestionRatio(grade, difficulty));
+      const queue = structuredClone(app.questionQueue);
+      app.typing.processSymbolInput(app.typing.getExpectedSymbol());
+      app.saveCurrentSessionProgress();
+      const resumed = makeGame(app.storage.state);
+      resumed.startStage(difficulty, 1, { resumeSession: true });
+      assert.deepEqual(resumed.questionQueue, queue);
+      assert.equal(resumed.typing.currentWord.text, app.typing.currentWord.text);
+      assert.equal(resumed.typing.getExpectedSymbol(), app.typing.getExpectedSymbol());
+      app.startStage(difficulty, 1, { resumeSession: false });
+      assert.notDeepEqual(app.questionQueue, queue);
+      clearTimeout(app.nextQuestionTimer);
+      clearTimeout(resumed.nextQuestionTimer);
+    }
+  }
+});
+
+test('34. 真實按錯事件收錄中文字音與次數，護身符保護連擊仍記錄錯題', () => {
+  const previousDocument = globalThis.document;
+  const previousStorage = globalThis.localStorage;
+  let raw = null;
+  globalThis.document = { getElementById: () => null };
+  globalThis.localStorage = { getItem: () => raw, setItem: (_, value) => { raw = value; } };
+  try {
+    const app = makeGame();
+    app.startStage('easy', 1);
+    app.typing.loadWord({ text: '行走', bopomofo: ['ㄒㄧㄥˊ', 'ㄗㄡˇ'] });
+    const hp = app.storage.state.currentHp;
+    app.typing.handleKeyDown({ code: 'KeyA', key: 'a', preventDefault() {} });
+    app.typing.handleKeyDown({ code: 'KeyA', key: 'a', preventDefault() {} });
+    assert.equal(app.storage.getMistakes()[0].char, '行');
+    assert.equal(app.storage.getMistakes()[0].count, 2);
+    assert.equal(app.storage.getMistakes()[0].symbols.join(''), 'ㄒㄧㄥˊ');
+    assert.equal(app.storage.state.currentHp, hp);
+    assert.equal(app.consecutiveMisses, 2);
+    assert.equal(new StorageEngine().getMistakes()[0].count, 2);
+    app.storage.state.missShields = 1;
+    app.typing.combo = 3;
+    app.typing.handleKeyDown({ code: 'KeyA', key: 'a', preventDefault() {} });
+    assert.equal(app.typing.combo, 3);
+    assert.equal(app.storage.state.missShields, 0);
+    assert.equal(app.storage.getMistakes()[0].count, 3);
+  } finally {
+    globalThis.document = previousDocument;
+    globalThis.localStorage = previousStorage;
+  }
+});
+
+test('35. 英文字母與單音錯題用正確模式特訓，主線存檔不被特訓覆蓋', () => {
+  const previousDocument = globalThis.document;
+  const previousStorage = globalThis.localStorage;
+  let raw = null;
+  globalThis.document = { getElementById: () => null };
+  globalThis.localStorage = { getItem: () => raw, setItem: (_, value) => { raw = value; } };
+  try {
+    const app = makeGame();
+    app.startStage('easy', 1);
+    app.typing.loadWord({ text: 'cat', mode: 'english' });
+    app.typing.handleKeyDown({ code: 'KeyZ', key: 'z', preventDefault() {} });
+    assert.equal(app.storage.getMistakes()[0].mode, 'english');
+    app.storage.recordMistake({ char: 'ㄅ', symbols: ['ㄅ'], isSingleKey: true });
+    app.storage.recordMistake({ char: '水', symbols: ['ㄕ', 'ㄨ', 'ㄟ', 'ˇ'] });
+    app.saveCurrentSessionProgress();
+    const saved = structuredClone(app.storage.state.savedSession);
+    const loaded = new StorageEngine();
+    assert.equal(loaded.getMistakes().find(item => item.char === 'c').mode, 'english');
+    app.closeAllModals = () => { app.typing.active = true; };
+    app.handleMistakeDrillVictory = () => { app.isStageClearing = true; };
+    app.startMistakeDrill();
+    assert.equal(app.stageGoal, 3);
+    assert.equal(app.questionQueue.find(word => word.text === 'c').mode, 'english');
+    assert.equal(app.questionQueue.find(word => word.text === 'ㄅ').isSingleKey, true);
+    for (let index = 0; index < 3; index++) {
+      if (index) app.nextQuestion();
+      completeCurrentQuestion(app);
+      clearTimeout(app.nextQuestionTimer);
+    }
+    assert.equal(app.clearedWordsCount, 3);
+    assert.equal(app.isStageClearing, true);
+    assert.deepEqual(app.storage.state.savedSession, saved);
+  } finally {
+    globalThis.document = previousDocument;
+    globalThis.localStorage = previousStorage;
+  }
+});
+
+test('36. 錯題超過十題時，結算只清除本批已練習的錯題', () => {
+  const previousDocument = globalThis.document;
+  const callbacks = {};
+  globalThis.document = { getElementById: id => ({
+    addEventListener: (_, callback) => { callbacks[id] = callback; },
+    innerHTML: '', textContent: ''
+  }) };
+  try {
+    const app = makeGame();
+    app.startStage('easy', 1);
+    app.closeAllModals = () => { app.typing.active = true; };
+    app.openExclusiveModal = () => {};
+    app.storage.clearAllMistakes();
+    for (const char of 'abcdefghijkl') app.storage.recordMistake({ char, symbols: [char] }, 'english');
+    app.startMistakeDrill();
+    const trained = [...app.mistakeDrillKeys];
+    assert.equal(trained.length, 10);
+    for (let index = 0; index < 10; index++) {
+      if (index) app.nextQuestion();
+      completeCurrentQuestion(app);
+      clearTimeout(app.nextQuestionTimer);
+    }
+    callbacks['btn-drill-clear-return']();
+    assert.equal(app.storage.getMistakes().length, 2);
+    assert.ok(app.storage.getMistakes().every(item => !trained.includes(item.char)));
+  } finally {
+    globalThis.document = previousDocument;
+  }
 });
 
 test('24. 三階武器實際產生不同劍痕、劍氣與殘影，武器不改變破題數', () => {

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>武俠打字傳｜以字為劍，打出你的江湖</title>
-  <link rel="stylesheet" href="./css/style.css?v=20261007_vk_hud" />
+  <link rel="stylesheet" href="./css/style.css?v=20261007_beta2_final" />
 </head>
 <body>
   <!-- Phaser 3 戰鬥畫布底層 -->
@@ -64,7 +64,7 @@
             <img src="./assets/icons/copper_coins_v3.png" alt="銅錢" class="inline-coin-icon" />
             銅錢：<strong style="color:var(--bright-gold);" id="coin-count">80</strong>
           </span>
-          <span>⚡ 速度：<strong style="color:var(--sword-cyan);" id="wpm-display">0</strong> WPM</span>
+          <span>⚡ 速度：<strong style="color:var(--sword-cyan);" id="wpm-display">0</strong> <span id="speed-unit">字／分</span></span>
           <span>🎯 準度：<strong style="color:#69db7c;" id="acc-display">100%</strong></span>
         </div>
       </div>
@@ -106,12 +106,9 @@
         <div class="question-page-progress" id="question-page-progress" hidden></div>
         <div class="word-characters" id="word-characters"></div>
 
-        <!-- 連續打錯字時自動跳出之醒目教學提示橫幅 -->
-        <div class="mistake-guide-banner" id="mistake-guide-banner"></div>
-
         <div class="scroll-footer">
           <span id="word-meaning-text">請直接敲擊鍵盤對應注音鍵位出招（無需選字）</span>
-          <span class="finger-guide-pill" id="finger-guide-pill">準備出劍...</span>
+          <span class="finger-guide-pill" id="finger-guide-pill" aria-live="polite">準備出劍...</span>
         </div>
       </div>
     </div>
@@ -124,7 +121,7 @@
       <!-- Q / W / E / R 武功技能槽（清爽微光，收攏置中，絕不遮擋視線） -->
       <div class="skill-dock-container">
         <div class="skill-bar-dock" id="skill-bar-dock">
-          <button class="skill-slot-btn" id="btn-skill-q" title="青蓮劍氣：立即對敵造成 1.5 倍劍氣重創">
+          <button class="skill-slot-btn" id="btn-skill-q" title="青蓮劍氣：消耗 2 氣，完成目前整題並演出劍氣重創">
             <span class="skill-hotkey-badge">Alt+1 / F1</span>
             <span>⚡ 青蓮劍氣 (2氣)</span>
           </button>
@@ -141,7 +138,7 @@
             <span>🔥 流雲劍訣 (滿氣)</span>
           </button>
         </div>
-        <div style="font-size:0.78rem; color:#adb5bd;">
+        <div class="skill-dock-hint">
           💡 點擊按鈕或按 Alt+1～4／F1～F4；滿 5 氣保留供主動施招
         </div>
       </div>
@@ -219,7 +216,7 @@
       </div>
       <p id="stage-practice-label"></p>
       <div class="jianghu-map-banner">
-        <img src="./assets/backgrounds/jianghu_map_v3.png" alt="江湖歷練路線圖" class="jianghu-map-img" loading="lazy" decoding="async" />
+        <picture><source srcset="./assets/backgrounds/jianghu_map_v3.webp" type="image/webp" /><img src="./assets/backgrounds/jianghu_map_v3.png" alt="江湖歷練路線圖" class="jianghu-map-img" loading="lazy" decoding="async" /></picture>
         <div class="jianghu-map-caption">⛰️ 山門演武 ➔ 🎋 翠竹幽林 ➔ 🏮 古驛客棧 ➔ 🏯 襄陽擂台 ➔ 🌙 月下機關 ➔ ☁️ 雲海山巔</div>
       </div>
       <div class="grid-list" id="stage-list-grid"></div>
@@ -383,7 +380,7 @@
         <img src="./assets/ui/review_inkstone_v4.png" alt="墨寶閣硯台與毛筆" class="review-inkstone-img" />
         <div style="flex:1;">
           <div style="font-weight:700; color:var(--bright-gold); font-size:0.96rem; margin-bottom:4px;">🖋️ 勤磨墨硯・化生疏為劍意</div>
-          <div style="font-size:0.86rem; color:#ced4da;">此處收錄歷次打錯的國字與注音，少俠可隨時針對弱點發起十斬特訓：</div>
+          <div style="font-size:0.86rem; color:#ced4da;">此處收錄歷次打錯的國字、注音與英文字母，每次最多練習十題：</div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="wuxia-btn gold" id="btn-start-mistake-drill">⚡ 發起錯題特訓</button>
@@ -394,6 +391,6 @@
     </div>
   </div>
 
-  <script type="module" src="./src/main.js?v=20261007_fastload"></script>
+  <script type="module" src="./src/main.js?v=20261007_beta2_final"></script>
 </body>
 </html>

@@ -3,8 +3,9 @@
  * 學年度、冊次與正式課名尚未附來源核對，不代表出版社正式同步題庫。
  */
 
-import { COMMON_CHAR_BOPOMOFO_MAP, MOE_MINI_METADATA } from './moeDictionary.js';
-import { getOriginalProseWords } from './originalProse.js';
+import { COMMON_CHAR_BOPOMOFO_MAP, MOE_MINI_METADATA } from './moeDictionary.js?v=20261007_beta2_final';
+import { getOriginalProseWords } from './originalProse.js?v=20261007_beta2_final';
+import { getGradeVocabulary } from './gradeVocabulary.js?v=20261007_beta2_final';
 
 export const PUBLISHER_RESOURCE_LINKS = [
   { name: '康軒官方資源', url: 'https://digitalmaster.knsh.com.tw/v3/' },
@@ -256,6 +257,10 @@ export function getGradeMixedWords(gradeLevel) {
     if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
   }
   for (const word of getGradeCommonWords(gradeLevel)) {
+    const key = JSON.stringify([word.text, word.bopomofo]);
+    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+  }
+  for (const word of getGradeVocabulary(gradeLevel)) {
     const key = JSON.stringify([word.text, word.bopomofo]);
     if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
   }

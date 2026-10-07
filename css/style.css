@@ -102,18 +102,10 @@ html, body {
 /* 展開鍵盤時將控制區抬高，保留兩側狀態框的空間。 */
 /* 鍵盤展開時採固定位置，避免 flex 壓縮後將工具列推到畫面外。 */
 #dom-overlay:has(.vk-panel:not(.hidden)) .vk-panel {
-  position: fixed;
-  bottom: 72px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(820px, calc(100vw - 40px));
+  width: 100%;
 }
 #dom-overlay:has(.vk-panel:not(.hidden)) .toolbar {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(440px, calc(100vw - 40px));
+  width: 100%;
 }
 #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card {
   bottom: 12px;
@@ -124,13 +116,13 @@ html, body {
   #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card {
     top: 12px;
     bottom: auto;
-    width: min(295px, calc((100vw - 480px) / 2));
+    width: min(295px, calc((100vw - 520px) / 2));
     padding: 8px 10px;
   }
 }
 #dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap {
   position: fixed;
-  top: 120px;
+  top: var(--question-top, 120px);
   left: 50%;
   transform: translateX(-50%);
 }
@@ -138,15 +130,15 @@ html, body {
 #dom-overlay:has(.vk-panel:not(.hidden)) .q-char-card { padding-block: 4px; }
 #dom-overlay:has(.vk-panel:not(.hidden)) .q-hanzi { font-size: 2rem; }
 #dom-overlay:has(.vk-panel:not(.hidden)) .paper-scroll {
-  max-height: calc(100vh - 448px);
+  max-height: calc(100dvh - var(--question-top, 120px) - var(--dock-height, 370px) - 24px);
   overflow-y: auto;
 }
 body:has(.vk-panel:not(.hidden)) .combo-banner { top: 150px; }
 
 @media (max-width: 1100px) {
   .hud-top > .fighter-card {
-    bottom: 76px;
-    width: calc((100vw - 52px) / 2);
+    bottom: 12px;
+    width: min(250px, calc((100vw - 520px) / 2));
     min-width: 0;
     padding: 8px;
   }
@@ -351,7 +343,7 @@ body:has(.vk-panel:not(.hidden)) .combo-banner { top: 150px; }
 /* 第一視覺焦點：中央宣紙題目卷軸（禪意瘦身自適應，透出水墨背景） */
 .question-center-wrap {
   position: fixed;
-  top: 120px;
+  top: var(--question-top, 120px);
   left: 50%;
   transform: translateX(-50%);
   width: calc(100vw - 40px);
@@ -574,6 +566,10 @@ body:has(.vk-panel:not(.hidden)) .combo-banner { top: 150px; }
 
 /* 底部控制列與半透明水墨虛擬鍵盤（鎖定 820px 中央走廊，兩側留出人物開闊對峙舞台） */
 .bottom-dock {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 100%;
   max-width: 820px;
   margin: 0 auto;
@@ -584,7 +580,11 @@ body:has(.vk-panel:not(.hidden)) .combo-banner { top: 150px; }
 }
 
 .skill-dock-container {
-  display: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
 }
 
 /* 浮動武功施展水墨橫幅 (Floating Kungfu Banner：整合 v4 水墨燙金技能橫幅底板) */
@@ -978,7 +978,7 @@ textarea.custom-input {
   padding: 26px 32px;
   background:
     linear-gradient(90deg, rgba(12, 16, 22, 0.94) 0%, rgba(12, 16, 22, 0.86) 54%, rgba(12, 16, 22, 0.18) 76%, rgba(12, 16, 22, 0.06) 100%),
-    url('../assets/backgrounds/home_hero_v4.png') right center / cover no-repeat;
+    image-set(url('../assets/backgrounds/home_hero_v4.webp') type('image/webp'), url('../assets/backgrounds/home_hero_v4.png') type('image/png')) right center / cover no-repeat;
   border: 2px solid var(--warm-gold);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
@@ -1001,7 +1001,7 @@ textarea.custom-input {
   .title-screen-card {
     background:
       linear-gradient(180deg, rgba(12, 16, 22, 0.88) 0%, rgba(12, 16, 22, 0.94) 100%),
-      url('../assets/backgrounds/home_hero_v4.png') center / cover no-repeat;
+      image-set(url('../assets/backgrounds/home_hero_v4.webp') type('image/webp'), url('../assets/backgrounds/home_hero_v4.png') type('image/png')) center / cover no-repeat;
     align-items: center;
   }
   .title-screen-content {
@@ -1434,7 +1434,7 @@ textarea.custom-input {
   gap: 16px;
   flex-shrink: 0;
   background: linear-gradient(90deg, rgba(15, 18, 24, 0.82), rgba(15, 18, 24, 0.55)),
-              url('../assets/backgrounds/inn_shop_v3.png') center/cover no-repeat;
+              image-set(url('../assets/backgrounds/inn_shop_v3.webp') type('image/webp'), url('../assets/backgrounds/inn_shop_v3.png') type('image/png')) center/cover no-repeat;
   border: 1px solid rgba(245, 159, 0, 0.45);
   border-radius: 10px;
   padding: 10px 18px;
@@ -1591,3 +1591,98 @@ textarea.custom-input {
     transform: scale(1) rotate(-8deg);
   }
 }
+
+/* 修煉操作修復：技能、鍵盤與工具列共用底座，題目保留實際底座高度。 */
+.paper-scroll {
+  max-height: calc(100dvh - var(--question-top, 120px) - var(--dock-height, 120px) - 24px);
+  overflow-y: auto;
+}
+.skill-bar-dock {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  gap: 6px;
+}
+.skill-slot-btn {
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 4px;
+  color: #e6dfd1;
+  font-size: 0.8rem;
+  min-width: 0;
+}
+.skill-hotkey-badge { white-space: nowrap; }
+.skill-dock-hint { font-size: 0.72rem; color: #ded7c9; background: rgba(14,18,24,0.9); border-radius: 4px; padding: 2px 8px; }
+.vk-hint-row { position: relative; justify-content: flex-start; padding-right: 120px; min-height: 28px; flex-wrap: wrap; gap: 4px; letter-spacing: 0; }
+.vk-close-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  border: 1px solid #b99a58;
+  border-radius: 5px;
+  background: #28303c;
+  color: #fff1ce;
+  padding: 4px 9px;
+  cursor: pointer;
+}
+.vk-close-btn:focus-visible, .skill-slot-btn:focus-visible { outline: 3px solid #ffd166; outline-offset: 2px; }
+.finger-guide-pill { width: 100%; text-align: left; }
+.finger-guide-pill.needs-help { background: #fff0c2; border-color: #b65613; color: #8d2512; box-shadow: 0 0 0 2px rgba(245,159,0,0.25); }
+.finger-guide-pill.needs-help .guide-key-chip { color: #fff; background: #9f2a1a; border-color: #7f2012; }
+.guide-keyboard-tip { display: block; margin-top: 4px; font-size: 0.8rem; }
+
+@media (min-width: 1361px) {
+  .hud-top > .fighter-card { width: min(315px, calc((100vw - 860px) / 2)); min-width: 0; }
+}
+@media (max-width: 1360px) {
+  .bottom-dock { max-width: 440px; width: calc(100vw - 40px); }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .bottom-dock { max-width: 820px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) { --question-top: 140px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap { top: var(--question-top); max-width: 640px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .hud-center { width: 440px; min-width: 0; padding: 8px 12px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .chapter-title { font-size: 1.05rem; letter-spacing: 1px; }
+  .skill-dock-hint { display: none; }
+}
+@media (max-width: 960px) {
+  #dom-overlay { --question-top: 218px; }
+  .hud-center, #dom-overlay:has(.vk-panel:not(.hidden)) .hud-center { width: calc(100vw - 40px); min-width: 0; }
+  .hud-top > .fighter-card, #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card {
+    top: 110px; bottom: auto; width: calc((100vw - 52px) / 2); min-width: 0; padding: 6px;
+  }
+  .hud-top .fighter-header { flex-wrap: wrap; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) { --question-top: 218px; }
+  .question-center-wrap, #dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap { top: var(--question-top); min-width: 0; }
+  .skill-slot-btn { font-size: 0.7rem; }
+  .skill-hotkey-badge { font-size: 0.62rem; }
+  .vk-hint-row { font-size: 0.62rem; }
+}
+
+/* 展開鍵盤時四字同列，避免聲調框與額外 padding 把第四字擠到下一行。 */
+@media (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap { max-width: 640px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .q-char-card { padding: 4px 5px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .q-zy-list { gap: 2px; font-size: 1.1rem; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .q-zy-item { padding-inline: 3px; }
+}
+@media (min-width: 761px) and (max-width: 1360px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .hero-avatar-thumb { width: 28px; height: 28px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card { gap: 4px; padding: 6px 8px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-name { font-size: 0.9rem; gap: 4px; }
+}
+.skill-slot-btn:disabled { opacity: 0.75; filter: none; background: rgba(16,20,26,0.97); color: #e2ddd2; }
+
+@media (max-height: 800px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-key { height: 34px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .scroll-header > span:last-child { display: none; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .scroll-header:not(:has(.show)) { display: none; }
+}
+
+.hud-top .fighter-header, .hud-top .qi-row { flex-wrap: wrap; }
+@media (max-height: 800px) and (min-width: 961px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .paper-scroll { padding-block: 4px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .scroll-footer { gap: 6px; margin-top: 4px; padding-top: 4px; }
+}
+
+/* 完整釋義可捲動，避免將自訂題庫視窗撐出螢幕。 */
+#dictionary-reading-result { white-space: pre-line; max-height: 180px; overflow-y: auto; line-height: 1.6; }

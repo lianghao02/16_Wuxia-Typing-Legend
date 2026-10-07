@@ -1,4 +1,4 @@
-import { TEXTBOOK_CATALOG } from './textbooks.js';
+import { TEXTBOOK_CATALOG } from './textbooks.js?v=20261007_beta2_final';
 
 export const PRACTICE_CHOICES = [
   ...TEXTBOOK_CATALOG.mixed.grades.map(g => ({

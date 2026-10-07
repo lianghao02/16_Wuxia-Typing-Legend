@@ -9,15 +9,16 @@
 
 import { KEYBOARD_ROWS } from './data/daqianLayout.js?v=20261007_fix6';
 import { HEROES, WEAPONS, SHOP_ITEMS, DIFFICULTY_CONFIG, DIABLO_STAGES } from './data/enemies.js?v=20261007_mixfx';
-import { DIFFICULTY_BANKS, parseCustomVocabularyInput } from './data/vocabulary.js?v=20261007_moe';
-import { TEXTBOOK_CATALOG, TEXTBOOK_SOURCE_STATUS, PUBLISHER_RESOURCE_LINKS } from './data/textbooks.js?v=20261007_gradeflow';
-import { getCharacterReadings, MOE_MINI_METADATA } from './data/moeDictionary.js';
+import { DIFFICULTY_BANKS, parseCustomVocabularyInput } from './data/vocabulary.js?v=20261007_beta2_final';
+import { TEXTBOOK_CATALOG, TEXTBOOK_SOURCE_STATUS, PUBLISHER_RESOURCE_LINKS } from './data/textbooks.js?v=20261007_beta2_final';
+import { buildGradeQuestionQueue, describeGradeQuestionRatio } from './data/gradeQuestionMix.js';
+import { getCharacterReadings, getDictionaryEntries, getDictionaryUsage, MOE_MINI_METADATA } from './data/moeDictionary.js?v=20261007_beta2_final';
 import { getWeaponEffectProfile } from './data/weaponEffects.js';
-import { PRACTICE_CHOICES, MAIN_PRACTICE_CHOICES, ENGLISH_PRACTICE_BANKS } from './data/practice.js?v=20261007_gradeflow';
-import { TypingEngine } from './engine/TypingEngine.js?v=20261007_fix6';
+import { PRACTICE_CHOICES, MAIN_PRACTICE_CHOICES, ENGLISH_PRACTICE_BANKS } from './data/practice.js?v=20261007_beta2_final';
+import { TypingEngine } from './engine/TypingEngine.js?v=20261007_beta2_final';
 import { AudioEngine } from './engine/AudioEngine.js?v=20261007_fix6';
-import { StorageEngine, MAX_HERO_HP_CAP } from './engine/StorageEngine.js?v=20261007_practice';
-import { CanvasBattleScene } from './scenes/CanvasBattleScene.js?v=20261007_fastload';
+import { StorageEngine, MAX_HERO_HP_CAP } from './engine/StorageEngine.js?v=20261007_uxfix';
+import { CanvasBattleScene } from './scenes/CanvasBattleScene.js?v=20261007_beta2_final';
 
 export function getSkillShortcut(event) {
   if (event.ctrlKey || event.metaKey) return null;
@@ -66,6 +67,12 @@ function hasSameQuestions(queue, pool) {
 }
 
 export class WuxiaGameApp {
+  get isBattlePaused() { return this._isBattlePaused; }
+
+  set isBattlePaused(value) {
+    this._isBattlePaused = Boolean(value);
+    this.typing?.setPaused(this._isBattlePaused || Boolean(this.isBackgroundPaused));
+  }
   constructor() {
     this.storage = new StorageEngine();
     this.audio = new AudioEngine();
@@ -121,6 +128,14 @@ export class WuxiaGameApp {
   }
 
   initDOM() {
+    const updateBackgroundPause = (paused) => {
+      this.isBackgroundPaused = paused;
+      this.typing.setPaused(this.isBattlePaused || paused);
+      this.saveCurrentSessionProgress();
+    };
+    window.addEventListener('blur', () => updateBackgroundPause(true));
+    window.addEventListener('focus', () => updateBackgroundPause(document.hidden));
+    document.addEventListener('visibilitychange', () => updateBackgroundPause(document.hidden || !document.hasFocus()));
     // 建立水墨半透明大千虛擬鍵盤
     const vkPanel = document.getElementById('vk-panel');
     vkPanel.innerHTML = `
@@ -130,6 +145,7 @@ export class WuxiaGameApp {
         <span>右手鍵位（翠綠）</span>
         <span>・</span>
         <span>聲調音律（赤金）</span>
+        <button class="vk-close-btn" id="btn-close-vk" type="button">✕ 收起 (Tab)</button>
       </div>
     `;
     KEYBOARD_ROWS.forEach((row) => {
@@ -162,6 +178,24 @@ export class WuxiaGameApp {
     };
     vkPanel.classList.toggle('hidden', !this.storage.state.showVirtualKeyboard);
     updateVkBtnText();
+    document.getElementById('btn-close-vk').addEventListener('click', (event) => {
+      if (this.storage.state.showVirtualKeyboard) document.getElementById('btn-toggle-vk').click();
+      event.currentTarget.blur();
+    });
+    // 控制列高度會隨鍵盤及視窗寬度變化，題目可用高度依實際尺寸保留。
+    if (typeof ResizeObserver !== 'undefined') {
+      const updateBattleLayout = () => {
+        const overlay = document.getElementById('dom-overlay');
+        overlay.style.setProperty('--dock-height', `${document.querySelector('.bottom-dock').offsetHeight}px`);
+        const topCards = window.innerWidth <= 960 || (window.innerWidth <= 1360 && this.storage.state.showVirtualKeyboard);
+        const cards = [...document.querySelectorAll(topCards ? '.hud-top > *' : '.hud-center')];
+        const bottom = Math.max(...cards.map(card => card.getBoundingClientRect().bottom));
+        overlay.style.setProperty('--question-top', `${Math.max(120, Math.ceil(bottom + 12))}px`);
+      };
+      this.dockObserver = new ResizeObserver(updateBattleLayout);
+      document.querySelectorAll('.bottom-dock, .hud-top > *').forEach(element => this.dockObserver.observe(element));
+      window.addEventListener('resize', updateBattleLayout);
+    }
 
     // 綁定頂部與底部工具按鈕
     document.getElementById('btn-switch-hero').addEventListener('click', (e) => {
@@ -407,7 +441,10 @@ export class WuxiaGameApp {
       }
     });
 
-    this.typing.on('miss', ({ charIndex, previousCombo }) => {
+    this.typing.on('miss', ({ charObj, charIndex, previousCombo }) => {
+      // 由引擎的逐字狀態收錄；護身符只保護連擊，仍保留需要練習的字。
+      const wrongChar = charObj;
+      if (wrongChar) this.storage.recordMistake(wrongChar, this.typing.mode);
       if (this.storage.state.missShields > 0 && previousCombo >= 3) {
         this.storage.state.missShields--;
         this.typing.combo = previousCombo;
@@ -425,14 +462,6 @@ export class WuxiaGameApp {
         this.battleScene.playMissParry(false);
       }
       this.updateComboBanner(0, 0);
-
-      // 記錄錯字進錯題墨寶閣
-      if (this.typing.currentWord && this.typing.currentWord.characters) {
-        const wrongChar = this.typing.currentWord.characters[charIndex];
-        if (wrongChar) {
-          this.storage.recordMistake(wrongChar);
-        }
-      }
 
       // 敵人蓄力推進 8%（不直接扣減玩家 HP）
       if (this.currentStage.enemy.attackIntervalMs > 0) {
@@ -587,8 +616,23 @@ export class WuxiaGameApp {
 
     this.questionPool = [...pool];
     this.questionPoolKey = JSON.stringify(pool);
-    this.questionQueue = shuffleQuestions(pool, Math.random, this.questionQueue[0]?.text ?? null);
+    this.questionQueue = this.createQuestionQueue(this.questionQueue[0]?.text ?? null);
     this.questionCursor = 0;
+  }
+
+  createQuestionQueue(previousText = null) {
+    const selected = this.storage.state.selectedTextbook;
+    const gradeLevel = selected?.publisherId === 'mixed'
+      ? Number(/^g([1-6])_mix$/.exec(selected.gradeId)?.[1]) : 0;
+    const queue = gradeLevel && !this.storage.state.useCustomVocabulary && !this.isMistakeDrill
+      ? buildGradeQuestionQueue(this.questionPool, gradeLevel, this.currentDifficulty)
+      : shuffleQuestions(this.questionPool);
+    // 換批後盡量不讓前一題立即重複，保持原本的抽題比例。
+    if (queue.length > 1 && queue[0].text === previousText) {
+      const index = queue.findIndex(word => word.text !== previousText);
+      if (index > 0) [queue[0], queue[index]] = [queue[index], queue[0]];
+    }
+    return queue;
   }
 
   nextQuestion() {
@@ -598,7 +642,7 @@ export class WuxiaGameApp {
     }
     if (this.questionCursor >= this.questionQueue.length) {
       const previousText = this.questionQueue[(this.questionCursor - 1) % this.questionQueue.length]?.text;
-      this.questionQueue = shuffleQuestions(this.questionQueue, Math.random, previousText);
+      this.questionQueue = this.createQuestionQueue(previousText);
       this.questionCursor = 0;
     }
     const item = this.questionQueue[this.questionCursor % this.questionQueue.length];
@@ -638,7 +682,10 @@ export class WuxiaGameApp {
     }
 
     document.getElementById('scroll-source-label').textContent = sourceLabel;
-    document.getElementById('word-meaning-text').textContent = word.meaning || '';
+    const examples = this.typing.mode === 'bopomofo' && !word.isSingleKey && Array.from(word.text).length === 1
+      ? getDictionaryUsage(word.text, word.bopomofo?.[0] || '') : [];
+    document.getElementById('word-meaning-text').textContent = examples.length
+      ? `例詞：${examples.join('、')}` : word.meaning || '';
 
     const needHint = (this.consecutiveMisses || 0) >= 2;
 
@@ -698,7 +745,7 @@ export class WuxiaGameApp {
     this.keyDomMap.forEach((el) => el.classList.remove('active-target'));
     const keyInfo = this.typing.getExpectedKeyInfo();
     const fingerEl = document.getElementById('finger-guide-pill');
-    const mistakeBanner = document.getElementById('mistake-guide-banner');
+    fingerEl.classList.toggle('needs-help', needHint && !!keyInfo);
 
     if (keyInfo) {
       const keyEl = this.keyDomMap.get(keyInfo.code);
@@ -713,27 +760,17 @@ export class WuxiaGameApp {
       const keyLabel = isSpaceTone ? 'Space 空白鍵' : keyInfo.en;
       const keycapBadge = this.renderKeycapBadgeHTML(keyInfo);
 
-      fingerEl.innerHTML = `${keycapBadge}<span>下一鍵：<strong class="guide-sym-chip">${symLabel}</strong>（按鍵 <strong class="guide-key-chip">${keyLabel}</strong>・${keyInfo.finger}）</span>`;
-
-      if (mistakeBanner) {
-        if (needHint) {
-          const curChar = this.typing.characters[this.typing.charIndex]?.char || '';
-          const vkTip = (!this.storage.state.showVirtualKeyboard && this.consecutiveMisses >= 3)
-            ? '（可按 Tab 鍵展開大字鍵盤）'
-            : '';
-          mistakeBanner.innerHTML = `${keycapBadge}<span>💡 出招指引：請打「<strong>${curChar}</strong>」的 <strong class="guide-sym-chip">${symLabel}</strong> ➜ 請按鍵盤 <strong class="guide-key-chip">${keyLabel}</strong> 鍵（${keyInfo.finger}）${vkTip}</span>`;
-          mistakeBanner.classList.add('show');
-        } else {
-          mistakeBanner.classList.remove('show');
-        }
-      }
+      const curChar = this.typing.characters[this.typing.charIndex]?.char || '';
+      const label = needHint ? `💡 請打「${curChar}」：` : '下一鍵：';
+      const vkTip = needHint && !this.storage.state.showVirtualKeyboard && this.consecutiveMisses >= 3
+        ? '<small class="guide-keyboard-tip">找不到鍵位？按 Tab 展開鍵盤。</small>' : '';
+      fingerEl.innerHTML = `${keycapBadge}<span>${label}<strong class="guide-sym-chip">${symLabel}</strong>（按鍵 <strong class="guide-key-chip">${keyLabel}</strong>・${keyInfo.finger}）${vkTip}</span>`;
     } else {
       fingerEl.innerHTML = `招式完成！劍氣斬擊中...`;
-      if (mistakeBanner) mistakeBanner.classList.remove('show');
     }
     // 矮視窗的題目區可捲動，錯鍵指引出現時確保完整可見。
-    if (needHint && mistakeBanner) {
-      mistakeBanner.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    if (needHint) {
+      fingerEl.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     } else {
       const paper = container.closest('.paper-scroll');
       if (paper) paper.scrollTop = 0;
@@ -776,7 +813,7 @@ export class WuxiaGameApp {
 
   startAtbTimer() {
     setInterval(() => {
-      if (this.isBattlePaused || !this.typing.active || this.isEnemyFrozen) return;
+      if (this.isBattlePaused || this.isBackgroundPaused || !this.typing.active || this.isEnemyFrozen) return;
       const interval = this.currentStage?.enemy?.attackIntervalMs || 0;
       if (interval <= 0) {
         this.enemyAtb = 0;
@@ -880,6 +917,8 @@ export class WuxiaGameApp {
     document.getElementById('coin-count').textContent = st.coins;
     const stats = this.typing.getStats();
     document.getElementById('wpm-display').textContent = stats.wpm;
+    const unitEl = document.getElementById('speed-unit');
+    if (unitEl) unitEl.textContent = stats.speedUnit;
     document.getElementById('acc-display').textContent = `${stats.accuracy}%`;
 
     // 敵人血條與擊破進度
@@ -980,7 +1019,7 @@ export class WuxiaGameApp {
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;">
           <div class="item-box" style="text-align:center;">
             <span style="font-size:0.8rem; color:#adb5bd;">打字速度</span>
-            <strong style="font-size:1.4rem; color:var(--sword-cyan);">${stats.wpm} WPM</strong>
+            <strong style="font-size:1.4rem; color:var(--sword-cyan);">${stats.wpm} ${stats.speedUnit}</strong>
           </div>
           <div style="text-align:center;" class="item-box">
             <span style="font-size:0.8rem; color:#adb5bd;">正確率</span>
@@ -1052,7 +1091,7 @@ export class WuxiaGameApp {
           📝 錯題特訓大成！共斬破 ${this.stageGoal} 道生疏字詞！
         </h3>
         <p style="color:#ced4da; font-size:0.92rem; margin-bottom:14px;">
-          特訓速度：<strong style="color:var(--sword-cyan);">${stats.wpm} WPM</strong> ｜
+          特訓速度：<strong style="color:var(--sword-cyan);">${stats.wpm} ${stats.speedUnit}</strong> ｜
           正確率：<strong style="color:#69db7c;">${stats.accuracy}%</strong> ｜
           勤學賞金：<strong style="color:var(--bright-gold);">+${bonusCoins} 🪙</strong>
         </p>
@@ -1066,7 +1105,7 @@ export class WuxiaGameApp {
     this.openExclusiveModal('modal-result');
 
     document.getElementById('btn-drill-clear-return')?.addEventListener('click', () => {
-      this.storage.clearAllMistakes();
+      this.mistakeDrillKeys.forEach(key => this.storage.removeMistake(key));
       this.closeAllModals();
       this.startStage(this.currentDifficulty, this.currentStageIndex, { resumeSession: true });
     });
@@ -1168,7 +1207,9 @@ export class WuxiaGameApp {
       const selected = choice.source?.selectedTextbook;
       const lesson = selected && TEXTBOOK_CATALOG[selected.publisherId]?.grades
         .find(g => g.gradeId === selected.gradeId)?.lessons.find(l => l.lessonId === selected.lessonId);
-      const poolDescription = lesson ? `題庫共 ${lesson.words.length} 題，每關隨機練習 10 題。` : '';
+      const gradeLevel = Number(/^grade-([1-6])$/.exec(choice.key)?.[1]);
+      const ratioDescription = gradeLevel ? `${describeGradeQuestionRatio(gradeLevel, diff)}。` : '';
+      const poolDescription = lesson ? `題庫共 ${lesson.words.length} 題，依境界分層隨機抽題。${ratioDescription}` : '';
       document.getElementById('practice-summary').textContent =
         `${choice.description} ${poolDescription} 上次進度：${DIFFICULTY_CONFIG[diff].name}・第 ${saved?.stageIndex || 1} 關。`;
     };
@@ -1210,8 +1251,10 @@ export class WuxiaGameApp {
     const practiceKey = this.pendingPracticeKey || this.storage.state.activePracticeKey || 'jianghu';
     const profile = this.storage.getPracticeProfile(practiceKey);
     const unlocked = profile.unlockedDifficulties || ['easy'];
+    const gradeLevel = Number(/^grade-([1-6])$/.exec(practiceKey)?.[1]);
     document.getElementById('stage-practice-label').textContent =
-      `題本：${PRACTICE_CHOICES.find(c => c.key === practiceKey)?.label || '自訂題本'}・各題本獨立記錄進度`;
+      `題本：${PRACTICE_CHOICES.find(c => c.key === practiceKey)?.label || '自訂題本'}・各題本獨立記錄進度` +
+      (gradeLevel ? `｜${describeGradeQuestionRatio(gradeLevel, activeDiffId)}` : '');
 
     Object.values(DIFFICULTY_CONFIG).forEach((cfg) => {
       const isUnlocked = unlocked.includes(cfg.id);
@@ -1540,17 +1583,25 @@ export class WuxiaGameApp {
     document.getElementById('dictionary-source').textContent =
       `${MOE_MINI_METADATA.attribution}（版本 ${MOE_MINI_METADATA.version}）。${MOE_MINI_METADATA.characterCount.toLocaleString()} 字、${MOE_MINI_METADATA.entryCount.toLocaleString()} 筆條目。`;
     document.getElementById('dictionary-reading-result').textContent = '';
-    document.getElementById('btn-dictionary-lookup').onclick = () => {
+    let lookupId = 0;
+    document.getElementById('btn-dictionary-lookup').onclick = async () => {
+      const requestId = ++lookupId;
       const character = document.getElementById('dictionary-character').value.trim();
       const result = document.getElementById('dictionary-reading-result');
       if (Array.from(character).length !== 1) {
         result.textContent = '請輸入一個國字。';
         return;
       }
-      const readings = getCharacterReadings(character);
-      result.textContent = readings.length
-        ? `「${character}」：${readings.join('／')}。${readings.length > 1 ? '多音字請依詞義選定讀音。' : ''}`
-        : `「${character}」未收錄，請由家長或教師補上注音。`;
+      result.textContent = '正在載入字典釋義…';
+      try {
+        const entries = await getDictionaryEntries(character);
+        if (requestId !== lookupId) return;
+        result.textContent = entries.length ? entries.map(entry =>
+          `「${character}」${entry.reading}：${entry.definition.replace(/&&|[ㄅ-ㄩ˙ˊˇˋ]+/g, '')}`).join('\n\n')
+          : `「${character}」未收錄，請由家長或教師補上注音。`;
+      } catch {
+        if (requestId === lookupId) result.textContent = '字典暫時無法載入，請檢查連線後再按查詢。';
+      }
     };
     this.openExclusiveModal('modal-custom-words');
 
@@ -1739,15 +1790,19 @@ export class WuxiaGameApp {
         text: item.char,
         bopomofo: [cleanZy],
         meaning: `【錯題特訓】歷次生疏 ${item.count} 次`,
-        mode: 'bopomofo'
+        mode: item.mode || (/^[a-z ]$/i.test(item.char) ? 'english' : 'bopomofo'),
+        isSingleKey: !!item.isSingleKey || /^[ㄅ-ㄩ]$/.test(item.char)
       };
     });
 
     this.isMistakeDrill = true;
     this.questionQueue = shuffleQuestions(drillQuestions);
+    this.questionPool = drillQuestions;
     this.questionCursor = 0;
     this.stageGoal = Math.min(10, drillQuestions.length);
+    this.mistakeDrillKeys = this.questionQueue.slice(0, this.stageGoal).map(word => word.text);
     this.clearedWordsCount = 0;
+    this.typing.resetStats();
     this.isStageClearing = false;
     this.isBattlePaused = false;
     this.closeAllModals();

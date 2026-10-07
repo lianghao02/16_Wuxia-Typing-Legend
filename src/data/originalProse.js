@@ -1,4 +1,4 @@
-import { getCharacterReadings, isDictionaryReading } from './moeDictionary.js';
+import { getCharacterReadings, isDictionaryReading } from './moeDictionary.js?v=20261007_beta2_final';
 
 // 本遊戲原創散文，非出版社課文；年級為練習長度與詞彙的設計分組。
 export const ORIGINAL_PROSE_PASSAGES = [

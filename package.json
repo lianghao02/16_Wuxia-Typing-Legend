@@ -1,6 +1,6 @@
 {
   "name": "wuxia-typing-legend",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "《武俠打字傳》國風打字教育網頁試玩版（Canvas 2D + DOM）",
   "type": "module",
   "scripts": {

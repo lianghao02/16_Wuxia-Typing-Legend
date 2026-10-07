@@ -44,6 +44,8 @@ export class TypingEngine {
     this.completedChars = 0;
     this.sessionStartTime = null;
     this.wordStartTime = null;
+    this.pausedAt = null;
+    this.clockPaused = false;
 
     // 防重覆與一聲空白鍵緩衝時間戳
     this.lastKeydownHandledAt = 0;
@@ -88,6 +90,9 @@ export class TypingEngine {
     this.completedWords = 0;
     this.completedChars = 0;
     this.sessionStartTime = null;
+    this.wordStartTime = null;
+    this.pausedAt = null;
+    this.clockPaused = false;
     this.emit('comboChange', { combo: 0, maxCombo: 0, tier: 0 });
   }
 
@@ -102,10 +107,7 @@ export class TypingEngine {
     this.charIndex = 0;
     this.symbolIndex = 0;
     if (resetTimer) {
-      this.wordStartTime = performance.now();
-      if (!this.sessionStartTime) {
-        this.sessionStartTime = performance.now();
-      }
+      this.wordStartTime = null;
     }
 
     const textChars = Array.from(wordItem.text || '');
@@ -176,8 +178,10 @@ export class TypingEngine {
       charIndex: this.charIndex,
       symbolIndex: this.symbolIndex,
       stats,
-      elapsedMs: this.sessionStartTime === null ? 0 : now - this.sessionStartTime,
-      wordElapsedMs: this.wordStartTime === null ? 0 : now - this.wordStartTime
+      elapsedMs: this.getElapsedMs(this.sessionStartTime, now),
+      wordElapsedMs: this.getElapsedMs(this.wordStartTime, now),
+      timerStarted: this.sessionStartTime !== null,
+      wordTimerStarted: this.wordStartTime !== null
     };
   }
 
@@ -198,8 +202,9 @@ export class TypingEngine {
       this[key] = Math.max(0, Number(progress.stats?.[key]) || 0);
     }
     const now = performance.now();
-    this.sessionStartTime = now - Math.max(0, Number(progress.elapsedMs) || 0);
-    this.wordStartTime = now - Math.max(0, Number(progress.wordElapsedMs) || 0);
+    this.sessionStartTime = progress.timerStarted === false ? null : now - Math.max(0, Number(progress.elapsedMs) || 0);
+    this.wordStartTime = progress.wordTimerStarted === false ? null : now - Math.max(0, Number(progress.wordElapsedMs) || 0);
+    this.pausedAt = this.clockPaused ? now : null;
     this.lastCompositionData = '';
     this.emit('targetLoaded', { word: this.currentWord, characters: this.characters,
       mode: this.mode, expectedKeyInfo: this.getExpectedKeyInfo() });
@@ -220,11 +225,10 @@ export class TypingEngine {
    */
   getStats() {
     const now = performance.now();
-    const elapsedMinutes = this.sessionStartTime
-      ? Math.max((now - this.sessionStartTime) / 60000, 0.05)
-      : 0.05;
-    // 以每 3.5 個按鍵約折算 1 個完整字計算即時速度
-    const wpm = Math.round((this.totalHits / 3.5) / elapsedMinutes);
+    const elapsedMinutes = Math.max(this.getElapsedMs(this.sessionStartTime, now) / 60000, 0.05);
+    // 中文以完成字數、英文以五個正確字元折算一詞，保留既有 wpm 欄位相容存檔。
+    const units = this.mode === 'english' ? this.totalHits / 5 : this.completedChars;
+    const wpm = Math.round(units / elapsedMinutes);
     const totalAttempts = this.totalHits + this.totalMisses;
     const accuracy = totalAttempts > 0
       ? Math.round((this.totalHits / totalAttempts) * 100)
@@ -232,6 +236,7 @@ export class TypingEngine {
 
     return {
       wpm: this.totalHits > 0 ? Math.min(wpm, 220) : 0,
+      speedUnit: this.mode === 'english' ? 'WPM' : '字／分',
       accuracy,
       combo: this.combo,
       maxCombo: this.maxCombo,
@@ -240,6 +245,25 @@ export class TypingEngine {
       completedWords: this.completedWords,
       completedChars: this.completedChars
     };
+  }
+
+  getElapsedMs(start, now = performance.now()) {
+    return start === null ? 0 : Math.max(0, (this.pausedAt ?? now) - start);
+  }
+
+  setPaused(paused) {
+    paused = Boolean(paused);
+    if (paused === this.clockPaused) return;
+    const now = performance.now();
+    if (paused) {
+      this.pausedAt = now;
+    } else if (this.pausedAt !== null) {
+      const duration = now - this.pausedAt;
+      if (this.sessionStartTime !== null) this.sessionStartTime += duration;
+      if (this.wordStartTime !== null) this.wordStartTime += duration;
+      this.pausedAt = null;
+    }
+    this.clockPaused = paused;
   }
 
   getComboTier(combo = this.combo) {
@@ -352,11 +376,14 @@ export class TypingEngine {
    * 核心比對邏輯
    */
   processSymbolInput(inputSymbol, meta = {}) {
+    if (this.clockPaused) return false;
     const charObj = this.characters[this.charIndex];
     if (!charObj) return false;
 
     const expectedSymbol = charObj.symbols[this.symbolIndex];
     const now = performance.now();
+    if (this.sessionStartTime === null) this.sessionStartTime = now;
+    if (this.wordStartTime === null) this.wordStartTime = now;
 
     // 輕聲彈性：若玩家在字首就先按了 ˙ (7)，而該字確實含有輕聲 ˙，亦視為有效或提示
     if (inputSymbol === expectedSymbol) {
@@ -437,7 +464,7 @@ export class TypingEngine {
         if (isLastChar) {
           // 整詞／整句完成！
           this.completedWords++;
-          const elapsedMs = now - (this.wordStartTime || now);
+          const elapsedMs = this.getElapsedMs(this.wordStartTime, now);
           this.emit('wordComplete', {
             word: this.currentWord,
             characters: this.characters,

@@ -144,7 +144,8 @@ export class CanvasBattleScene {
     // 僅先建立快取索引，不一口氣併發 28 個請求阻塞瀏覽器頻寬
     Object.entries(assets).forEach(([key, src]) => {
       this.imageCache.set(key, {
-        src,
+        src: key.startsWith('bg_') ? src.replace(/\.png$/, '.webp') : src,
+        fallbackSrc: key.startsWith('bg_') ? src : null,
         img: null,
         loaded: false,
         loading: false,
@@ -191,6 +192,12 @@ export class CanvasBattleScene {
           this.pumpBackgroundPrefetch();
         };
         img.onerror = () => {
+          if (entry.fallbackSrc) {
+            entry.src = entry.fallbackSrc;
+            entry.fallbackSrc = null;
+            attemptLoad();
+            return;
+          }
           if (entry.retries < 2) {
             entry.retries += 1;
             setTimeout(attemptLoad, 350 * entry.retries);

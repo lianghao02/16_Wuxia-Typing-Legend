@@ -203,7 +203,7 @@ export class StorageEngine {
   /**
    * 記錄錯字至錯題本
    */
-  recordMistake(charObj) {
+  recordMistake(charObj, mode = 'bopomofo') {
     if (!charObj || !charObj.char) return;
     if (!this.state.mistakes) this.state.mistakes = {};
     const key = charObj.char;
@@ -214,7 +214,9 @@ export class StorageEngine {
     } else {
       this.state.mistakes[key] = {
         char: charObj.char,
-        symbols: charObj.symbols || [],
+        symbols: [...(charObj.symbols || [])],
+        mode,
+        isSingleKey: !!charObj.isSingleKey,
         count: 1,
         timestamp: Date.now()
       };

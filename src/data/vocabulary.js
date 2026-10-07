@@ -10,7 +10,7 @@
  */
 
 import { COMMON_CHAR_BOPOMOFO_MAP, resolveDictionaryReading, getCharacterReadings,
-  isDictionaryReading, getDictionaryExampleReading, normalizeReadingForComparison } from './moeDictionary.js';
+  isDictionaryReading, getDictionaryExampleReading, normalizeReadingForComparison } from './moeDictionary.js?v=20261007_beta2_final';
 export { COMMON_CHAR_BOPOMOFO_MAP };
 
 /**

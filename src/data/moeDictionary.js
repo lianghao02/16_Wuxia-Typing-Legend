@@ -1,48 +1,43 @@
-import { MOE_MINI_METADATA, MOE_MINI_SHEETS } from './moeMiniRecords.js';
+import { MOE_MINI_METADATA, CHARACTER_READINGS, EXAMPLE_READINGS, CHARACTER_USAGE } from './moeMiniIndex.js?v=20261007_beta2_final';
 
 export { MOE_MINI_METADATA };
-const entriesByCharacter = new Map();
-const examplesByWord = new Map();
-for (const row of MOE_MINI_SHEETS[0].rows.slice(1)) {
-  const [character, radical, strokes, radicalStrokes, reading, definition] = row;
-  const entry = { character, radical, strokes, radicalStrokes, reading, definition };
-  const entries = entriesByCharacter.get(character) || [];
-  entries.push(Object.freeze(entry));
-  entriesByCharacter.set(character, entries);
-  // 僅建立查詢索引；完整原始條目在 moeMiniRecords.js 內保留。
-  for (const match of definition.matchAll(/「([^」]+)」/g)) {
-    const syllables = [...match[1].matchAll(/([\p{Script=Han}])((?:˙)?[ㄅ-ㄩ]+[ˊˇˋ˙]?)/gu)];
-    const characters = [...match[1].matchAll(/\p{Script=Han}/gu)];
-    const remainder = match[1].replace(/[\p{Script=Han}](?:˙)?[ㄅ-ㄩ]+[ˊˇˋ˙]?/gu, '')
-      .replace(/&&|\s/g, '');
-    if (remainder) continue;
-    if (syllables.length < 2 || syllables.length !== characters.length) continue;
-    const word = syllables.map((part) => part[1]).join('');
-    const readings = syllables.map((part) => part[2]);
-    const variants = examplesByWord.get(word) || new Map();
-    variants.set(JSON.stringify(readings), readings);
-    examplesByWord.set(word, variants);
-  }
-}
-
-export function getDictionaryEntries(character) {
-  return [...(entriesByCharacter.get(character) || [])];
+let fullDictionaryPromise;
+// 完整釋義只在查詢時載入；失敗後允許重新查詢重試。
+export async function getDictionaryEntries(character) {
+  fullDictionaryPromise ||= import('./moeMiniRecords.js').then(({ MOE_MINI_SHEETS }) => {
+    const entries = new Map();
+    for (const [character, radical, strokes, radicalStrokes, reading, definition] of MOE_MINI_SHEETS[0].rows.slice(1)) {
+      if (!entries.has(character)) entries.set(character, []);
+      entries.get(character).push({ character, radical, strokes, radicalStrokes, reading, definition });
+    }
+    return entries;
+  }).catch(error => { fullDictionaryPromise = null; throw error; });
+  return [...((await fullDictionaryPromise).get(character) || [])];
 }
 
 export function getCharacterReadings(character) {
-  return [...new Set(getDictionaryEntries(character).map((entry) => entry.reading))];
+  return [...(CHARACTER_READINGS[character] || [])];
 }
 
 export const COMMON_CHAR_BOPOMOFO_MAP = Object.freeze(Object.fromEntries(
-  [...entriesByCharacter.keys()].flatMap((character) => {
+  Object.keys(CHARACTER_READINGS).flatMap((character) => {
     const readings = getCharacterReadings(character);
     return readings.length === 1 ? [[character, readings[0]]] : [];
   })
 ));
 
 export function getDictionaryExampleReading(word) {
-  const variants = examplesByWord.get(word);
-  return variants?.size === 1 ? [...variants.values()][0].slice() : null;
+  const variants = EXAMPLE_READINGS[word];
+  return variants?.length === 1 ? Array.from(word).map((character, i) => {
+    const value = variants[0][i];
+    return typeof value === 'number' ? CHARACTER_READINGS[character][value] : value;
+  }) : null;
+}
+
+export function getDictionaryUsage(character, reading) {
+  const matched = getCharacterReadings(character).find(candidate =>
+    normalizeReadingForComparison(candidate) === normalizeReadingForComparison(reading));
+  return [...(CHARACTER_USAGE[`${character}|${matched}`] || [])];
 }
 
 export function normalizeReadingForComparison(reading) {
