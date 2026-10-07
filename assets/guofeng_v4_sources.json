@@ -1,0 +1,277 @@
+[
+  {
+    "id": 38,
+    "path": "ui/stamp_perfect_v4.png",
+    "label": "甲上・完勝朱砂印章",
+    "width": 512,
+    "height": 512,
+    "prompt": "Use case: logo-brand. Make ONLY a minimal square cinnabar seal imprint. EXACT traditional Chinese text 「甲上」 top row and 「完勝」 bottom row. Vermilion red ink, clean restrained square seal border, slight dry-stamp texture, transparent interior gaps. Target1:1. STRICT: ONE asset only. NO people, faces, animals, birds, swords, ribbons, clouds, landscapes, scrolls, paper backing or any extra illustration. TRUE transparent PNG. Entire design within canvas with generous15% empty margin. No extra text.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-26e9d854-73aa-4c57-b06d-68287be86555.png"
+  },
+  {
+    "id": 39,
+    "path": "ui/stamp_record_v4.png",
+    "label": "登峰造極朱砂印章",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. Square vermilion cinnabar red achievement seal, elegant weathered stamped strokes, square border. EXACT traditional Chinese four characters 「登峰造極」 arranged 2x2, no other text. Positive personal best celebration. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-87863490-2bbc-4df4-9fa0-089d6662b2d8.png"
+  },
+  {
+    "id": 40,
+    "path": "ui/stamp_retry_v4.png",
+    "label": "重整旗鼓朱砂印章",
+    "width": 512,
+    "height": 512,
+    "prompt": "Use case: logo-brand. Make ONLY a minimal square cinnabar seal imprint. EXACT traditional Chinese text 「重整旗鼓」 arranged 2x2. Vermilion red ink, clean restrained square seal border, slight dry-stamp texture, transparent interior gaps. Target1:1. STRICT: ONE asset only. NO people, faces, animals, birds, swords, ribbons, clouds, landscapes, scrolls, paper backing or any extra illustration. TRUE transparent PNG. Entire design within canvas with generous15% empty margin. No extra text.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-3fe472e0-2941-4335-90e5-b3bc54e3269c.png"
+  },
+  {
+    "id": 41,
+    "path": "ui/results_scroll_v4.png",
+    "label": "通關境界卷軸底紋",
+    "width": 1024,
+    "height": 768,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. Wide 4:3 unrolled ancient xuan-paper scroll, curled ends and delicate irregular antique paper edges, sparse flecks of gold leaf at outer rim. Huge blank warm ivory low-contrast center for results text. No text, no symbols in central 70 percent, no heavy stains. Transparent outside paper. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-4e3a0737-75a0-4213-8589-5586b650fcea.png"
+  },
+  {
+    "id": 42,
+    "path": "icons/realm_beginner_v4.png",
+    "label": "初出茅廬銅牌徽章",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One centered bronze beginner martial achievement medallion, subtle mountain gate relief, red cord, elegant friendly craftsmanship. No readable text, free upper center for dynamic label, modest matte warm bronze. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-79fec7a8-2144-41a4-80b8-bb51ed9d1114.png"
+  },
+  {
+    "id": 43,
+    "path": "icons/realm_renowned_v4.png",
+    "label": "名震江湖銀紋佩玉",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One centered jade achievement pendant with elegant silver inlaid cloud tracery, turquoise white jade, silver frame, teal tassel. Refined mid-tier wuxia badge. No text. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-eb96ab02-4723-46fd-977b-59f33dd4c881.png"
+  },
+  {
+    "id": 44,
+    "path": "icons/realm_grandmaster_v4.png",
+    "label": "一代宗師蟠龍金令",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One centered ornate golden grandmaster command token, coiled Chinese dragon relief made of fine golden filigree, muted navy silk cord, dignified warm golden sheen. Friendly elegant dragon, not frightening. No text. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-7ea4cabc-b60c-4a52-bf39-c5b24a6e56f1.png"
+  },
+  {
+    "id": 45,
+    "path": "characters/yun_wood_hurt_v4.png",
+    "label": "雲清川・受擊後仰",
+    "width": 1080,
+    "height": 1440,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. MATCH referenced boy identity, face, half-tied ponytail, grey-white linen robe, cloth belt, wrapped wrists and legs, peachwood short sword. Only change pose: gently recoil backward toward left, weight shifted backward, left forearm shielding face, slightly knitted brow, right hand still holding wooden sword safely downward. Facing RIGHT 3/4, full body, feet visible, no injury. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": [
+      "characters/yun_wood_idle_v3.png"
+    ],
+    "generatedSourceFile": "exec-7e4d11c7-e258-4d60-a515-082ba275661e.png"
+  },
+  {
+    "id": 46,
+    "path": "characters/yun_wood_block_v4.png",
+    "label": "雲清川・橫劍招架",
+    "width": 1080,
+    "height": 1440,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. MATCH referenced boy identity, hair, grey-white linen outfit, wraps and peachwood sword. Only change pose: both hands holding ONE wooden sword diagonally near horizontal across chest, stable protective parry, focused composed expression. Facing RIGHT 3/4, full body, feet grounded, no opponent. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": [
+      "characters/yun_wood_idle_v3.png"
+    ],
+    "generatedSourceFile": "exec-e3854ef5-4bf0-49be-bd1d-13ca6aa5f90e.png"
+  },
+  {
+    "id": 47,
+    "path": "characters/su_wood_hurt_v4.png",
+    "label": "蘇映雪・受擊後仰",
+    "width": 1080,
+    "height": 1440,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. MATCH referenced girl identity, high ponytail and jade ribbon, pale green linen tunic, white trousers, wrapped legs, wooden training sword. Only change pose: gently lean/recoil backward toward left, bent knees, one raised forearm shielding face, slightly knitted brow. Sword safely down in other hand. Facing RIGHT 3/4, full body, no injury. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": [
+      "characters/su_wood_idle_v3.png"
+    ],
+    "generatedSourceFile": "exec-5111c096-400e-4c8d-89ea-cfde05564968.png"
+  },
+  {
+    "id": 48,
+    "path": "characters/su_wood_block_v4.png",
+    "label": "蘇映雪・提劍格擋",
+    "width": 1080,
+    "height": 1440,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. MATCH referenced girl identity, hair ribbon, pale green linen outfit, white trousers, wrapped legs and wooden sword. Only change pose: raise ONE wooden training sword across upper chest with two hands, alert defensive parry stance. Facing RIGHT 3/4, complete full body feet visible, no opponent. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": [
+      "characters/su_wood_idle_v3.png"
+    ],
+    "generatedSourceFile": "exec-84cd86de-a7d2-4069-b9d0-30c02ce74ec0.png"
+  },
+  {
+    "id": 49,
+    "path": "effects/training_debris_v4.png",
+    "label": "草木碎屑飛濺",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One isolated controlled small impact burst of straw strands and wooden splinters, warm pale straw and brown, fragments flying radially from open center. Soft ink-motion strokes. Training target friendly effect, not explosive violence, no dummy or characters. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-00c795a7-2dbb-4e82-b9d3-672d05717c25.png"
+  },
+  {
+    "id": 50,
+    "path": "effects/humanoid_hit_flash_v4.png",
+    "label": "人型對手受擊白光",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One isolated compact ivory-white and pale cyan luminous impact flash, soft angular ink-splash starburst and short outward streaks. Open airy transparent center; generic overlay for human enemy hits, NOT a specific human silhouette. No dark solid backdrop, no character. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-c7901397-729f-4716-a764-06479ff371a8.png"
+  },
+  {
+    "id": 51,
+    "path": "icons/manual_kangxuan_v4.png",
+    "label": "青囊玉笈線裝古書",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One centered jade-green Chinese thread-bound ancient study manual, 3/4 angle, ivory pages, visible stitched spine, EXACT traditional Chinese title 「青囊玉笈」 on vertical ivory title slip. No publisher logo/name. Gentle cloud ornament. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-6b11ce20-9ef4-4a08-9fcb-fc133ce482de.png"
+  },
+  {
+    "id": 52,
+    "path": "icons/manual_hanlin_v4.png",
+    "label": "文曲心經古樸竹簡",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One centered antique bamboo-slip study scroll loosely rolled, warm bamboo strips bound in dark teal cords, small pale hanging title tag with EXACT traditional Chinese 「文曲心經」. No publisher logo/name. Clear compact icon silhouette. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-788afe5d-680d-43f3-9b69-102c301723d5.png"
+  },
+  {
+    "id": 53,
+    "path": "icons/manual_nanyi_v4.png",
+    "label": "墨客奇經絲絹手抄本",
+    "width": 512,
+    "height": 512,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One centered elegant ivory silk-covered handwritten study codex, warm burgundy cloth binding and subtle gold border, 3/4 view, EXACT traditional Chinese title 「墨客奇經」 on vertical title slip. No publisher logo/name. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-60d25b47-701a-43fd-86e2-8d6b4c71e929.png"
+  },
+  {
+    "id": 54,
+    "path": "ui/review_inkstone_v4.png",
+    "label": "墨寶閣硯台毛筆裝飾",
+    "width": 768,
+    "height": 768,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. One compact arranged decorative set of duan dark inkstone, purple-hair Chinese calligraphy brush resting diagonally and small blank gold-flecked red paper sheet, harmonious lower corner composition for study modal. No writing, no ink splatter outside arrangement. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-1cef66dc-135b-4b46-91ac-46ef3bdfe176.png"
+  },
+  {
+    "id": 55,
+    "path": "ui/keycap_left_v4.png",
+    "label": "左手黛藍鍵帽",
+    "width": 256,
+    "height": 256,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. ONE front-facing rounded square keycap of muted dark indigo-blue jade, subtle ink-wash cloud edge ornament, soft bevel, large blank readable face for program overlay key character. NO text, NO hand, NO letter, NO symbol. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-8c41510f-efb7-4c0c-9a6e-ac2c290aa235.png"
+  },
+  {
+    "id": 56,
+    "path": "ui/keycap_right_v4.png",
+    "label": "右手碧玉鍵帽",
+    "width": 256,
+    "height": 256,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. ONE front-facing rounded square keycap of emerald-green jade, subtle ink-wash cloud edge ornament, soft bevel, large blank readable face for program overlay. EXACT same shape family as indigo keycap. NO text, NO hand, NO letter, NO symbol. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-f703ed1d-864a-4d0f-8eef-69c937f21560.png"
+  },
+  {
+    "id": 57,
+    "path": "ui/keycap_tone_v4.png",
+    "label": "聲調赤金鍵帽",
+    "width": 256,
+    "height": 256,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. ONE front-facing rounded square keycap of cinnabar and warm golden glazed jade, subtle cloud edge ornament, soft bevel, large blank readable face for program overlay tone sign. Same shape as jade keycaps. NO text, NO symbol, no letters. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-c1ad670d-50d8-435c-b29d-17b303b39031.png"
+  },
+  {
+    "id": 58,
+    "path": "ui/keycap_space_v4.png",
+    "label": "一聲白玉空白鍵帽",
+    "width": 256,
+    "height": 256,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. ONE horizontally elongated white jade keyboard spacebar floating in square canvas, low subtle bevel and pale ink cloud relief only at ends, long broad blank central face for dynamic 一聲 label. No text, no symbol. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-9b58f4ff-e9ca-4ae7-ab25-88facada1b72.png"
+  },
+  {
+    "id": 59,
+    "path": "ui/skill_banner_v4.png",
+    "label": "水墨飛白招式橫幅",
+    "width": 1200,
+    "height": 300,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. ONE long wide 4:1 horizontal Chinese calligraphic brush-stroke banner, charcoal-black ink and restrained cinnabar-gold edge accents, dry-brush feibai tapered trails at both ends, very calm mostly opaque dark center reserved for dynamic bright skill text. No actual text, no lightning icons, fully transparent outside brush. TRUE transparent PNG alpha background, no white/color backing, no checkerboard, no floor shadows. Keep all artwork fully uncropped with 15 percent generous empty margins.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-e9227e7a-d378-407e-bdcd-99cb4c788f2d.png"
+  },
+  {
+    "id": 60,
+    "path": "ui/title_logo_v4.png",
+    "label": "武俠打字傳書法標題",
+    "width": 1200,
+    "height": 500,
+    "prompt": "Use case: logo-brand. Make ONLY typography. EXACT traditional Chinese calligraphy main text 「武俠打字傳」, EXACT subtitle 「以字為劍・名震江湖」 centered beneath. Charcoal black masterful legible brush lettering with subtle thin warm gold rim. Transparent space between strokes and around text. Target landscape12:5. STRICT: ONE asset only. NO people, faces, animals, birds, swords, ribbons, clouds, landscapes, scrolls, paper backing or any extra illustration. TRUE transparent PNG. Entire design within canvas with generous15% empty margin. No extra text.",
+    "transparent": true,
+    "refs": null,
+    "generatedSourceFile": "exec-a6bb647a-6da0-4837-8cea-ddeedb353607.png"
+  },
+  {
+    "id": 61,
+    "path": "backgrounds/home_hero_v4.png",
+    "label": "江湖大門首頁主視覺",
+    "width": 1920,
+    "height": 1080,
+    "prompt": "High-quality Guofeng Chinese ink-wash animation illustration for elementary school educational wuxia game. Clean ink outlines, restrained elegant colors, soft watercolor lighting, consistent handmade textures, kid-friendly. Not Japanese anime, not American heavy painting, no blood, horror, watermark. Wide 16:9 wuxia children game title key art. MATCH the two reference young heroes: boy Yun grey-white linen robe half-tied ponytail with peachwood sword, girl Su pale-green tunic white trousers jade-ribbon ponytail wooden sword. Standing back to back together on stone terrace in LOWER RIGHT third, gaze outward toward misty Chinese martial mountain world, traditional distant mountain gate, pine trees, cloud sea, warm sunrise. Left half and top center very low contrast ivory mist and negative space for title UI. No text, no UI. Not a battle background; composition need not obey Y68 floor. CRITICAL exact pose: boy's back touches girl's back; BOY faces outward RIGHT, GIRL faces outward LEFT, opposite directions. Do not have both facing right. Same clothes, hair and identities as references.",
+    "transparent": false,
+    "refs": [
+      "characters/yun_wood_idle_v3.png",
+      "characters/su_wood_idle_v3.png"
+    ],
+    "generatedSourceFile": "exec-c384d809-068f-489e-a2fd-454b9bbcdc59.png"
+  }
+]

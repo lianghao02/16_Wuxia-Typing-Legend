@@ -1,0 +1,568 @@
+{
+  "version": "guofeng-v4-supplement",
+  "assetCount": 24,
+  "generationTool": "built-in image_gen",
+  "validation": "24 件尺寸通過；23 件 RGBA 透明度 0–255、四周至少 15% 留白通過；未做遊戲整合測試。",
+  "assets": [
+    {
+      "id": 38,
+      "path": "ui/stamp_perfect_v4.png",
+      "label": "甲上・完勝朱砂印章",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 84173,
+      "sha256": "847f1ee1d4848f0fb457ee40b55dc75b99391969380347b354713be60583308b",
+      "type": "ui",
+      "alphaBounds": [
+        94,
+        149,
+        352,
+        362
+      ],
+      "visibleBounds": [
+        141,
+        152,
+        351,
+        358
+      ]
+    },
+    {
+      "id": 39,
+      "path": "ui/stamp_record_v4.png",
+      "label": "登峰造極朱砂印章",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 252909,
+      "sha256": "530afa5939dad100614ac9be4d2fc1c51d83c1913130a8091b8cf5a13f7c150e",
+      "type": "ui",
+      "alphaBounds": [
+        101,
+        92,
+        431,
+        430
+      ],
+      "visibleBounds": [
+        102,
+        95,
+        430,
+        416
+      ]
+    },
+    {
+      "id": 40,
+      "path": "ui/stamp_retry_v4.png",
+      "label": "重整旗鼓朱砂印章",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 114974,
+      "sha256": "73045c8cf42d3d2adc16b1d10c13fc9bfbbee691bff3f779f1560326a1b16fa3",
+      "type": "ui",
+      "alphaBounds": [
+        117,
+        89,
+        403,
+        416
+      ],
+      "visibleBounds": [
+        138,
+        140,
+        382,
+        371
+      ]
+    },
+    {
+      "id": 41,
+      "path": "ui/results_scroll_v4.png",
+      "label": "通關境界卷軸底紋",
+      "width": 1024,
+      "height": 768,
+      "transparent": true,
+      "bytes": 610822,
+      "sha256": "cb151e66eb25c31e45d82a471c4cd2b4ebb39357460efe72b9cda7ae14634be2",
+      "type": "ui",
+      "alphaBounds": [
+        161,
+        120,
+        864,
+        621
+      ],
+      "visibleBounds": [
+        164,
+        169,
+        863,
+        578
+      ]
+    },
+    {
+      "id": 42,
+      "path": "icons/realm_beginner_v4.png",
+      "label": "初出茅廬銅牌徽章",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 139951,
+      "sha256": "0377f8eb5807e6343b8f4b0ce47350f150b2ac3378ad68551696a3d6d840ce90",
+      "type": "icon",
+      "alphaBounds": [
+        111,
+        90,
+        407,
+        406
+      ],
+      "visibleBounds": [
+        112,
+        116,
+        407,
+        389
+      ]
+    },
+    {
+      "id": 43,
+      "path": "icons/realm_renowned_v4.png",
+      "label": "名震江湖銀紋佩玉",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 120600,
+      "sha256": "d03e9e4adec161cf3ca643966051050791a197596ccd9e2848692a20ae9c1cb3",
+      "type": "icon",
+      "alphaBounds": [
+        151,
+        82,
+        383,
+        427
+      ],
+      "visibleBounds": [
+        154,
+        82,
+        383,
+        425
+      ]
+    },
+    {
+      "id": 44,
+      "path": "icons/realm_grandmaster_v4.png",
+      "label": "一代宗師蟠龍金令",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 184659,
+      "sha256": "2356b34aed8c643887bdc9d5068ac89acf94f781fbc7163bb8b0f88cf83966b3",
+      "type": "icon",
+      "alphaBounds": [
+        137,
+        82,
+        407,
+        431
+      ],
+      "visibleBounds": [
+        138,
+        82,
+        407,
+        430
+      ]
+    },
+    {
+      "id": 45,
+      "path": "characters/yun_wood_hurt_v4.png",
+      "label": "雲清川・受擊後仰",
+      "width": 1080,
+      "height": 1440,
+      "transparent": true,
+      "bytes": 662220,
+      "sha256": "14377cc2c4901a26195d94955fe5026fd4dd2fbb3aa37b044bfb952ff1e39b40",
+      "type": "sprite",
+      "alphaBounds": [
+        177,
+        221,
+        902,
+        1220
+      ],
+      "visibleBounds": [
+        278,
+        334,
+        901,
+        1118
+      ],
+      "anchorSuggestion": {
+        "x": 0.5,
+        "y": 0.8472222222222222,
+        "note": "初始輪廓底部；切換姿態需實機校正比例及接地"
+      }
+    },
+    {
+      "id": 46,
+      "path": "characters/yun_wood_block_v4.png",
+      "label": "雲清川・橫劍招架",
+      "width": 1080,
+      "height": 1440,
+      "transparent": true,
+      "bytes": 656803,
+      "sha256": "4215e2ed71ee5bdc26f9180632fbc60392e96b5568755349a6651c700f251d05",
+      "type": "sprite",
+      "alphaBounds": [
+        166,
+        276,
+        914,
+        1220
+      ],
+      "visibleBounds": [
+        322,
+        396,
+        889,
+        1210
+      ],
+      "anchorSuggestion": {
+        "x": 0.5,
+        "y": 0.8472222222222222,
+        "note": "初始輪廓底部；切換姿態需實機校正比例及接地"
+      }
+    },
+    {
+      "id": 47,
+      "path": "characters/su_wood_hurt_v4.png",
+      "label": "蘇映雪・受擊後仰",
+      "width": 1080,
+      "height": 1440,
+      "transparent": true,
+      "bytes": 685262,
+      "sha256": "88ca159c6c6f97e6b01406ad143fbc581052ec36fad58713a2e04580f6067f4e",
+      "type": "sprite",
+      "alphaBounds": [
+        179,
+        221,
+        902,
+        1220
+      ],
+      "visibleBounds": [
+        247,
+        368,
+        900,
+        1110
+      ],
+      "anchorSuggestion": {
+        "x": 0.5,
+        "y": 0.8472222222222222,
+        "note": "初始輪廓底部；切換姿態需實機校正比例及接地"
+      }
+    },
+    {
+      "id": 48,
+      "path": "characters/su_wood_block_v4.png",
+      "label": "蘇映雪・提劍格擋",
+      "width": 1080,
+      "height": 1440,
+      "transparent": true,
+      "bytes": 766292,
+      "sha256": "cc4ead4234c59a90ad339a14cf023505ea19d4851c9780354980ceccef290cde",
+      "type": "sprite",
+      "alphaBounds": [
+        208,
+        221,
+        873,
+        1220
+      ],
+      "visibleBounds": [
+        244,
+        339,
+        870,
+        1174
+      ],
+      "anchorSuggestion": {
+        "x": 0.5,
+        "y": 0.8472222222222222,
+        "note": "初始輪廓底部；切換姿態需實機校正比例及接地"
+      }
+    },
+    {
+      "id": 49,
+      "path": "effects/training_debris_v4.png",
+      "label": "草木碎屑飛濺",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 173673,
+      "sha256": "1c1536f7ddfb428aa7377fc5695b5a1293e1c2c839614395aa1b65b8a1e5cbec",
+      "type": "effect",
+      "alphaBounds": [
+        93,
+        84,
+        427,
+        427
+      ],
+      "visibleBounds": [
+        97,
+        98,
+        417,
+        398
+      ]
+    },
+    {
+      "id": 50,
+      "path": "effects/humanoid_hit_flash_v4.png",
+      "label": "人型對手受擊白光",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 104491,
+      "sha256": "c5f57b7534696ed6b3e61020c134a544cdf4ffe4ba92b067a44818733c765862",
+      "type": "effect",
+      "alphaBounds": [
+        98,
+        87,
+        429,
+        425
+      ],
+      "visibleBounds": [
+        108,
+        95,
+        422,
+        398
+      ]
+    },
+    {
+      "id": 51,
+      "path": "icons/manual_kangxuan_v4.png",
+      "label": "青囊玉笈線裝古書",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 196123,
+      "sha256": "fe067f9f6efe269e504244f0b5e9434acd5b0d7eaa1dfc7e58dab32a6a72a549",
+      "type": "icon",
+      "alphaBounds": [
+        81,
+        99,
+        427,
+        411
+      ],
+      "visibleBounds": [
+        127,
+        100,
+        405,
+        407
+      ]
+    },
+    {
+      "id": 52,
+      "path": "icons/manual_hanlin_v4.png",
+      "label": "文曲心經古樸竹簡",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 143627,
+      "sha256": "2f8c8f42ea647c618e0635fd4742e0996c4cc68611e5076ee2a367176b6ca93b",
+      "type": "icon",
+      "alphaBounds": [
+        102,
+        127,
+        407,
+        405
+      ],
+      "visibleBounds": [
+        119,
+        128,
+        397,
+        404
+      ]
+    },
+    {
+      "id": 53,
+      "path": "icons/manual_nanyi_v4.png",
+      "label": "墨客奇經絲絹手抄本",
+      "width": 512,
+      "height": 512,
+      "transparent": true,
+      "bytes": 194441,
+      "sha256": "81c74bee1083bde043de9274722707840db2448532b69e9c6c3f0d157be9e40d",
+      "type": "icon",
+      "alphaBounds": [
+        112,
+        92,
+        410,
+        386
+      ],
+      "visibleBounds": [
+        113,
+        93,
+        407,
+        386
+      ]
+    },
+    {
+      "id": 54,
+      "path": "ui/review_inkstone_v4.png",
+      "label": "墨寶閣硯台毛筆裝飾",
+      "width": 768,
+      "height": 768,
+      "transparent": true,
+      "bytes": 312336,
+      "sha256": "06840845eb05aa4a7b2173bdec6a734e837248e3bf3d4cfce6973171bf536f7d",
+      "type": "ui",
+      "alphaBounds": [
+        162,
+        137,
+        642,
+        630
+      ],
+      "visibleBounds": [
+        170,
+        274,
+        638,
+        601
+      ]
+    },
+    {
+      "id": 55,
+      "path": "ui/keycap_left_v4.png",
+      "label": "左手黛藍鍵帽",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "bytes": 45075,
+      "sha256": "703b136ef97759dc58520f17e8a995651918d650f2ae2bbdf3bda4efeb0f6c3a",
+      "type": "ui",
+      "alphaBounds": [
+        51,
+        43,
+        204,
+        208
+      ],
+      "visibleBounds": [
+        67,
+        69,
+        192,
+        190
+      ]
+    },
+    {
+      "id": 56,
+      "path": "ui/keycap_right_v4.png",
+      "label": "右手碧玉鍵帽",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "bytes": 47020,
+      "sha256": "36db41dc572eb2e0b503057f0e12acc1fcfe06e26a56ba410c76e2666b1efc86",
+      "type": "ui",
+      "alphaBounds": [
+        63,
+        46,
+        204,
+        212
+      ],
+      "visibleBounds": [
+        66,
+        68,
+        194,
+        190
+      ]
+    },
+    {
+      "id": 57,
+      "path": "ui/keycap_tone_v4.png",
+      "label": "聲調赤金鍵帽",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "bytes": 55380,
+      "sha256": "8175c8de8693e144fa1ac8ea64e1be7cbbdb62c114313feac6a5e1deceaf12f5",
+      "type": "ui",
+      "alphaBounds": [
+        59,
+        59,
+        200,
+        193
+      ],
+      "visibleBounds": [
+        60,
+        59,
+        200,
+        193
+      ]
+    },
+    {
+      "id": 58,
+      "path": "ui/keycap_space_v4.png",
+      "label": "一聲白玉空白鍵帽",
+      "width": 256,
+      "height": 256,
+      "transparent": true,
+      "bytes": 13985,
+      "sha256": "072ff4e451ed6ee23d6bbed8397cce1feb77684209330be4a9ce878e6a3d533b",
+      "type": "ui",
+      "alphaBounds": [
+        47,
+        114,
+        209,
+        149
+      ],
+      "visibleBounds": [
+        47,
+        115,
+        208,
+        149
+      ]
+    },
+    {
+      "id": 59,
+      "path": "ui/skill_banner_v4.png",
+      "label": "水墨飛白招式橫幅",
+      "width": 1200,
+      "height": 300,
+      "transparent": true,
+      "bytes": 126453,
+      "sha256": "d0cb68a70c3067b8784f514d22fe5d11f48d49b6afbff837639a36af8203173b",
+      "type": "ui",
+      "alphaBounds": [
+        296,
+        52,
+        906,
+        240
+      ],
+      "visibleBounds": [
+        296,
+        79,
+        905,
+        208
+      ]
+    },
+    {
+      "id": 60,
+      "path": "ui/title_logo_v4.png",
+      "label": "武俠打字傳書法標題",
+      "width": 1200,
+      "height": 500,
+      "transparent": true,
+      "bytes": 275820,
+      "sha256": "202628134c8f8ea7d1e5ba38470d768b4d0407b6f5a2aa7411abf1e99b587cf3",
+      "type": "ui",
+      "alphaBounds": [
+        204,
+        85,
+        1011,
+        415
+      ],
+      "visibleBounds": [
+        205,
+        121,
+        1010,
+        379
+      ]
+    },
+    {
+      "id": 61,
+      "path": "backgrounds/home_hero_v4.png",
+      "label": "江湖大門首頁主視覺",
+      "width": 1920,
+      "height": 1080,
+      "transparent": false,
+      "bytes": 4605051,
+      "sha256": "fa2b12fd9fb98b3f45e7d7339c48fac3ce2634c41a87d68303098faa04de031f",
+      "type": "background"
+    }
+  ]
+}

@@ -84,9 +84,14 @@ export const TONE_MARKS = new Set(['ˊ', 'ˇ', 'ˋ', '˙', '␣']);
  * - "˙ㄉㄜ"   -> ['ㄉ', 'ㄜ', '˙'] (符合臺灣鍵盤先打字音再按 7 輕聲的輸入習慣)
  * - "ㄑㄧㄥ"  -> 若 requireSpaceForFirstTone 為 true 則為 ['ㄑ', 'ㄧ', 'ㄥ', '␣']，否則為 ['ㄑ', 'ㄧ', 'ㄥ']
  */
-export function normalizeBopomofoSequence(rawBopomofo, requireSpaceForFirstTone = false) {
+export function normalizeBopomofoSequence(rawBopomofo, requireSpaceForFirstTone = true) {
   if (!rawBopomofo) return [];
-  const trimmed = rawBopomofo.trim();
+  const trimmed = String(rawBopomofo)
+    .trim()
+    .replace(/ㄒㄧㄨㄥ/g, 'ㄒㄩㄥ')
+    .replace(/ㄑㄧㄨㄥ/g, 'ㄑㄩㄥ')
+    .replace(/ㄐㄧㄨㄥ/g, 'ㄐㄩㄥ')
+    .replace(/ㄧㄨㄥ/g, 'ㄩㄥ');
   const chars = Array.from(trimmed);
 
   // 處理輕聲符號在字首的情況（如教育部字典格式 "˙ㄉㄜ" -> 轉為打字順序 "ㄉㄜ˙"）

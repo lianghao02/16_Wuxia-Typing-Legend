@@ -1,0 +1,335 @@
+[
+  {
+    "id": 1,
+    "path": "characters/yun_wood_idle_v3.png",
+    "label": "雲清川・初階",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: 14-year-old Yun Qingchuan, Chinese boy martial artist, confident clear eyes, energetic half-tied black ponytail. Grey-white rough linen martial clothes, cloth belt, straw-bound wrist braces. Peachwood SHORT training sword in right hand pointing diagonally downward. Facing RIGHT.",
+    "generatedSourceFile": "exec-d238f165-dc34-493a-9093-a5a843f545be.png"
+  },
+  {
+    "id": 2,
+    "path": "characters/yun_qingfeng_idle_v3.png",
+    "label": "雲清川・中階",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: SAME 14-year-old Yun Qingchuan, half-tied black ponytail and confident clear eyes. Indigo blue wanderer robe with silver trim, leather vambraces, white inner tunic, ribbon headband. Qingfeng Chinese straight steel longsword with cyan tassel. Facing RIGHT.",
+    "generatedSourceFile": "exec-05a7346e-9b6e-48df-8e26-adbf800e1351.png"
+  },
+  {
+    "id": 3,
+    "path": "characters/yun_xuantie_idle_v3.png",
+    "label": "雲清川・高階",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: SAME 14-year-old Yun Qingchuan, half-tied black ponytail, confident clear eyes. Midnight navy and gold grandmaster robes, cloud-pattern shoulder cape, golden wrist guards. Dark meteor iron broad Chinese sword with restrained gold inlay, very subtle golden blade luminescence. Facing RIGHT.",
+    "generatedSourceFile": "exec-5ade63c1-8af3-41c8-9531-e36c8db48077.png"
+  },
+  {
+    "id": 4,
+    "path": "icons/yun_avatar_v3.png",
+    "label": "雲清川・頭像",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: One centered bust portrait of Yun Qingchuan, 14-year-old Chinese boy, half-tied high ponytail, blue cloth headband, bright determined eyes, faint smile, grey-blue collar. Match the same character identity as the full-body sprites. Head and shoulders only.",
+    "generatedSourceFile": "exec-fac33509-0e98-47a5-9d4a-c0c9aff7606a.png"
+  },
+  {
+    "id": 5,
+    "path": "characters/su_wood_idle_v3.png",
+    "label": "蘇映雪・初階",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: 13-year-old Su Yingxue, Chinese girl martial artist, spirited bright almond eyes, neat high black ponytail with jade ribbon. Pale green linen tunic, white trousers, wrapped leg gaiters. Light peachwood training short sword toward right. Facing RIGHT.",
+    "generatedSourceFile": "exec-1f515a48-b7d5-451c-9069-c01757733b5e.png"
+  },
+  {
+    "id": 6,
+    "path": "characters/su_qingfeng_idle_v3.png",
+    "label": "蘇映雪・中階",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: SAME 13-year-old Su Yingxue, bright almond eyes, high black ponytail with jade ribbon. Emerald green silk travel garments with white trim, silver wrist guards, waist sash. Slender Chinese straight steel Qingfeng sword with green tassel (NOT European rapier). Facing RIGHT.",
+    "generatedSourceFile": "exec-f5649d98-2fc8-48ab-b12a-08b3baa5af6c.png"
+  },
+  {
+    "id": 7,
+    "path": "characters/su_xuantie_idle_v3.png",
+    "label": "蘇映雪・高階",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: SAME 13-year-old Su Yingxue, bright almond eyes, high black ponytail with jade ribbon, jade hairpins. Teal and gold flowing grandmaster robe, translucent silk cloud-pattern shoulder shawl. Refined dark meteor iron Chinese divine sword with restrained cyan luminescence. Facing RIGHT.",
+    "generatedSourceFile": "exec-1bfb80fe-9d3e-4f17-b64e-63a7f09dd967.png"
+  },
+  {
+    "id": 8,
+    "path": "icons/su_avatar_v3.png",
+    "label": "蘇映雪・頭像",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: One centered bust portrait of Su Yingxue, 13-year-old Chinese girl martial artist, high black ponytail with jade ribbon, bright almond eyes, gentle spirited heroic expression, pale green collar. Match full-body identity.",
+    "generatedSourceFile": "exec-4c34ff13-8da3-4780-89bf-9db6f10d6302.png"
+  },
+  {
+    "id": 9,
+    "path": "enemies/straw_idle_v3.png",
+    "label": "普通稻草人",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Training straw dummy, woven straw bundled with hemp rope, worn conical bamboo hat, painted simple cross-mark wooden face, complete wooden support post. Friendly practice target. Facing LEFT.",
+    "generatedSourceFile": "exec-0ef348a9-75bf-4da6-9787-152adf430705.png"
+  },
+  {
+    "id": 10,
+    "path": "enemies/wood_dummy_idle_v3.png",
+    "label": "少林木人樁",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Shaolin wooden martial training dummy: polished mahogany trunk, exactly three projecting wooden striking arms and one curved wooden leg, brass joint reinforcements, sturdy mechanism, fine wood grain. Three-quarter view facing LEFT.",
+    "generatedSourceFile": "exec-fa1fa6da-52e3-4c03-8572-d2fd9fd7035c.png"
+  },
+  {
+    "id": 11,
+    "path": "enemies/bandit_scout_idle_v3.png",
+    "label": "巡山小賊",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Slender agile adult mountain bandit scout, patched brown leather vest, cloth armwraps, hair bandana, small curved hunting machete pointing left. Mischievous alert expression, no threatening violence. Facing LEFT.",
+    "generatedSourceFile": "exec-29960495-ab3b-482c-9595-b2fca1f2a54d.png"
+  },
+  {
+    "id": 12,
+    "path": "enemies/bandit_saber_idle_v3.png",
+    "label": "斗笠刀客",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Adult wandering rogue swordsman, low bamboo conical hat with light shadow over eyes, rugged grey travel duster, straw sandals, single-edged curved steel saber pointing left. Calm ready stance. Facing LEFT.",
+    "generatedSourceFile": "exec-3fbdbab3-101d-400a-855f-5b51b91bcd1f.png"
+  },
+  {
+    "id": 13,
+    "path": "enemies/bandit_axes_idle_v3.png",
+    "label": "雙斧悍匪",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Burly adult bandit brawler with bushy beard, sleeveless fur-trimmed vest, iron bracers, two small hand axes fully visible. Strong rounded stylized proportions, resolute comic wuxia expression rather than terrifying. Facing LEFT.",
+    "generatedSourceFile": "exec-3ca1b596-fb81-4af2-97de-0f280524ce59.png"
+  },
+  {
+    "id": 14,
+    "path": "enemies/wudang_novice_idle_v3.png",
+    "label": "武當小道童",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Polite young Wudang Taoist novice, light blue white robe, small decorative yin-yang embroidery (no lettering), hair topknot with wooden pin, white socks and cloth shoes. Wooden training sword across chest in martial salute. Facing LEFT.",
+    "generatedSourceFile": "exec-4e0e9eb8-117a-447f-86b1-2cf563ce87bd.png"
+  },
+  {
+    "id": 15,
+    "path": "enemies/left_protector_idle_v3.png",
+    "label": "黑風左護法",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Black Wind Fortress adult left protector, dark purple hooded cloak with silver feather trim, iron knuckle guards, silver crescent hook blade pointing left. Mysterious but child-friendly, no horror or skulls. Facing LEFT.",
+    "generatedSourceFile": "exec-0a611a1b-5182-4a77-b82b-7c05da743da9.png"
+  },
+  {
+    "id": 16,
+    "path": "enemies/arena_champion_idle_v3.png",
+    "label": "擂台巨力士",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Massive adult arena wrestling champion, bronze-toned muscles, red silk waistband, heavy studded iron armbands, loose martial trousers, cloth shoes. Bare-handed wrestling guard, impressive friendly stylized strongman. Facing LEFT.",
+    "generatedSourceFile": "exec-0365d0ad-a148-4cd9-a3be-07e1ecdd44da.png"
+  },
+  {
+    "id": 17,
+    "path": "enemies/earth_puppet_idle_v3.png",
+    "label": "地煞機關傀儡",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Ancient Mohist mechanical automaton: carved dark sandalwood body, bronze clockwork gears and joints, cyan jade eyes, mechanical hands holding folding iron staff. Elegant ancient Chinese machinery, no science-fiction guns or modern robotics. Facing LEFT.",
+    "generatedSourceFile": "exec-0c9c27a9-006a-401a-8dc9-d5e0a67acb54.png"
+  },
+  {
+    "id": 18,
+    "path": "enemies/blackwind_boss_idle_v3.png",
+    "label": "黑風山大王",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Large adult mountain bandit warlord, crimson tiger-pattern mantle (fabric motif), dark iron scale armor, ornate stylized horned helmet. Both hands resting on engraved two-handed dragon-headed broad sword planted upright. Majestic child-friendly boss, no gore or cruel horror. Facing LEFT.",
+    "generatedSourceFile": "exec-68536bc6-9bc6-454e-98e8-994f49ee7d7b.png"
+  },
+  {
+    "id": 19,
+    "path": "backgrounds/jianghu_map_v3.png",
+    "label": "江湖歷練地圖",
+    "type": "map",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game scene. No people, lettering, UI, watermark or border. SUBJECT: Bird-eye isometric Jianghu overworld map, blue-green Qinglu Shanshui ink-wash, winding stone route linking six landmarks: mountain gate dojo, bamboo sea, ancient inn, Xiangyang fortress, moonlit courtyard, cloud peak summit. Mist, pines, streams, pale scroll-paper texture. No labels or buttons.",
+    "generatedSourceFile": "exec-5a578b89-e770-43c9-ae70-5d563b478e2c.png"
+  },
+  {
+    "id": 20,
+    "path": "backgrounds/mountain_gate_v3.png",
+    "label": "山門演武場",
+    "type": "background",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game battle background. STRICT: upper edge of flat foreground training floor at Y=68 percent; lower 32 percent is the ground. Straight level fighting plane across frame. Upper central and middle area quiet pale mist and ink-wash negative space, low contrast; architectural detail toward sides. No people, animals, UI, lettering, foreground props or decorative frame. SUBJECT: Mountain gate training ground, carved stone Taoist mountain gate toward right in middle distance, ancient pines at edges, distant misty peaks, pale morning sky, open stone courtyard.",
+    "generatedSourceFile": "exec-3371bcb7-92f2-4d58-b8ef-575cdf0c7b54.png"
+  },
+  {
+    "id": 21,
+    "path": "backgrounds/bamboo_forest_v3.png",
+    "label": "翠竹林",
+    "type": "background",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game battle background. STRICT: upper edge of flat foreground training floor at Y=68 percent; lower 32 percent is the ground. Straight level fighting plane across frame. Upper central and middle area quiet pale mist and ink-wash negative space, low contrast; architectural detail toward sides. No people, animals, UI, lettering, foreground props or decorative frame. SUBJECT: Emerald bamboo forest, tall bamboo at both edges, a few falling leaves, soft morning mist and gentle sunbeams in quiet center, flat dirt and stone fighting clearing.",
+    "generatedSourceFile": "exec-bfec2c29-4a7b-4d0c-8860-a53689af5248.png"
+  },
+  {
+    "id": 22,
+    "path": "backgrounds/ancient_inn_v3.png",
+    "label": "古驛客棧外景",
+    "type": "background",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game battle background. STRICT: upper edge of flat foreground training floor at Y=68 percent; lower 32 percent is the ground. Straight level fighting plane across frame. Upper central and middle area quiet pale mist and ink-wash negative space, low contrast; architectural detail toward sides. No people, animals, UI, lettering, foreground props or decorative frame. SUBJECT: Ancient waystation inn exterior, two-story rustic wood inn at right edge, warm red paper lanterns, blank wine pennants, twilight sunset and distant mountain silhouettes, empty flat packed dirt plaza.",
+    "generatedSourceFile": "exec-e09c6f67-162c-4fb8-9ed4-22225de91f9d.png"
+  },
+  {
+    "id": 23,
+    "path": "backgrounds/arena_v3.png",
+    "label": "襄陽古城擂台",
+    "type": "background",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game battle background. STRICT: upper edge of flat foreground training floor at Y=68 percent; lower 32 percent is the ground. Straight level fighting plane across frame. Upper central and middle area quiet pale mist and ink-wash negative space, low contrast; architectural detail toward sides. No people, animals, UI, lettering, foreground props or decorative frame. SUBJECT: Xiangyang historical city tournament arena, wide flat stone platform, weathered fortress walls and distant unlettered military banners at edges, grand soft cloudy sky, restrained epic atmosphere.",
+    "generatedSourceFile": "exec-2f35c1c4-3add-4d95-a9e8-3f9ce9a64517.png"
+  },
+  {
+    "id": 24,
+    "path": "backgrounds/moon_dojo_v3.png",
+    "label": "月下練武場",
+    "type": "background",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game battle background. STRICT: upper edge of flat foreground training floor at Y=68 percent; lower 32 percent is the ground. Straight level fighting plane across frame. Upper central and middle area quiet pale mist and ink-wash negative space, low contrast; architectural detail toward sides. No people, animals, UI, lettering, foreground props or decorative frame. SUBJECT: Moonlit courtyard dojo, dark slate flat courtyard, silver-white full moon high in soft indigo sky, blue night mist, small glowing stone lanterns at edges, bamboo silhouettes, serene not ominous.",
+    "generatedSourceFile": "exec-61b5f830-de11-4082-b10c-675fd1f008a5.png"
+  },
+  {
+    "id": 25,
+    "path": "backgrounds/cloud_peak_v3.png",
+    "label": "雲海山巔",
+    "type": "background",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game battle background. STRICT: upper edge of flat foreground training floor at Y=68 percent; lower 32 percent is the ground. Straight level fighting plane across frame. Upper central and middle area quiet pale mist and ink-wash negative space, low contrast; architectural detail toward sides. No people, animals, UI, lettering, foreground props or decorative frame. SUBJECT: Cloud sea summit, broad flat rocky cliff fighting ledge, white and pale pink clouds in sunset, distant karst rock spires, small gnarled pine at extreme edge, transcendent calm majestic atmosphere.",
+    "generatedSourceFile": "exec-8e8df7b4-4d14-4160-9ee9-7e8231e04a74.png"
+  },
+  {
+    "id": 26,
+    "path": "backgrounds/inn_shop_v3.png",
+    "label": "客棧神兵閣內景",
+    "type": "interior",
+    "transparent": false,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE opaque 1920x1080 horizontal 16:9 game scene. No people, lettering, UI, watermark or border. SUBJECT: Wide warm ancient wuxia inn shop interior, wood counter in lower foreground, medicine gourds on shelves, wooden and steel swords in rack at edges, warm red lanterns on rafters, blank unlettered decorative scroll on wall. Amber light, empty inviting shop, center quiet for product UI.",
+    "generatedSourceFile": "exec-a78f2ea9-f003-4762-a7bb-3845816b7f3f.png"
+  },
+  {
+    "id": 27,
+    "path": "characters/shopkeeper_idle_v3.png",
+    "label": "掌櫃店小二",
+    "type": "sprite",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone full-body 3:4 portrait game sprite, target 1080x1440. TRUE TRANSPARENT PNG alpha background, no white/color backing, no floor, no cast ground shadow, no painted checkerboard. Static armed ready pose (training props static), full head and feet/post visible. Keep ALL subject, weapons, hats and ribbons inside central 70 percent: x162..918 y216..1224, at least 15 percent EMPTY transparent margins on each side. Feet flat on common resting plane near y1200; small whole subject inside generous canvas, no cropping. SUBJECT: Friendly young adult Chinese inn shopkeeper Xiao Er, brown tavern vest, white shirt, clean towel over shoulder, bamboo tea tray in one hand, welcoming slight bow and cheerful smile. Full body in static stance, three-quarter facing LEFT toward customer.",
+    "generatedSourceFile": "exec-1a4a0aee-afbb-4fb2-a25e-01796881f239.png"
+  },
+  {
+    "id": 28,
+    "path": "icons/wood_sword_v3.png",
+    "label": "桃木短劍",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE peachwood short training sword with red tassel cord on hilt, handcrafted wood grain, diagonal centered. No separate objects or halo.",
+    "generatedSourceFile": "exec-2d8a6c7a-2320-4802-aab9-2d93334229d7.png"
+  },
+  {
+    "id": 29,
+    "path": "icons/qingfeng_sword_v3.png",
+    "label": "三尺青鋒劍",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE polished Chinese straight Qingfeng steel longsword, engraved cloud motif, bronze crossguard, sky-blue silk tassel, restrained cyan blade highlight, centered diagonally.",
+    "generatedSourceFile": "exec-9797db4e-eee4-4967-ac57-2236ac9fdb0d.png"
+  },
+  {
+    "id": 30,
+    "path": "icons/xuantie_sword_v3.png",
+    "label": "流雲玄鐵神劍",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE heavy dark meteor iron Chinese broad sword, gold cloud inlays, golden guard, subtle warm luminous edges without large aura. Centered diagonal.",
+    "generatedSourceFile": "exec-332c4db9-c252-4637-8ad2-cb6d690f442c.png"
+  },
+  {
+    "id": 31,
+    "path": "icons/linen_outfit_v3.png",
+    "label": "布衣短打",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE neat folded grey-beige linen martial tunic with cloth belt and wraps folded as a single coherent attire bundle. Beginner clothes, centered.",
+    "generatedSourceFile": "exec-f8aeda29-77c2-43f0-8a2b-812678ad72d2.png"
+  },
+  {
+    "id": 32,
+    "path": "icons/wanderer_outfit_v3.png",
+    "label": "青藍俠客服",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE neatly folded indigo blue silk swordsman robe, silver lining, leather belt and silver buckle folded into a single coherent garment bundle, centered.",
+    "generatedSourceFile": "exec-e53095c8-9925-4df4-8eaa-3cf2589b1f10.png"
+  },
+  {
+    "id": 33,
+    "path": "icons/grandmaster_outfit_v3.png",
+    "label": "流雲宗師袍",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE folded regal navy gold martial robe with golden cloud embroidery and shoulder cape folded together into a coherent garment bundle. Centered, subtle sheen not external aura.",
+    "generatedSourceFile": "exec-eda3d798-b4bb-4c3d-8c4c-1496fbbf668a.png"
+  },
+  {
+    "id": 34,
+    "path": "icons/healing_powder_v3.png",
+    "label": "金創藥",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE traditional celadon porcelain medicine bottle, red wax-sealed cork, tiny painted herbal motif ON bottle, no separate loose leaves, no label lettering, centered.",
+    "generatedSourceFile": "exec-af9515bf-2390-40a3-a7f4-010ef7666660.png"
+  },
+  {
+    "id": 35,
+    "path": "icons/restoration_elixir_v3.png",
+    "label": "九轉大還丹",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE ornate lotus jade pill holder with a golden restoration pill resting directly in its center as one coherent item. Gentle warm highlight, no floating objects, no lettering.",
+    "generatedSourceFile": "exec-2f1c3ff3-800b-43e0-b9bb-f2b39f15345d.png"
+  },
+  {
+    "id": 36,
+    "path": "icons/serenity_amulet_v3.png",
+    "label": "靜心護身符",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE yellow silk protective amulet sachet, decorative vermilion abstract brush motif (not legible writing), braided red lucky knot attached. Centered.",
+    "generatedSourceFile": "exec-b0930686-1392-4e79-895a-e554f0c52640.png"
+  },
+  {
+    "id": 37,
+    "path": "icons/copper_coins_v3.png",
+    "label": "通寶銅錢",
+    "type": "icon",
+    "transparent": true,
+    "prompt": "Use case: stylized-concept. GLOBAL STYLE: High-quality contemporary Chinese GUOFENG INK-WASH ANIMATION ILLUSTRATION, clean clear ink contour lines, restrained elegant colors, soft diffuse watercolor shading, authentic Chinese illustrated forms, suitable for elementary schoolchildren. NOT Japanese anime, NOT American heavy painterly art, not photorealistic or 3D, no horror, blood, logos, watermark or readable text. ONE standalone square 512x512 game icon or portrait. TRUE transparent PNG alpha, clean isolated centered subject, entire item/head visible, 12 percent empty margin, no white or colored backing, no floor, no external ground shadow, no painted checkerboard. SUBJECT: ONE tied bundle of three antique bronze square-holed coins with red tassel cord, warm metallic sheen, decorative rim engraving without readable text, centered.",
+    "generatedSourceFile": "exec-fddbeccd-6e79-4e6b-9e59-cc9cc73f714b.png"
+  }
+]

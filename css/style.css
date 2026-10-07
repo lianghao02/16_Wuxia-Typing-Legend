@@ -16,6 +16,7 @@
   --light-cyan: #90e0ef;
   --warm-gold: #f59f00;
   --bright-gold: #ffd166;
+  --link-color: #a8e5f5;
   --danger-red: #e63946;
   --miss-pink: rgba(230, 57, 70, 0.22);
   --font-sans: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
@@ -26,6 +27,23 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+.modal-card a,
+.modal-card a:visited {
+  color: var(--link-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.modal-card a:hover,
+.modal-card a:focus-visible {
+  color: var(--bright-gold);
+}
+
+.modal-card a:focus-visible {
+  outline: 2px solid var(--bright-gold);
+  outline-offset: 4px;
 }
 
 html, body {
@@ -63,13 +81,68 @@ html, body {
 
 /* 頂部 HUD 狀態列 */
 .hud-top {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  justify-content: center;
   align-items: start;
   gap: 16px;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
+}
+
+.hud-top > .fighter-card {
+  position: fixed;
+  bottom: 12px;
+  width: 315px;
+  pointer-events: auto;
+}
+.hud-top > .fighter-card:first-child { left: 20px; }
+.hud-top > .fighter-card:last-child { right: 20px; }
+
+/* 展開鍵盤時將控制區抬高，保留兩側狀態框的空間。 */
+/* 鍵盤展開時採固定位置，避免 flex 壓縮後將工具列推到畫面外。 */
+#dom-overlay:has(.vk-panel:not(.hidden)) .vk-panel {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(820px, calc(100vw - 40px));
+}
+#dom-overlay:has(.vk-panel:not(.hidden)) .toolbar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100vw - 40px));
+}
+#dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card {
+  bottom: 330px;
+  width: min(315px, calc((100vw - 500px) / 2));
+  min-width: 0;
+}
+#dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap {
+  position: fixed;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+#dom-overlay:has(.vk-panel:not(.hidden)) .vk-key { height: 38px; }
+#dom-overlay:has(.vk-panel:not(.hidden)) .q-char-card { padding-block: 4px; }
+#dom-overlay:has(.vk-panel:not(.hidden)) .q-hanzi { font-size: 2rem; }
+#dom-overlay:has(.vk-panel:not(.hidden)) .paper-scroll {
+  max-height: calc(100vh - 448px);
+  overflow-y: auto;
+}
+body:has(.vk-panel:not(.hidden)) .combo-banner { top: 150px; }
+
+@media (max-width: 1100px) {
+  .hud-top > .fighter-card {
+    bottom: 76px;
+    width: calc((100vw - 52px) / 2);
+    min-width: 0;
+    padding: 8px;
+  }
+  .hud-top .fighter-header, .hud-top .qi-row { flex-wrap: wrap; }
 }
 
 .fighter-card {
@@ -81,6 +154,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 315px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
@@ -88,15 +162,18 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .fighter-name {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 700;
   color: var(--paper-cream);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .seal-badge {
@@ -108,6 +185,7 @@ html, body {
   padding: 1px 6px;
   border-radius: 3px;
   border: 1px solid rgba(255, 209, 102, 0.5);
+  white-space: nowrap;
 }
 
 .hp-bar-outer {
@@ -262,31 +340,45 @@ html, body {
   color: #dee2e6;
 }
 
-/* 第一視覺焦點：中央宣紙題目卷軸 */
+/* 第一視覺焦點：中央宣紙題目卷軸（禪意瘦身自適應，透出水墨背景） */
 .question-center-wrap {
-  width: 100%;
-  max-width: 780px;
+  position: fixed;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100vw - 40px);
+  max-width: 640px;
+  min-width: 300px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
+
+.practice-progress-label { color: #e8e1d2; font-size: 0.82rem; margin-top: 5px; }
+#dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap { max-width: 440px; }
+.word-characters.english-characters { gap: 4px; min-height: 60px; }
+.english-characters .q-char-card { padding: 4px 7px; }
+.english-characters .q-hanzi { font-size: 2rem; }
 
 .paper-scroll {
   width: 100%;
-  background: var(--paper-cream);
+  background: rgba(246, 243, 235, 0.92);
+  backdrop-filter: blur(8px);
   color: var(--ink-black);
-  border-radius: 10px;
-  border: 2px solid var(--paper-border);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.48), inset 0 0 24px rgba(180, 160, 120, 0.18);
-  padding: 14px 22px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(198, 168, 105, 0.65);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38), inset 0 0 16px rgba(180, 160, 120, 0.12);
+  padding: 8px 16px;
   text-align: center;
   position: relative;
 }
 
 .scroll-header {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   justify-content: space-between;
   align-items: center;
   font-size: 0.82rem;
@@ -306,6 +398,8 @@ html, body {
 
 .parry-alert-banner.show {
   display: inline-block;
+  flex-basis: 100%;
+  order: 3;
   animation: pulseAlert 0.6s infinite alternate;
 }
 
@@ -315,21 +409,35 @@ html, body {
 }
 
 /* 題目字元與注音高辨識排版 */
+.question-context {
+  font-size: 1rem;
+  color: #49433b;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  margin-bottom: 4px;
+}
+
+.question-page-progress {
+  font-size: 0.8rem;
+  color: #0b6373;
+  margin-bottom: 6px;
+}
+
 .word-characters {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 14px;
-  min-height: 92px;
-  padding: 4px 0;
+  gap: 10px;
+  min-height: 80px;
+  padding: 2px 0;
 }
 
 .q-char-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 8px;
   border: 2px solid transparent;
   background: rgba(0, 0, 0, 0.03);
@@ -361,16 +469,25 @@ html, body {
 
 .q-zy-list {
   display: flex;
-  gap: 3px;
-  margin-bottom: 2px;
-  font-size: 1.08rem;
-  font-weight: 700;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 3px;
+  font-size: 1.24rem;
+  font-weight: 800;
 }
 
 .q-zy-item {
-  padding: 1px 5px;
-  border-radius: 4px;
-  color: #7f776b;
+  padding: 1px 6px;
+  border-radius: 5px;
+  color: #6b6356;
+}
+
+.q-zy-item.tone-space {
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border: 1px dashed rgba(11, 114, 133, 0.45);
+  color: #5c5449;
 }
 
 .q-zy-item.typed {
@@ -380,8 +497,8 @@ html, body {
 
 .q-zy-item.active-sym {
   color: #c92a2a;
-  background: rgba(245, 159, 0, 0.42);
-  box-shadow: 0 0 0 1px #f59f00;
+  background: rgba(245, 159, 0, 0.45);
+  box-shadow: 0 0 0 1.5px #f59f00;
 }
 
 .q-hanzi {
@@ -447,14 +564,50 @@ html, body {
   font-weight: 700;
 }
 
-/* 底部控制列與半透明水墨虛擬鍵盤 */
+/* 底部控制列與半透明水墨虛擬鍵盤（鎖定 820px 中央走廊，兩側留出人物開闊對峙舞台） */
 .bottom-dock {
   width: 100%;
-  max-width: 1180px;
+  max-width: 820px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+}
+
+.skill-dock-container {
+  display: none !important;
+}
+
+/* 浮動武功施展水墨橫幅 (Floating Kungfu Banner：整合 v4 水墨燙金技能橫幅底板) */
+.floating-skill-banner {
+  position: fixed;
+  top: 17.5%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  width: min(560px, 90vw);
+  aspect-ratio: 4 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('../assets/ui/skill_banner_v4.png') center / contain no-repeat;
+  padding: 6px 64px;
+  color: #ffe066;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 14px rgba(245, 159, 0, 0.85);
+  font-family: var(--font-calligraphy);
+  font-size: 1.55rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.72));
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+.floating-skill-banner.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.04);
 }
 
 .vk-panel {
@@ -493,6 +646,41 @@ html, body {
   gap: 6px;
 }
 
+/* 每鍵占四格，Q／A／Z 排分別錯開四分之一、二分之一及一個鍵距。 */
+.vk-row:not(:last-child) {
+  display: grid;
+  grid-template-columns: repeat(46, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  max-width: 736px;
+  align-self: center;
+}
+
+.vk-row:not(:last-child) > .vk-key {
+  grid-column: span 4;
+  width: auto;
+  min-width: 0;
+  margin: 0 3px;
+}
+
+.vk-row:nth-child(3)::before,
+.vk-row:nth-child(4)::before,
+.vk-row:nth-child(5)::before {
+  content: '';
+}
+
+.vk-row:nth-child(3)::before { grid-column: span 1; }
+.vk-row:nth-child(4)::before { grid-column: span 2; }
+.vk-row:nth-child(5)::before { grid-column: span 4; }
+
+@media (max-width: 600px) {
+  .vk-panel { padding-inline: 6px; }
+  .vk-hint-row { flex-wrap: wrap; gap: 4px; letter-spacing: 0; }
+  .vk-row:not(:last-child) > .vk-key { margin-inline: 2px; padding-inline: 2px; }
+  .vk-panel .vk-zy { font-size: 1.05rem; }
+  .vk-panel .vk-en { font-size: 0.6rem; }
+}
+
 .vk-key {
   width: 58px;
   height: 48px;
@@ -507,23 +695,27 @@ html, body {
 
 /* 指法分區色彩（學童教學引導） */
 .vk-key.zone-left {
-  background: linear-gradient(180deg, rgba(26, 44, 70, 0.75), rgba(16, 28, 46, 0.85));
-  border: 1px solid rgba(72, 149, 239, 0.35);
+  background: linear-gradient(180deg, rgba(20, 36, 58, 0.62), rgba(14, 24, 40, 0.72)),
+              url('../assets/ui/keycap_left_v4.png') center / 138% no-repeat;
+  border: 1px solid rgba(72, 149, 239, 0.42);
 }
 
 .vk-key.zone-right {
-  background: linear-gradient(180deg, rgba(22, 50, 42, 0.75), rgba(14, 34, 28, 0.85));
-  border: 1px solid rgba(82, 183, 136, 0.35);
+  background: linear-gradient(180deg, rgba(18, 44, 36, 0.62), rgba(12, 30, 24, 0.72)),
+              url('../assets/ui/keycap_right_v4.png') center / 138% no-repeat;
+  border: 1px solid rgba(82, 183, 136, 0.42);
 }
 
 .vk-key.zone-tone {
-  background: linear-gradient(180deg, rgba(56, 42, 18, 0.75), rgba(38, 28, 12, 0.85));
-  border: 1px solid rgba(245, 159, 0, 0.45);
+  background: linear-gradient(180deg, rgba(50, 36, 14, 0.62), rgba(34, 24, 10, 0.72)),
+              url('../assets/ui/keycap_tone_v4.png') center / 138% no-repeat;
+  border: 1px solid rgba(245, 159, 0, 0.48);
 }
 
 .vk-key.zone-space {
-  background: linear-gradient(180deg, rgba(34, 40, 52, 0.8), rgba(22, 26, 34, 0.9));
-  border: 1px solid rgba(255, 209, 102, 0.4);
+  background: linear-gradient(180deg, rgba(28, 34, 44, 0.65), rgba(18, 22, 30, 0.75)),
+              url('../assets/ui/keycap_space_v4.png') center / contain no-repeat;
+  border: 1px solid rgba(255, 209, 102, 0.45);
 }
 
 .vk-key.wide {
@@ -576,7 +768,7 @@ html, body {
 /* 底部工具按鈕列 */
 .toolbar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
@@ -584,7 +776,10 @@ html, body {
   backdrop-filter: blur(8px);
   border: 1px solid rgba(245, 159, 0, 0.3);
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 6px 14px;
+  max-width: 440px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .btn-group {
@@ -592,6 +787,21 @@ html, body {
   flex-wrap: wrap;
   gap: 8px;
 }
+.toolbar .btn-group { gap: 6px; flex-wrap: nowrap; }
+.toolbar .wuxia-btn { padding-inline: 8px; white-space: nowrap; }
+
+.settings-section {
+  padding: 12px;
+  border: 1px solid rgba(245, 159, 0, 0.25);
+  border-radius: 8px;
+}
+
+.settings-section h3 { margin: 0 0 8px; color: var(--bright-gold); font-size: 1rem; }
+.settings-section p { margin: 0 0 12px; color: #cbd5e1; font-size: 0.85rem; }
+.settings-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.settings-section summary { cursor: pointer; margin-bottom: 8px; }
+.practice-select { width: 100%; padding: 12px; color: var(--paper-cream); background: #252c34; border: 1px solid var(--warm-gold); border-radius: 6px; font: inherit; }
+.wuxia-btn[hidden] { display: none; }
 
 .wuxia-btn {
   background: rgba(255, 255, 255, 0.07);
@@ -753,74 +963,163 @@ textarea.custom-input {
   border: 1px solid rgba(255, 209, 102, 0.3);
 }
 
-/* 開場封面 (Title Screen Overlay) */
+/* 開場封面 (Title Screen Overlay：整合 v4 雙少俠主視覺與書法標題) */
 .title-screen-card {
-  max-width: 820px;
-  text-align: center;
-  padding: 36px 32px;
-  background: radial-gradient(circle at 50% 20%, rgba(32, 40, 52, 0.96), rgba(14, 17, 22, 0.98));
+  max-width: 1040px;
+  min-height: 540px;
+  padding: 26px 32px;
+  background:
+    linear-gradient(90deg, rgba(12, 16, 22, 0.94) 0%, rgba(12, 16, 22, 0.86) 54%, rgba(12, 16, 22, 0.18) 76%, rgba(12, 16, 22, 0.06) 100%),
+    url('../assets/backgrounds/home_hero_v4.png') right center / cover no-repeat;
   border: 2px solid var(--warm-gold);
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.title-screen-content {
+  width: 100%;
+  max-width: 590px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .title-screen-card {
+    background:
+      linear-gradient(180deg, rgba(12, 16, 22, 0.88) 0%, rgba(12, 16, 22, 0.94) 100%),
+      url('../assets/backgrounds/home_hero_v4.png') center / cover no-repeat;
+    align-items: center;
+  }
+  .title-screen-content {
+    max-width: 100%;
+  }
+}
+
+.title-logo-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.title-logo-img {
+  width: min(440px, 88%);
+  height: auto;
+  max-height: 118px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 232, 178, 0.72)) drop-shadow(0 4px 14px rgba(0, 0, 0, 0.85));
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .title-main-banner {
   font-family: var(--font-calligraphy);
-  font-size: 3.4rem;
+  font-size: 3.2rem;
   letter-spacing: 6px;
   color: var(--bright-gold);
   text-shadow: 0 4px 18px rgba(245, 159, 0, 0.5), 0 0 28px rgba(0, 0, 0, 0.9);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .title-sub-banner {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   color: var(--light-cyan);
   letter-spacing: 3px;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.title-desc-text {
+  font-size: 0.88rem;
+  color: #dee2e6;
+  margin-bottom: 16px;
+  line-height: 1.55;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
 }
 
 .title-heroes-preview {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-bottom: 28px;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .title-hero-box {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(16, 22, 30, 0.78);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(245, 159, 0, 0.28);
   border-radius: 10px;
-  padding: 14px 10px;
+  padding: 10px 8px;
   transition: all 0.2s;
 }
 
 .title-hero-box:hover {
   border-color: var(--sword-cyan);
-  background: rgba(72, 202, 228, 0.08);
+  background: rgba(28, 44, 62, 0.88);
   transform: translateY(-3px);
 }
 
 .title-hero-badge {
   display: inline-block;
   padding: 2px 8px;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
+  font-weight: 700;
   border-radius: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   background: var(--jade-green);
   color: #fff;
+}
+
+.title-realm-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+}
+
+.title-realm-badge-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+.title-weapon-preview-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 
 .title-btn-bar {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .title-start-btn {
-  font-size: 1.15rem;
-  padding: 12px 32px;
+  font-size: 1.08rem;
+  padding: 10px 26px;
   background: linear-gradient(135deg, #d97706, #b45309);
   color: #fff;
   border: 2px solid var(--bright-gold);
@@ -836,7 +1135,26 @@ textarea.custom-input {
   box-shadow: 0 8px 26px rgba(245, 159, 0, 0.65);
 }
 
-/* 錯題墨寶閣樣式 */
+/* 錯題墨寶閣樣式（整合 v4 硯台與毛筆橫幅） */
+.mistakes-inkstone-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(90deg, rgba(16, 20, 28, 0.92), rgba(28, 32, 42, 0.78));
+  border: 1px solid rgba(245, 159, 0, 0.38);
+  border-radius: 10px;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.review-inkstone-img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+}
+
 .mistake-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -881,4 +1199,387 @@ textarea.custom-input {
   background: rgba(230, 57, 70, 0.16);
   padding: 1px 6px;
   border-radius: 4px;
+}
+
+/* 新國風 v3/v4 頭像、圖示與客棧/大地圖樣式 */
+.hero-avatar-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bright-gold);
+  background: rgba(15, 20, 28, 0.9);
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.inline-weapon-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.inline-coin-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.inline-realm-badge {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* v4 動態疊字鍵帽元件（左／右手、聲調、一聲空白鍵） */
+.finger-guide-pill {
+  background: #14243b;
+  border: 1.5px solid rgba(255, 209, 102, 0.55);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.guide-sym-chip,
+.finger-guide-pill strong.guide-sym-chip,
+.mistake-guide-banner strong.guide-sym-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffd166;
+  color: #111827;
+  font-size: 1.24rem;
+  font-weight: 900;
+  padding: 1px 8px;
+  border-radius: 6px;
+  margin: 0 3px;
+  line-height: 1.15;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.guide-key-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 0 6px;
+  border-radius: 5px;
+  margin: 0 2px;
+}
+
+.mistake-guide-banner .guide-key-chip {
+  background: #b00020;
+  border-color: #7f0016;
+  color: #fff;
+}
+
+.v4-keycap-widget {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.v4-keycap-widget.is-space {
+  width: 132px;
+  height: 46px;
+}
+
+.v4-keycap-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.38);
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.55));
+}
+
+.v4-keycap-widget.is-space .v4-keycap-bg {
+  transform: scale(1.24);
+}
+
+.v4-keycap-overlay {
+  position: absolute;
+  inset: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+  background: rgba(12, 18, 28, 0.86);
+  border: 1.5px solid rgba(255, 209, 102, 0.85);
+  border-radius: 7px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.v4-keycap-widget.is-space .v4-keycap-overlay {
+  inset: 5px 10px;
+}
+
+.v4-keycap-en {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 2px;
+  letter-spacing: 0.3px;
+}
+
+.v4-keycap-zy {
+  font-size: 1.28rem;
+  font-weight: 900;
+  color: #ffd166;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.v4-keycap-widget.is-space .v4-keycap-zy {
+  font-size: 0.86rem;
+  letter-spacing: 0.5px;
+}
+
+
+/* 連續打錯字時自動跳出之醒目教學指引橫幅 */
+.mistake-guide-banner {
+  display: none;
+  background: linear-gradient(90deg, #fff3bf, #ffe8cc);
+  border: 1.5px solid #f59f00;
+  color: #b00020;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: 4px;
+  box-shadow: 0 4px 12px rgba(245, 159, 0, 0.28);
+  animation: pulseAlert 0.6s infinite alternate;
+}
+
+.mistake-guide-banner.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.q-zy-item.hint-flare {
+  color: #fff !important;
+  background: #e63946 !important;
+  box-shadow: 0 0 10px rgba(230, 57, 70, 0.85), 0 0 0 2px #ffd166 !important;
+  transform: scale(1.18);
+  display: inline-block;
+  transition: transform 0.15s;
+}
+
+/* 江湖選關大地圖橫幅 */
+.jianghu-map-banner {
+  position: relative;
+  width: 100%;
+  height: 155px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(245, 159, 0, 0.4);
+  margin-bottom: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.jianghu-map-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+}
+
+.jianghu-map-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(10, 14, 20, 0.92), rgba(10, 14, 20, 0.2));
+  color: var(--bright-gold);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* 客棧神兵閣內景與掌櫃店小二迎賓橫幅 */
+.shop-hero-banner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(15, 18, 24, 0.82), rgba(15, 18, 24, 0.55)),
+              url('../assets/backgrounds/inn_shop_v3.png') center/cover no-repeat;
+  border: 1px solid rgba(245, 159, 0, 0.45);
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 8px;
+  min-height: 105px;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.shop-modal-card {
+  max-width: 1100px;
+  overflow: hidden;
+}
+
+.shop-modal-card > .modal-header {
+  flex-shrink: 0;
+}
+
+.shop-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 22px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.shop-layout .shop-hero-banner {
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px;
+  margin: 0;
+  min-height: 0;
+  overflow-y: auto;
+  background-position: left center;
+}
+
+.shop-layout .shopkeeper-portrait {
+  width: 100%;
+  height: clamp(180px, 40vh, 390px);
+}
+
+.shop-products {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-color: var(--warm-gold) #1c2128;
+  scrollbar-width: thin;
+  padding-right: 8px;
+}
+
+.shop-products > * {
+  flex-shrink: 0;
+}
+
+@media (max-width: 850px) {
+  .shop-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .shop-layout .shop-hero-banner {
+    flex-direction: row;
+    padding: 10px 14px;
+    max-height: 200px;
+  }
+
+  .shop-layout .shopkeeper-portrait {
+    width: 120px;
+    height: 160px;
+  }
+}
+
+@media (max-height: 600px) {
+  .shop-layout .shopkeeper-portrait {
+    height: 150px;
+  }
+}
+
+.shopkeeper-portrait {
+  width: 82px;
+  height: 98px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+  flex-shrink: 0;
+}
+
+.shopkeeper-dialogue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.88rem;
+  color: #f4f0e6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
+}
+
+.shopkeeper-dialogue strong {
+  color: var(--bright-gold);
+  font-size: 0.96rem;
+}
+
+.shop-item-thumb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.shop-item-icon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(245, 159, 0, 0.3);
+  border-radius: 8px;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+/* 結算宣紙卷軸與朱砂印章（v4） */
+.results-scroll-stage {
+  position: relative;
+  text-align: center;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(24, 28, 36, 0.82), rgba(18, 22, 28, 0.9)),
+    url('../assets/ui/results_scroll_v4.png') center / contain no-repeat;
+  border: 1px solid rgba(245, 159, 0, 0.35);
+}
+
+.result-stamp-badge {
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  width: 86px;
+  height: 86px;
+  object-fit: contain;
+  transform: rotate(-8deg);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+  animation: stampSlam 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+  pointer-events: none;
+}
+
+@keyframes stampSlam {
+  from {
+    opacity: 0;
+    transform: scale(1.85) rotate(-18deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
 }

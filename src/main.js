@@ -7,16 +7,65 @@
  * 4. 國小三大課本與爸媽自訂祕笈盒
  */
 
-import { KEYBOARD_ROWS } from './data/daqianLayout.js';
-import { HEROES, WEAPONS, SHOP_ITEMS, DIFFICULTY_CONFIG, DIABLO_STAGES } from './data/enemies.js';
-import { DIFFICULTY_BANKS, parseCustomVocabularyInput } from './data/vocabulary.js';
-import { TEXTBOOK_CATALOG } from './data/textbooks.js';
-import { TypingEngine } from './engine/TypingEngine.js';
-import { AudioEngine } from './engine/AudioEngine.js';
-import { StorageEngine } from './engine/StorageEngine.js';
-import { CanvasBattleScene } from './scenes/CanvasBattleScene.js';
+import { KEYBOARD_ROWS } from './data/daqianLayout.js?v=20261007_fix6';
+import { HEROES, WEAPONS, SHOP_ITEMS, DIFFICULTY_CONFIG, DIABLO_STAGES } from './data/enemies.js?v=20261007_mixfx';
+import { DIFFICULTY_BANKS, parseCustomVocabularyInput } from './data/vocabulary.js?v=20261007_moe';
+import { TEXTBOOK_CATALOG, TEXTBOOK_SOURCE_STATUS, PUBLISHER_RESOURCE_LINKS } from './data/textbooks.js?v=20261007_gradeflow';
+import { getCharacterReadings, MOE_MINI_METADATA } from './data/moeDictionary.js';
+import { getWeaponEffectProfile } from './data/weaponEffects.js';
+import { PRACTICE_CHOICES, MAIN_PRACTICE_CHOICES, ENGLISH_PRACTICE_BANKS } from './data/practice.js?v=20261007_gradeflow';
+import { TypingEngine } from './engine/TypingEngine.js?v=20261007_fix6';
+import { AudioEngine } from './engine/AudioEngine.js?v=20261007_fix6';
+import { StorageEngine, MAX_HERO_HP_CAP } from './engine/StorageEngine.js?v=20261007_practice';
+import { CanvasBattleScene } from './scenes/CanvasBattleScene.js?v=20261007_corners';
 
-class WuxiaGameApp {
+export function getSkillShortcut(event) {
+  if (event.ctrlKey || event.metaKey) return null;
+  const skillMap = { Digit1: 'q', F1: 'q', Digit2: 'w', F2: 'w',
+    Digit3: 'e', F3: 'e', Digit4: 'r', F4: 'r' };
+  return event.altKey || /^F[1-4]$/.test(event.code) ? skillMap[event.code] || null : null;
+}
+
+// 顯示分組依當前字的位置推算，續玩仍沿用輸入引擎的原始索引。
+export function getCharacterPage(charIndex, characterCount, pageSize = 4) {
+  const position = Math.max(0, Math.min(charIndex, characterCount - 1));
+  const start = Math.floor(position / pageSize) * pageSize;
+  return { start, end: Math.min(start + pageSize, characterCount),
+    page: Math.floor(start / pageSize) + 1, total: Math.ceil(characterCount / pageSize) };
+}
+
+// 複製後洗牌，保留題目與重複題的數量，不改動原始教材順序。
+export function shuffleQuestions(pool, random = Math.random, previousText = null) {
+  const queue = [...pool];
+  for (let i = queue.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [queue[i], queue[j]] = [queue[j], queue[i]];
+  }
+  if (previousText !== null && queue[0]?.text === previousText) {
+    const next = queue.findIndex((item) => item.text !== previousText);
+    if (next > 0) [queue[0], queue[next]] = [queue[next], queue[0]];
+  }
+  return queue;
+}
+
+// 英文以完整單字分組，字後的空白鍵隨該單字顯示。
+export function getQuestionPage(charIndex, text, mode) {
+  if (mode !== 'english') return getCharacterPage(charIndex, Array.from(text).length);
+  const words = [...text.matchAll(/\S+/g)];
+  if (!words.length) return { start: 0, end: text.length, page: 1, total: 1 };
+  let index = words.findIndex((word, i) => charIndex >= word.index && charIndex < (words[i + 1]?.index ?? text.length));
+  if (index < 0) index = words.length - 1;
+  return { start: words[index].index, end: words[index + 1]?.index ?? text.length,
+    page: index + 1, total: words.length };
+}
+
+function hasSameQuestions(queue, pool) {
+  if (!Array.isArray(queue) || queue.length !== pool.length) return false;
+  const serialize = (items) => JSON.stringify(items.map((item) => JSON.stringify(item)).sort());
+  return serialize(queue) === serialize(pool);
+}
+
+export class WuxiaGameApp {
   constructor() {
     this.storage = new StorageEngine();
     this.audio = new AudioEngine();
@@ -32,6 +81,7 @@ class WuxiaGameApp {
     // 每關 10 題通關制計數器
     this.stageGoal = 10;
     this.clearedWordsCount = 0; // 0 ~ 10
+    this.isMistakeDrill = false;
 
     this.enemyAtb = 0; // 0 ~ 1
     this.qiOrbs = 0;   // 0 ~ 5
@@ -60,9 +110,14 @@ class WuxiaGameApp {
 
   initBattleRenderer() {
     this.battleScene = new CanvasBattleScene('phaser-Stage');
-    const diffProg = this.storage.state.stageProgress[this.currentDifficulty];
-    const initialIndex = diffProg?.currentStageIndex || 1;
-    this.startStage(this.currentDifficulty, initialIndex);
+    const saved = this.storage.state.savedSession;
+    const unlocked = this.storage.state.unlockedDifficulties || ['easy'];
+    const targetDiff = (saved?.difficulty && unlocked.includes(saved.difficulty))
+      ? saved.difficulty
+      : (this.storage.state.currentDifficulty || 'easy');
+    const diffProg = this.storage.state.stageProgress[targetDiff];
+    const initialIndex = saved?.stageIndex || diffProg?.currentStageIndex || 1;
+    this.startStage(targetDiff, initialIndex, { resumeSession: true });
   }
 
   initDOM() {
@@ -70,9 +125,9 @@ class WuxiaGameApp {
     const vkPanel = document.getElementById('vk-panel');
     vkPanel.innerHTML = `
       <div class="vk-hint-row">
-        <span>左手聲母（黛藍）</span>
+        <span>左手鍵位（黛藍）</span>
         <span>・</span>
-        <span>右手韻母（翠綠）</span>
+        <span>右手鍵位（翠綠）</span>
         <span>・</span>
         <span>聲調音律（赤金）</span>
       </div>
@@ -97,7 +152,16 @@ class WuxiaGameApp {
       });
       vkPanel.appendChild(rowEl);
     });
+    // 根據存檔設定初始化虛擬鍵盤顯隱與按鈕文字
+    const updateVkBtnText = () => {
+      const isVisible = !!this.storage.state.showVirtualKeyboard;
+      const btn = document.getElementById('btn-toggle-vk');
+      if (btn) {
+        btn.textContent = isVisible ? '⌨️ 指法鍵盤：開 (Tab)' : '⌨️ 指法鍵盤：關 (Tab)';
+      }
+    };
     vkPanel.classList.toggle('hidden', !this.storage.state.showVirtualKeyboard);
+    updateVkBtnText();
 
     // 綁定頂部與底部工具按鈕
     document.getElementById('btn-switch-hero').addEventListener('click', (e) => {
@@ -113,14 +177,16 @@ class WuxiaGameApp {
       e.currentTarget.blur();
     });
 
+    document.getElementById('btn-open-practice').addEventListener('click', () => {
+      this.openPracticeModal();
+    });
+    document.getElementById('btn-open-settings').addEventListener('click', () => {
+      this.openExclusiveModal('modal-settings');
+      document.getElementById('btn-toggle-vk').focus({ preventScroll: true });
+    });
+
     document.getElementById('btn-toggle-lang').addEventListener('click', (e) => {
-      this.storage.state.languageMode = this.storage.state.languageMode === 'bopomofo' ? 'english' : 'bopomofo';
-      this.storage.state.useCustomVocabulary = false;
-      this.storage.state.selectedTextbook = null;
-      this.storage.save();
-      this.rebuildQuestionPool();
-      this.nextQuestion();
-      this.updateHUD();
+      this.openPracticeModal();
       e.currentTarget.blur();
     });
 
@@ -128,6 +194,7 @@ class WuxiaGameApp {
       this.storage.state.showVirtualKeyboard = !this.storage.state.showVirtualKeyboard;
       this.storage.save();
       vkPanel.classList.toggle('hidden', !this.storage.state.showVirtualKeyboard);
+      updateVkBtnText();
       e.currentTarget.blur();
     });
 
@@ -186,18 +253,9 @@ class WuxiaGameApp {
       e.currentTarget.blur();
     });
 
-    // 開場主頁彈窗按鈕
+    // 首頁只提供介紹與單一進入遊戲入口。
     document.getElementById('btn-title-start').addEventListener('click', () => {
-      this.closeAllModals();
-    });
-    document.getElementById('btn-title-stages').addEventListener('click', () => {
-      this.openStageModal();
-    });
-    document.getElementById('btn-title-textbook').addEventListener('click', () => {
-      this.openTextbookModal();
-    });
-    document.getElementById('btn-title-shop').addEventListener('click', () => {
-      this.openShopModal();
+      this.openPracticeModal();
     });
 
     // 錯題本彈窗按鈕
@@ -215,7 +273,7 @@ class WuxiaGameApp {
 
     // 全域鍵盤監聽
     window.addEventListener('keydown', (e) => {
-      if (e.code === 'Tab') {
+      if (e.code === 'Tab' && !this.isBattlePaused) {
         e.preventDefault();
         document.getElementById('btn-toggle-vk').click();
         return;
@@ -230,16 +288,10 @@ class WuxiaGameApp {
       }
 
       // 技能快捷鍵：Alt+1~4 或 F1~F4
-      if ((e.altKey && ['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) ||
-          ['F1', 'F2', 'F3', 'F4'].includes(e.code)) {
+      const skillShortcut = getSkillShortcut(e);
+      if (skillShortcut) {
         e.preventDefault();
-        const skillMap = {
-          Digit1: 'q', F1: 'q',
-          Digit2: 'w', F2: 'w',
-          Digit3: 'e', F3: 'e',
-          Digit4: 'r', F4: 'r'
-        };
-        this.castSkill(skillMap[e.code]);
+        this.castSkill(skillShortcut);
         return;
       }
 
@@ -259,7 +311,9 @@ class WuxiaGameApp {
    * 訂閱 TypingEngine 事件並轉發至 Phaser 與 DOM
    */
   bindTypingEvents() {
+    window.addEventListener('beforeunload', () => this.saveCurrentSessionProgress());
     this.typing.on('targetLoaded', () => {
+      this.consecutiveMisses = 0;
       this.renderQuestionDOM();
     });
 
@@ -272,6 +326,7 @@ class WuxiaGameApp {
     });
 
     this.typing.on('keyHit', ({ combo, comboTier, isCharCompleted }) => {
+      this.consecutiveMisses = 0;
       this.audio.playKeyHit(combo);
       if (this.battleScene) {
         this.battleScene.playMicroGather(combo, comboTier);
@@ -280,6 +335,7 @@ class WuxiaGameApp {
       if (isCharCompleted) {
         this.updateComboBanner(combo, comboTier);
       }
+      this.saveCurrentSessionProgress();
     });
 
     this.typing.on('charComplete', ({ charObj, combo, comboTier, wpm, isLastChar }) => {
@@ -307,17 +363,12 @@ class WuxiaGameApp {
       const isCrit = Math.random() < (weapon.critRate + 0.15) || comboTier >= 1;
       const isParryBreak = this.enemyAtb >= 0.72;
 
-      // 內力珠累積
+      // 滿氣保留供主動施招，不自動消耗第五顆內力珠。
       this.qiOrbs = Math.min(5, this.qiOrbs + 1);
-      let burstMultiplier = 1.0;
-      if (this.qiOrbs >= 5) {
-        burstMultiplier = 1.65;
-        this.qiOrbs = 0;
-      }
 
       const finisherDmg = Math.round(
         weapon.atk * 0.95 * (1 + Math.min(combo, 35) * 0.03) * (1 + wpm / 140) *
-        (isParryBreak ? 1.4 : 1.0) * burstMultiplier
+        (isParryBreak ? 1.4 : 1.0)
       );
 
       if (isParryBreak) {
@@ -331,7 +382,7 @@ class WuxiaGameApp {
         this.battleScene.playWordFinisher({
           wordText: word.text,
           damage: finisherDmg,
-          isCrit: isCrit || burstMultiplier > 1,
+          isCrit,
           isParryBreak,
           comboTier
         });
@@ -339,14 +390,20 @@ class WuxiaGameApp {
 
       // 每關 10 題過關制推進
       this.clearedWordsCount = Math.min(this.stageGoal, this.clearedWordsCount + 1);
+      this.typing.active = false;
+      if (!this.isMistakeDrill) {
+        this.saveCurrentSessionProgress();
+      }
       this.updateHUD();
 
       if (this.clearedWordsCount >= this.stageGoal) {
-        this.handleStageVictory();
+        if (this.isMistakeDrill) {
+          this.handleMistakeDrillVictory();
+        } else {
+          this.handleStageVictory();
+        }
       } else {
-        setTimeout(() => {
-          if (!this.isStageClearing) this.nextQuestion();
-        }, 280);
+        this.scheduleNextQuestion(280);
       }
     });
 
@@ -358,9 +415,11 @@ class WuxiaGameApp {
         this.audio.playKeyHit(previousCombo);
         if (this.battleScene) this.battleScene.playMissParry(true);
         this.updateHUD();
+        this.saveCurrentSessionProgress();
         return;
       }
 
+      this.consecutiveMisses = (this.consecutiveMisses || 0) + 1;
       this.audio.playMiss();
       if (this.battleScene) {
         this.battleScene.playMissParry(false);
@@ -381,6 +440,10 @@ class WuxiaGameApp {
         this.updateHUD();
       }
 
+      // 重新渲染題目 DOM 以觸發連續錯誤教學指引
+      this.renderQuestionDOM();
+      this.saveCurrentSessionProgress();
+
       const cardEl = document.getElementById(`q-char-${charIndex}`);
       if (cardEl) {
         cardEl.classList.remove('miss');
@@ -391,23 +454,55 @@ class WuxiaGameApp {
   }
 
   /**
-   * 啟動暗黑指定境界與關卡
+   * 即時將目前關卡內已斬題數、題庫游標與內力珠存入 StorageEngine
    */
-  startStage(diffId, stageIndex) {
+  saveCurrentSessionProgress() {
+    if (this.isMistakeDrill || this.isStageClearing) return;
+    this.storage.saveSessionProgress({
+      difficulty: this.currentDifficulty,
+      stageIndex: this.currentStageIndex,
+      clearedWordsCount: this.clearedWordsCount,
+      questionCursor: this.questionCursor,
+      qiOrbs: this.qiOrbs,
+      typingProgress: this.typing.active ? this.typing.getProgress() : null,
+      questionPoolKey: this.questionPoolKey,
+      questionQueue: this.questionQueue
+    });
+  }
+
+  /**
+   * 啟動暗黑指定境界與關卡（支援 resumeSession 恢復上次打到第幾題）
+   */
+  startStage(diffId, stageIndex, { resumeSession = false } = {}) {
+    clearTimeout(this.nextQuestionTimer);
+    this.isMistakeDrill = false;
     this.currentDifficulty = diffId;
     this.currentStageIndex = Number(stageIndex) || 1;
     this.storage.state.currentDifficulty = diffId;
     const diffProg = this.storage.state.stageProgress[diffId];
     if (diffProg) diffProg.currentStageIndex = this.currentStageIndex;
-    this.storage.save();
 
     const stages = DIABLO_STAGES[diffId] || DIABLO_STAGES.easy;
     this.currentStage = stages[this.currentStageIndex - 1] || stages[0];
 
     // 每關固定 10 題
     this.stageGoal = 10;
-    this.clearedWordsCount = 0;
+    const saved = this.storage.state.savedSession;
+    let canResume =
+      resumeSession &&
+      saved &&
+      saved.difficulty === diffId &&
+      Number(saved.stageIndex) === this.currentStageIndex &&
+      (saved.clearedWordsCount > 0 || saved.typingProgress) &&
+      saved.clearedWordsCount < this.stageGoal;
+
+    this.clearedWordsCount = canResume ? saved.clearedWordsCount : 0;
+    if (canResume && typeof saved.qiOrbs === 'number') {
+      this.qiOrbs = saved.qiOrbs;
+    }
+
     this.enemyAtb = 0;
+    this.consecutiveMisses = 0;
     this.isStageClearing = false;
     this.isBattlePaused = false;
 
@@ -416,9 +511,33 @@ class WuxiaGameApp {
 
     this.refreshBattleVisuals();
     this.rebuildQuestionPool();
-    this.nextQuestion();
+    // 常用字題庫僅新增字時，舊隊列仍可練完；下次挑戰才從擴充題庫抽題。
+    const expandedCommonQueue = ['moe', 'mixed'].includes(this.storage.state.selectedTextbook?.publisherId) &&
+      Array.isArray(saved?.questionQueue) && saved.questionQueue.length > 0 &&
+      saved.questionQueue.length < this.questionPool.length &&
+      new Set(saved.questionQueue.map(word => word.text)).size === saved.questionQueue.length &&
+      saved.questionQueue.every(word => this.questionPool.some(item => JSON.stringify(item) === JSON.stringify(word)));
+    if (canResume && !expandedCommonQueue && ((saved.questionPoolKey && saved.questionPoolKey !== this.questionPoolKey) ||
+        (saved.questionQueue && !hasSameQuestions(saved.questionQueue, this.questionPool)))) {
+      canResume = false;
+      this.clearedWordsCount = 0;
+    }
+    if (canResume) {
+      // 舊版沒有洗牌隊列，使用原始教材順序接續，避免升級後跳題。
+      this.questionQueue = saved.questionQueue
+        ? structuredClone(saved.questionQueue) : [...this.questionPool];
+      this.questionCursor = Math.max(0, Number(saved.questionCursor) || this.clearedWordsCount);
+    }
+    if (canResume && saved.typingProgress && (saved.questionPoolKey === this.questionPoolKey || expandedCommonQueue)) {
+      const currentIndex = Math.max(0, this.questionCursor - 1);
+      this.typing.loadWord(this.questionQueue[currentIndex % this.questionQueue.length]);
+      this.typing.restoreProgress(saved.typingProgress);
+    } else {
+      this.nextQuestion();
+    }
+    this.saveCurrentSessionProgress();
     this.updateHUD();
-    this.updateComboBanner(0, 0);
+    this.updateComboBanner(this.typing.combo, this.typing.getComboTier());
   }
 
   refreshBattleVisuals() {
@@ -438,7 +557,14 @@ class WuxiaGameApp {
     const st = this.storage.state;
 
     if (st.useCustomVocabulary && st.customVocabularyRaw) {
-      pool = parseCustomVocabularyInput(st.customVocabularyRaw);
+      try {
+        pool = parseCustomVocabularyInput(st.customVocabularyRaw);
+      } catch (error) {
+        st.useCustomVocabulary = false;
+        this.storage.save();
+        // 舊存檔可能含未收錄字，保留原文並告知需補注音，暫用預設題庫。
+        window.alert(`自訂祕笈需要補注音，已暫時恢復預設題庫。\n${error.message}`);
+      }
     } else if (st.selectedTextbook) {
       const pub = TEXTBOOK_CATALOG[st.selectedTextbook.publisherId];
       const grade = pub?.grades.find((g) => g.gradeId === st.selectedTextbook.gradeId);
@@ -449,22 +575,44 @@ class WuxiaGameApp {
     }
 
     if (pool.length === 0) {
+      if (st.activePracticeKey === 'english') {
+        pool = ENGLISH_PRACTICE_BANKS[this.currentDifficulty] || ENGLISH_PRACTICE_BANKS.easy;
+      }
+    }
+    if (pool.length === 0) {
       const bank = DIFFICULTY_BANKS[this.currentDifficulty] || DIFFICULTY_BANKS.easy;
       const stageKey = `stage_${this.currentStageIndex}`;
       pool = bank[stageKey] || bank.stage_1;
     }
 
-    this.questionQueue = [...pool];
+    this.questionPool = [...pool];
+    this.questionPoolKey = JSON.stringify(pool);
+    this.questionQueue = shuffleQuestions(pool, Math.random, this.questionQueue[0]?.text ?? null);
     this.questionCursor = 0;
   }
 
   nextQuestion() {
+    clearTimeout(this.nextQuestionTimer);
     if (this.questionQueue.length === 0) {
       this.rebuildQuestionPool();
+    }
+    if (this.questionCursor >= this.questionQueue.length) {
+      const previousText = this.questionQueue[(this.questionCursor - 1) % this.questionQueue.length]?.text;
+      this.questionQueue = shuffleQuestions(this.questionQueue, Math.random, previousText);
+      this.questionCursor = 0;
     }
     const item = this.questionQueue[this.questionCursor % this.questionQueue.length];
     this.questionCursor++;
     this.typing.loadWord(item);
+    this.typing.active = true;
+    this.saveCurrentSessionProgress();
+  }
+
+  scheduleNextQuestion(delay) {
+    clearTimeout(this.nextQuestionTimer);
+    this.nextQuestionTimer = setTimeout(() => {
+      if (!this.isStageClearing) this.nextQuestion();
+    }, delay);
   }
 
   renderQuestionDOM() {
@@ -477,17 +625,39 @@ class WuxiaGameApp {
     const diffCfg = DIFFICULTY_CONFIG[this.currentDifficulty];
     const st = this.storage.state;
     let sourceLabel = `【${diffCfg.name}】第 ${this.currentStageIndex} 關（第 ${this.clearedWordsCount + 1} / ${this.stageGoal} 題）`;
-    if (st.useCustomVocabulary) {
+    if (this.isMistakeDrill) {
+      sourceLabel = `📝 錯題墨寶閣・專項特訓（第 ${this.clearedWordsCount + 1} / ${this.stageGoal} 題）`;
+    } else if (st.useCustomVocabulary) {
       sourceLabel = `📜 爸媽自訂祕笈本（第 ${this.clearedWordsCount + 1} / ${this.stageGoal} 題）`;
     } else if (st.selectedTextbook) {
       const pub = TEXTBOOK_CATALOG[st.selectedTextbook.publisherId];
-      sourceLabel = `📘 ${pub?.publisherName || '國小課本'}同步修煉（第 ${this.clearedWordsCount + 1} / ${this.stageGoal} 題）`;
+      const grade = pub?.grades.find((item) => item.gradeId === this.storage.state.selectedTextbook.gradeId);
+      sourceLabel = `📘 ${pub?.publisherName || '國語練習'}・${grade?.gradeName || ''}（第 ${this.clearedWordsCount + 1} / ${this.stageGoal} 題）`;
+    } else if (st.activePracticeKey === 'english') {
+      sourceLabel = `🔤 英文練習・${diffCfg.name}（第 ${this.clearedWordsCount + 1} / ${this.stageGoal} 題）`;
     }
 
     document.getElementById('scroll-source-label').textContent = sourceLabel;
     document.getElementById('word-meaning-text').textContent = word.meaning || '';
 
+    const needHint = (this.consecutiveMisses || 0) >= 2;
+
+    const page = getQuestionPage(this.typing.charIndex, word.text, this.typing.mode);
+    container.classList.toggle('english-characters', this.typing.mode === 'english');
+    const context = document.getElementById('question-context');
+    const progress = document.getElementById('question-page-progress');
+    const grouped = page.total > 1;
+    context.hidden = !grouped;
+    progress.hidden = !grouped;
+    context.textContent = grouped ? word.text : '';
+    progress.textContent = grouped
+      ? this.typing.mode === 'english'
+        ? `第 ${page.page} / ${page.total} 個單字（打完自動接續）`
+        : `第 ${page.page} / ${page.total} 組・第 ${page.start + 1}～${page.end} 字（打完自動接續）`
+      : '';
+
     this.typing.characters.forEach((chObj, cIdx) => {
+      if (cIdx < page.start || cIdx >= page.end) return;
       const card = document.createElement('div');
       card.className = 'q-char-card';
       card.id = `q-char-${cIdx}`;
@@ -500,12 +670,19 @@ class WuxiaGameApp {
       chObj.symbols.forEach((sym, sIdx) => {
         const symSpan = document.createElement('span');
         symSpan.className = 'q-zy-item';
+        if (sym === '␣') {
+          symSpan.classList.add('tone-space');
+          symSpan.title = '一聲（請按空白鍵）';
+        }
         if (cIdx < this.typing.charIndex || (cIdx === this.typing.charIndex && sIdx < this.typing.symbolIndex)) {
           symSpan.classList.add('typed');
         } else if (cIdx === this.typing.charIndex && sIdx === this.typing.symbolIndex) {
           symSpan.classList.add('active-sym');
+          if (needHint) {
+            symSpan.classList.add('hint-flare');
+          }
         }
-        symSpan.textContent = sym;
+        symSpan.textContent = sym === '␣' ? '␣一聲' : sym;
         zyList.appendChild(symSpan);
       });
 
@@ -513,7 +690,7 @@ class WuxiaGameApp {
       hanzi.className = 'q-hanzi';
       hanzi.textContent = chObj.char === ' ' ? '␣' : chObj.char;
 
-      card.appendChild(zyList);
+      if (this.typing.mode !== 'english') card.appendChild(zyList);
       card.appendChild(hanzi);
       container.appendChild(card);
     });
@@ -521,14 +698,80 @@ class WuxiaGameApp {
     this.keyDomMap.forEach((el) => el.classList.remove('active-target'));
     const keyInfo = this.typing.getExpectedKeyInfo();
     const fingerEl = document.getElementById('finger-guide-pill');
+    const mistakeBanner = document.getElementById('mistake-guide-banner');
+
     if (keyInfo) {
       const keyEl = this.keyDomMap.get(keyInfo.code);
       if (keyEl) keyEl.classList.add('active-target');
-      const symLabel = this.typing.mode === 'english' ? keyInfo.en : keyInfo.zy;
-      fingerEl.innerHTML = `下一鍵：<strong>${symLabel}</strong>（按鍵 <strong>${keyInfo.en}</strong>・${keyInfo.finger}）`;
+      const isSpaceTone = keyInfo.code === 'Space' || keyInfo.zy === '␣' || keyInfo.zy === 'ˉ';
+      const symLabel =
+        this.typing.mode === 'english'
+          ? keyInfo.en
+          : isSpaceTone
+          ? '一聲（空白鍵 ␣）'
+          : keyInfo.zy;
+      const keyLabel = isSpaceTone ? 'Space 空白鍵' : keyInfo.en;
+      const keycapBadge = this.renderKeycapBadgeHTML(keyInfo);
+
+      fingerEl.innerHTML = `${keycapBadge}<span>下一鍵：<strong class="guide-sym-chip">${symLabel}</strong>（按鍵 <strong class="guide-key-chip">${keyLabel}</strong>・${keyInfo.finger}）</span>`;
+
+      if (mistakeBanner) {
+        if (needHint) {
+          const curChar = this.typing.characters[this.typing.charIndex]?.char || '';
+          const vkTip = (!this.storage.state.showVirtualKeyboard && this.consecutiveMisses >= 3)
+            ? '（可按 Tab 鍵展開大字鍵盤）'
+            : '';
+          mistakeBanner.innerHTML = `${keycapBadge}<span>💡 出招指引：請打「<strong>${curChar}</strong>」的 <strong class="guide-sym-chip">${symLabel}</strong> ➜ 請按鍵盤 <strong class="guide-key-chip">${keyLabel}</strong> 鍵（${keyInfo.finger}）${vkTip}</span>`;
+          mistakeBanner.classList.add('show');
+        } else {
+          mistakeBanner.classList.remove('show');
+        }
+      }
     } else {
       fingerEl.innerHTML = `招式完成！劍氣斬擊中...`;
+      if (mistakeBanner) mistakeBanner.classList.remove('show');
     }
+    // 矮視窗的題目區可捲動，錯鍵指引出現時確保完整可見。
+    if (needHint && mistakeBanner) {
+      mistakeBanner.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    } else {
+      const paper = container.closest('.paper-scroll');
+      if (paper) paper.scrollTop = 0;
+    }
+  }
+
+  /**
+   * 依據預期鍵位動態產生 v4 四色空白鍵帽疊字徽章（左手青藍、右手青綠、聲調暖金、一聲長條空白鍵）
+   */
+  renderKeycapBadgeHTML(keyInfo) {
+    if (!keyInfo) return '';
+    const isSpace = keyInfo.code === 'Space' || keyInfo.isWide || keyInfo.zy === '␣' || keyInfo.zy === 'ˉ';
+    let keycapImg = './assets/ui/keycap_left_v4.png';
+    if (isSpace) {
+      keycapImg = './assets/ui/keycap_space_v4.png';
+    } else if (keyInfo.isTone) {
+      keycapImg = './assets/ui/keycap_tone_v4.png';
+    } else if (keyInfo.finger && keyInfo.finger.startsWith('右手')) {
+      keycapImg = './assets/ui/keycap_right_v4.png';
+    }
+
+    const topEn = isSpace ? 'SPACE' : keyInfo.en;
+    const mainZy =
+      this.typing.mode === 'english'
+        ? keyInfo.en
+        : isSpace
+        ? '一聲・空白鍵'
+        : keyInfo.zy;
+
+    return `
+      <span class="v4-keycap-widget ${isSpace ? 'is-space' : ''}">
+        <img src="${keycapImg}" alt="" class="v4-keycap-bg" />
+        <span class="v4-keycap-overlay">
+          <span class="v4-keycap-en">${topEn}</span>
+          <span class="v4-keycap-zy">${mainZy}</span>
+        </span>
+      </span>
+    `;
   }
 
   startAtbTimer() {
@@ -567,6 +810,7 @@ class WuxiaGameApp {
   triggerEnemyAttack() {
     const atk = this.currentStage.enemy.atk || 10;
     this.storage.state.currentHp = Math.max(0, this.storage.state.currentHp - atk);
+    this.storage.save();
     this.audio.playPlayerHurt();
     if (this.battleScene) {
       this.battleScene.playEnemyAttack(atk);
@@ -586,7 +830,16 @@ class WuxiaGameApp {
     const diffCfg = DIFFICULTY_CONFIG[this.currentDifficulty];
 
     document.getElementById('hero-name-text').textContent = hero.name;
+    const avatarEl = document.getElementById('hero-avatar-img');
+    if (avatarEl && hero.avatar) {
+      avatarEl.src = hero.avatar;
+    }
+    const weaponIconEl = document.getElementById('hero-weapon-icon');
+    if (weaponIconEl && weapon.icon) {
+      weaponIconEl.src = weapon.icon;
+    }
     document.getElementById('hero-weapon-badge').textContent = weapon.name.split('・')[1] || weapon.name;
+    document.getElementById('hero-weapon-badge').title = `${getWeaponEffectProfile(weapon).name}・每關練習題數不變`;
     document.getElementById('hero-hp-text').textContent = `${st.currentHp} / ${st.maxHp}`;
     document.getElementById('hero-hp-bar').style.width = `${Math.round((st.currentHp / st.maxHp) * 100)}%`;
     document.getElementById('shield-count').textContent = st.missShields;
@@ -610,25 +863,30 @@ class WuxiaGameApp {
       btnW.classList.toggle('ready', this.qiOrbs >= 2);
     }
     if (btnE) {
-      btnE.disabled = this.qiOrbs < 3;
-      btnE.classList.toggle('ready', this.qiOrbs >= 3);
+      const canHeal = this.qiOrbs >= 3 && st.currentHp < st.maxHp;
+      btnE.disabled = !canHeal;
+      btnE.classList.toggle('ready', canHeal);
     }
     if (btnR) {
       btnR.disabled = this.qiOrbs < 5;
       btnR.classList.toggle('ready', this.qiOrbs >= 5);
     }
 
-    document.getElementById('chapter-title').textContent = `${diffCfg.name}｜${this.currentStage.title}（${this.currentStage.chapterName}）`;
+    if (this.isMistakeDrill) {
+      document.getElementById('chapter-title').textContent = `📝 錯題墨寶閣・專項特訓（共 ${this.stageGoal} 題）`;
+    } else {
+      document.getElementById('chapter-title').textContent = `${diffCfg.name}｜${this.currentStage.title}（${this.currentStage.chapterName}）`;
+    }
     document.getElementById('coin-count').textContent = st.coins;
     const stats = this.typing.getStats();
     document.getElementById('wpm-display').textContent = stats.wpm;
     document.getElementById('acc-display').textContent = `${stats.accuracy}%`;
 
-    // 敵人血條與擊破進度（以 10 題為基準）
-    document.getElementById('enemy-name-text').textContent = enemy.name;
-    document.getElementById('enemy-title-badge').textContent = `${this.currentStageIndex} / 10 關`;
+    // 敵人血條與擊破進度
+    document.getElementById('enemy-name-text').textContent = this.isMistakeDrill ? '心魔墨影（錯題特訓）' : enemy.name;
+    document.getElementById('enemy-title-badge').textContent = this.isMistakeDrill ? '特訓' : `${this.currentStageIndex} / 10 關`;
     const remainingGoals = Math.max(0, this.stageGoal - this.clearedWordsCount);
-    document.getElementById('enemy-hp-text').textContent = `剩餘 ${remainingGoals} / 10 題`;
+    document.getElementById('enemy-hp-text').textContent = `剩餘 ${remainingGoals} / ${this.stageGoal} 題`;
     document.getElementById('enemy-hp-bar').style.width = `${Math.round((remainingGoals / this.stageGoal) * 100)}%`;
 
     document.getElementById('btn-toggle-lang').textContent =
@@ -674,32 +932,49 @@ class WuxiaGameApp {
 
     // 檢查是否突破境界（通關第 10 關）
     let breakthroughNotice = '';
+    let nextDiffId = null;
+    let nextBtnLabel = `⚔️ 進入第 ${this.currentStageIndex + 1} 關`;
     if (this.currentStageIndex === 10) {
       if (this.currentDifficulty === 'easy') {
-        breakthroughNotice = `<div style="color:var(--bright-gold); font-size:1.1rem; margin:10px 0; padding:8px; border:1px solid var(--bright-gold); border-radius:6px;">
+        nextDiffId = 'medium';
+        nextBtnLabel = '⚔️ 晉升下一境界：名震江湖（第 1 關）';
+        breakthroughNotice = `<div style="color:var(--bright-gold); font-size:1.05rem; margin:10px 0; padding:8px; border:1px solid var(--bright-gold); border-radius:6px;">
           🎉 恭喜突破【初出茅廬】！已成功解鎖【名震江湖（中）】全新 10 關挑戰！
         </div>`;
       } else if (this.currentDifficulty === 'medium') {
-        breakthroughNotice = `<div style="color:var(--bright-gold); font-size:1.1rem; margin:10px 0; padding:8px; border:1px solid var(--bright-gold); border-radius:6px;">
+        nextDiffId = 'hard';
+        nextBtnLabel = '⚔️ 晉升終極境界：一代宗師（第 1 關）';
+        breakthroughNotice = `<div style="color:var(--bright-gold); font-size:1.05rem; margin:10px 0; padding:8px; border:1px solid var(--bright-gold); border-radius:6px;">
           🏆 恭喜名震江湖！已成功解鎖終極境界【一代宗師（難）】地獄 10 關挑戰！
         </div>`;
       } else {
-        breakthroughNotice = `<div style="color:var(--bright-gold); font-size:1.1rem; margin:10px 0; padding:8px; border:1px solid var(--bright-gold); border-radius:6px;">
+        nextBtnLabel = '🗺️ 查看江湖境界地圖';
+        breakthroughNotice = `<div style="color:var(--bright-gold); font-size:1.05rem; margin:10px 0; padding:8px; border:1px solid var(--bright-gold); border-radius:6px;">
           👑 恭賀少俠斬破黑風魔皇，登峰造極，榮登武林盟主至尊寶座！
         </div>`;
       }
     }
 
     const starStr = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+    const stampImg =
+      stars >= 3
+        ? './assets/ui/stamp_perfect_v4.png'
+        : './assets/ui/stamp_record_v4.png';
+    const stampAlt = stars >= 3 ? '完勝印章' : '破關印章';
+
     const body = document.getElementById('result-modal-body');
     body.innerHTML = `
-      <div style="text-align:center; padding:10px 0;">
+      <div class="results-scroll-stage">
+        <img src="${stampImg}" alt="${stampAlt}" class="result-stamp-badge" />
         <div style="font-size:2.4rem; margin-bottom:8px;">${starStr}</div>
         <h3 style="color:var(--bright-gold); font-size:1.35rem; margin-bottom:6px;">
           十斬大成！成功擊退【${this.currentStage.enemy.name}】！
         </h3>
-        <p style="color:#adb5bd; font-size:0.92rem; margin-bottom:12px;">
+        <p style="color:#adb5bd; font-size:0.92rem; margin-bottom:6px;">
           ${this.currentStage.enemy.quote}
+        </p>
+        <p style="color:#69db7c; font-size:0.86rem; margin-bottom:12px;">
+          ❤️ 少俠戰後運功調息，氣血已全滿恢復（${this.storage.state.currentHp} / ${this.storage.state.maxHp}）！
         </p>
         ${breakthroughNotice}
         <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px;">
@@ -716,36 +991,88 @@ class WuxiaGameApp {
             <strong style="font-size:1.4rem; color:var(--bright-gold);">+${rewardCoins} 🪙</strong>
           </div>
         </div>
-        <div style="display:flex; justify-content:center; gap:12px;">
+        <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
           <button class="wuxia-btn" id="btn-result-replay">🔄 重練本關</button>
           <button class="wuxia-btn" id="btn-result-shop">🏮 客棧神兵閣</button>
-          ${
-            this.currentStageIndex < 10
-              ? `<button class="wuxia-btn gold" id="btn-result-next">⚔️ 進入第 ${this.currentStageIndex + 1} 關</button>`
-              : `<button class="wuxia-btn gold" id="btn-result-next">🗺️ 查看江湖地圖</button>`
-          }
+          <button class="wuxia-btn" id="btn-result-map">🗺️ 選關地圖</button>
+          <button class="wuxia-btn gold" id="btn-result-next">${nextBtnLabel}（Enter）</button>
         </div>
       </div>
     `;
 
     document.getElementById('result-modal-title').textContent = '武林捷報・十斬通關';
-    document.getElementById('modal-result').classList.add('open');
+    this.openExclusiveModal('modal-result');
 
     document.getElementById('btn-result-replay')?.addEventListener('click', () => {
       this.closeAllModals();
-      this.startStage(this.currentDifficulty, this.currentStageIndex);
+      this.startStage(this.currentDifficulty, this.currentStageIndex, { resumeSession: false });
     });
     document.getElementById('btn-result-shop')?.addEventListener('click', () => {
-      this.closeAllModals();
       this.openShopModal();
+    });
+    document.getElementById('btn-result-map')?.addEventListener('click', () => {
+      this.openStageModal(nextDiffId || this.currentDifficulty);
     });
     document.getElementById('btn-result-next')?.addEventListener('click', () => {
       this.closeAllModals();
       if (this.currentStageIndex < 10) {
-        this.startStage(this.currentDifficulty, this.currentStageIndex + 1);
+        this.startStage(this.currentDifficulty, this.currentStageIndex + 1, { resumeSession: false });
+      } else if (nextDiffId) {
+        this.startStage(nextDiffId, 1, { resumeSession: false });
       } else {
-        this.openStageModal();
+        this.openStageModal(this.currentDifficulty);
       }
+    });
+    // 將焦點移至下一步，使用原生 Enter 啟動；彈窗內 Tab 可切換其他按鈕。
+    document.getElementById('btn-result-next')?.focus({ preventScroll: true });
+  }
+
+  /**
+   * 錯題墨寶閣專項特訓完成結算（獨立於主線關卡，不誤觸主線通關）
+   */
+  handleMistakeDrillVictory() {
+    if (this.isStageClearing) return;
+    this.isStageClearing = true;
+    this.isBattlePaused = true;
+    this.typing.active = false;
+    this.audio.playVictory();
+
+    const stats = this.typing.getStats();
+    const bonusCoins = Math.max(15, this.stageGoal * 5);
+    this.storage.state.coins += bonusCoins;
+    this.storage.save();
+    this.updateHUD();
+
+    const stampImg = stats.accuracy >= 92 ? './assets/ui/stamp_perfect_v4.png' : './assets/ui/stamp_record_v4.png';
+    const body = document.getElementById('result-modal-body');
+    body.innerHTML = `
+      <div class="results-scroll-stage">
+        <img src="${stampImg}" alt="特訓印章" class="result-stamp-badge" />
+        <h3 style="color:var(--bright-gold); font-size:1.35rem; margin-bottom:8px;">
+          📝 錯題特訓大成！共斬破 ${this.stageGoal} 道生疏字詞！
+        </h3>
+        <p style="color:#ced4da; font-size:0.92rem; margin-bottom:14px;">
+          特訓速度：<strong style="color:var(--sword-cyan);">${stats.wpm} WPM</strong> ｜
+          正確率：<strong style="color:#69db7c;">${stats.accuracy}%</strong> ｜
+          勤學賞金：<strong style="color:var(--bright-gold);">+${bonusCoins} 🪙</strong>
+        </p>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <button class="wuxia-btn" id="btn-drill-clear-return">🗑️ 清空已練熟錯題並回主線</button>
+          <button class="wuxia-btn gold" id="btn-drill-return-stage">⚔️ 返回主線關卡繼續修煉</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('result-modal-title').textContent = '墨寶閣・特訓捷報';
+    this.openExclusiveModal('modal-result');
+
+    document.getElementById('btn-drill-clear-return')?.addEventListener('click', () => {
+      this.storage.clearAllMistakes();
+      this.closeAllModals();
+      this.startStage(this.currentDifficulty, this.currentStageIndex, { resumeSession: true });
+    });
+    document.getElementById('btn-drill-return-stage')?.addEventListener('click', () => {
+      this.closeAllModals();
+      this.startStage(this.currentDifficulty, this.currentStageIndex, { resumeSession: true });
     });
   }
 
@@ -763,7 +1090,8 @@ class WuxiaGameApp {
 
     const body = document.getElementById('result-modal-body');
     body.innerHTML = `
-      <div style="text-align:center; padding:12px 0;">
+      <div class="results-scroll-stage">
+        <img src="./assets/ui/stamp_retry_v4.png" alt="重整旗鼓印章" class="result-stamp-badge" />
         <h3 style="color:#ffd166; font-size:1.3rem; margin-bottom:8px;">
           少俠勝敗乃兵家常事，回客棧喝碗熱茶再戰！
         </h3>
@@ -772,21 +1100,34 @@ class WuxiaGameApp {
         </p>
         <div style="display:flex; justify-content:center; gap:12px;">
           <button class="wuxia-btn" id="btn-fail-shop">🏮 去客棧換把好劍</button>
-          <button class="wuxia-btn gold" id="btn-fail-retry">⚔️ 重整旗鼓再戰</button>
+          <button class="wuxia-btn gold" id="btn-fail-retry">⚔️ 接續本關再戰</button>
         </div>
       </div>
     `;
     document.getElementById('result-modal-title').textContent = '暫回客棧・調息養氣';
-    document.getElementById('modal-result').classList.add('open');
+    this.openExclusiveModal('modal-result');
 
     document.getElementById('btn-fail-shop')?.addEventListener('click', () => {
-      this.closeAllModals();
       this.openShopModal();
     });
     document.getElementById('btn-fail-retry')?.addEventListener('click', () => {
       this.closeAllModals();
-      this.startStage(this.currentDifficulty, this.currentStageIndex);
+      this.startStage(this.currentDifficulty, this.currentStageIndex, { resumeSession: true });
     });
+  }
+
+  /**
+   * 單一彈窗開啟保護：先關閉所有其他彈窗並將卷軸歸零，防止彈窗疊加與橫幅被截斷
+   */
+  openExclusiveModal(modalId) {
+    document.querySelectorAll('.modal-backdrop').forEach((m) => m.classList.remove('open'));
+    this.isBattlePaused = true;
+    const modalEl = document.getElementById(modalId);
+    if (modalEl) {
+      modalEl.classList.add('open');
+      const card = modalEl.querySelector('.modal-card');
+      if (card) card.scrollTop = 0;
+    }
   }
 
   closeAllModals() {
@@ -797,13 +1138,59 @@ class WuxiaGameApp {
   }
 
   /**
-   * 暗黑三大境界 $\times$ 10 關地圖選單彈窗（支援切換易／中／難）
+   * 暗黑三大境界 × 10 關地圖選單彈窗（支援切換易／中／難）
    */
-  openStageModal() {
-    this.isBattlePaused = true;
-    const modalEl = document.getElementById('modal-stages');
-    modalEl.classList.add('open');
-    this.renderStageSelectionTabs(this.currentDifficulty);
+  openStageModal(targetDiffId) {
+    this.pendingPracticeKey = null;
+    const activeDiff = (typeof targetDiffId === 'string' && DIFFICULTY_CONFIG[targetDiffId])
+      ? targetDiffId
+      : this.currentDifficulty;
+    this.renderStageSelectionTabs(activeDiff);
+    this.openExclusiveModal('modal-stages');
+  }
+
+  openPracticeModal() {
+    const select = document.getElementById('practice-book');
+    select.replaceChildren();
+    MAIN_PRACTICE_CHOICES.forEach(choice => {
+      const option = document.createElement('option');
+      option.value = choice.key;
+      option.textContent = choice.label;
+      select.appendChild(option);
+    });
+    select.value = MAIN_PRACTICE_CHOICES.some(c => c.key === this.storage.state.activePracticeKey)
+      ? this.storage.state.activePracticeKey : 'grade-1';
+    const refresh = () => {
+      const choice = PRACTICE_CHOICES.find(c => c.key === select.value);
+      const profile = this.storage.getPracticeProfile(choice.key);
+      const saved = profile.savedSession;
+      const diff = saved?.difficulty || profile.currentDifficulty;
+      const selected = choice.source?.selectedTextbook;
+      const lesson = selected && TEXTBOOK_CATALOG[selected.publisherId]?.grades
+        .find(g => g.gradeId === selected.gradeId)?.lessons.find(l => l.lessonId === selected.lessonId);
+      const poolDescription = lesson ? `題庫共 ${lesson.words.length} 題，每關隨機練習 10 題。` : '';
+      document.getElementById('practice-summary').textContent =
+        `${choice.description} ${poolDescription} 上次進度：${DIFFICULTY_CONFIG[diff].name}・第 ${saved?.stageIndex || 1} 關。`;
+    };
+    select.onchange = refresh;
+    refresh();
+    document.getElementById('btn-practice-realms').onclick = () => {
+      this.pendingPracticeKey = select.value;
+      const profile = this.storage.getPracticeProfile(select.value);
+      this.renderStageSelectionTabs(profile.savedSession?.difficulty || profile.currentDifficulty);
+      this.openExclusiveModal('modal-stages');
+    };
+    document.getElementById('btn-practice-back').onclick = () => this.openPracticeModal();
+    this.openExclusiveModal('modal-practice');
+    select.focus({ preventScroll: true });
+  }
+
+  commitPracticeChoice(key) {
+    this.saveCurrentSessionProgress();
+    const choice = PRACTICE_CHOICES.find(c => c.key === key);
+    this.storage.activatePracticeProfile(key, choice?.source || null);
+    this.qiOrbs = this.storage.state.savedSession?.qiOrbs || 0;
+    this.pendingPracticeKey = null;
   }
 
   renderStageSelectionTabs(activeDiffId) {
@@ -815,40 +1202,68 @@ class WuxiaGameApp {
     if (!tabHeader) {
       tabHeader = document.createElement('div');
       tabHeader.id = 'diff-tab-header';
-      tabHeader.style.cssText = 'display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;';
+      tabHeader.style.cssText = 'display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; flex-shrink:0;';
       listEl.parentElement.insertBefore(tabHeader, listEl);
     }
     tabHeader.innerHTML = '';
 
-    const unlocked = this.storage.state.unlockedDifficulties || ['easy'];
+    const practiceKey = this.pendingPracticeKey || this.storage.state.activePracticeKey || 'jianghu';
+    const profile = this.storage.getPracticeProfile(practiceKey);
+    const unlocked = profile.unlockedDifficulties || ['easy'];
+    document.getElementById('stage-practice-label').textContent =
+      `題本：${PRACTICE_CHOICES.find(c => c.key === practiceKey)?.label || '自訂題本'}・各題本獨立記錄進度`;
 
     Object.values(DIFFICULTY_CONFIG).forEach((cfg) => {
       const isUnlocked = unlocked.includes(cfg.id);
       const isCurrentTab = cfg.id === activeDiffId;
+      const prog = profile.stageProgress[cfg.id] || { records: {} };
+      const clearedCount = Object.keys(prog.records || {}).length;
+      const badgeImg = cfg.badgeIcon
+        ? `<img src="${cfg.badgeIcon}" alt="${cfg.name}" class="inline-realm-badge" />`
+        : '';
+
       const btn = document.createElement('button');
       btn.className = `wuxia-btn ${isCurrentTab ? 'gold' : ''}`;
-      btn.innerHTML = `${isUnlocked ? '' : '🔒 '}${cfg.name}`;
-      btn.title = cfg.gradeDesc;
+      btn.innerHTML = `${badgeImg}<span>${isUnlocked ? '🔓 ' : '🔒 '}${cfg.name} (${clearedCount}/10關)</span>`;
+      btn.title = isUnlocked ? '以所選題本挑戰此境界，年級不會隨境界改變。' : `需先通關此題本前一境界第 10 關首領解鎖`;
       if (!isUnlocked) {
-        btn.style.opacity = '0.5';
-        btn.style.cursor = 'not-allowed';
-      } else {
-        btn.addEventListener('click', () => {
-          this.renderStageSelectionTabs(cfg.id);
-        });
+        btn.style.opacity = '0.55';
       }
+      btn.addEventListener('click', () => {
+        if (!isUnlocked) {
+          this.audio.playMiss();
+          return;
+        }
+        this.renderStageSelectionTabs(cfg.id);
+      });
       tabHeader.appendChild(btn);
     });
 
     // 渲染所選境界之 10 關
     const stages = DIABLO_STAGES[activeDiffId] || DIABLO_STAGES.easy;
-    const diffProg = this.storage.state.stageProgress[activeDiffId] || { maxUnlockedStage: 1, records: {} };
+    const diffProg = profile.stageProgress[activeDiffId] || { maxUnlockedStage: 1, records: {} };
+    const saved = profile.savedSession;
 
     stages.forEach((st) => {
-      const isUnlocked = st.stageIndex <= diffProg.maxUnlockedStage;
+      const isUnlocked = unlocked.includes(activeDiffId) && st.stageIndex <= diffProg.maxUnlockedStage;
       const rec = diffProg.records[st.stageIndex];
       const stars = rec ? '⭐'.repeat(rec.stars) : isUnlocked ? '待挑戰' : '🔒 未解鎖';
-      const isCurrent = activeDiffId === this.currentDifficulty && st.stageIndex === this.currentStageIndex;
+      const isCurrent =
+        !this.isMistakeDrill &&
+        practiceKey === (this.storage.state.activePracticeKey || 'jianghu') &&
+        activeDiffId === (saved?.difficulty || profile.currentDifficulty) &&
+        st.stageIndex === (saved?.stageIndex || diffProg.currentStageIndex);
+
+      const hasSavedMidProgress =
+        saved &&
+        saved.difficulty === activeDiffId &&
+        Number(saved.stageIndex) === st.stageIndex &&
+        (saved.clearedWordsCount > 0 || saved.typingProgress) &&
+        saved.clearedWordsCount < 10;
+
+      const progressBadge = hasSavedMidProgress
+        ? `<div style="font-size:0.78rem; color:#ffd166; margin-top:3px;">📌 上次進度：已斬 ${saved.clearedWordsCount} / 10 題</div>`
+        : '';
 
       const card = document.createElement('div');
       card.className = 'item-box' + (isCurrent ? ' active-choice' : '');
@@ -866,16 +1281,38 @@ class WuxiaGameApp {
           <div style="font-size:0.8rem; color:#ced4da; margin-top:4px;">
             通關賞金：🪙 ${st.rewardCoins} ｜ 10 題十斬挑戰
           </div>
+          ${progressBadge}
         </div>
-        <button class="wuxia-btn ${isCurrent ? 'gold' : ''}" ${isUnlocked ? '' : 'disabled'}>
-          ${isCurrent ? '⚔️ 當前修煉中' : isUnlocked ? '前往挑戰' : '🔒 需通關前一關'}
-        </button>
+        <div style="display:flex; gap:6px;">
+          <button class="wuxia-btn ${isCurrent ? 'gold' : ''}" style="flex:1; justify-content:center;" data-action="start" ${isUnlocked ? '' : 'disabled'}>
+            ${
+              !isUnlocked
+                ? '🔒 需通關前一關'
+                : hasSavedMidProgress
+                ? `⚔️ 繼續 (第 ${saved.clearedWordsCount + 1}/10 題)`
+                : isCurrent
+                ? '⚔️ 當前修煉中'
+                : '前往挑戰'
+            }
+          </button>
+          ${
+            isUnlocked && hasSavedMidProgress
+              ? `<button class="wuxia-btn" data-action="restart" title="從第 1 題重新挑戰">🔄 重頭</button>`
+              : ''
+          }
+        </div>
       `;
 
       if (isUnlocked) {
-        card.querySelector('button').addEventListener('click', () => {
+        card.querySelector('[data-action="start"]')?.addEventListener('click', () => {
+          this.commitPracticeChoice(practiceKey);
           this.closeAllModals();
-          this.startStage(activeDiffId, st.stageIndex);
+          this.startStage(activeDiffId, st.stageIndex, { resumeSession: hasSavedMidProgress });
+        });
+        card.querySelector('[data-action="restart"]')?.addEventListener('click', () => {
+          this.commitPracticeChoice(practiceKey);
+          this.closeAllModals();
+          this.startStage(activeDiffId, st.stageIndex, { resumeSession: false });
         });
       }
       listEl.appendChild(card);
@@ -883,14 +1320,21 @@ class WuxiaGameApp {
   }
 
   openShopModal() {
-    this.isBattlePaused = true;
     this.renderShopItems();
-    document.getElementById('modal-shop').classList.add('open');
+    this.openExclusiveModal('modal-shop');
   }
 
-  renderShopItems() {
+  renderShopItems(feedbackMsg = '') {
     const st = this.storage.state;
     document.getElementById('shop-coin-display').textContent = st.coins;
+    const hpEl = document.getElementById('shop-hp-display');
+    if (hpEl) hpEl.textContent = `${st.currentHp} / ${st.maxHp}`;
+    const shieldEl = document.getElementById('shop-shield-display');
+    if (shieldEl) shieldEl.textContent = `${st.missShields} 張`;
+    const diagEl = document.getElementById('shop-dialogue-text');
+    if (diagEl && feedbackMsg) {
+      diagEl.innerHTML = `<span style="color:#ffd166; font-weight:700;">${feedbackMsg}</span>`;
+    }
 
     const weaponGrid = document.getElementById('shop-weapons-grid');
     weaponGrid.innerHTML = '';
@@ -898,33 +1342,49 @@ class WuxiaGameApp {
     WEAPONS.forEach((w) => {
       const owned = st.ownedWeapons.includes(w.id);
       const equipped = st.equippedWeaponId === w.id;
+      const canAfford = st.coins >= w.price;
 
       const box = document.createElement('div');
       box.className = 'item-box' + (equipped ? ' active-choice' : '');
       box.innerHTML = `
-        <div>
-          <div style="display:flex; justify-content:space-between;">
-            <strong style="color:var(--bright-gold);">${w.name}</strong>
-            <span style="color:var(--sword-cyan); font-size:0.84rem;">ATK +${w.atk}</span>
+        <div class="shop-item-thumb-row">
+          <img class="shop-item-icon" src="${w.icon}" alt="${w.name}" title="${w.name}" />
+          ${w.outfitIcon ? `<img class="shop-item-icon" src="${w.outfitIcon}" alt="${w.OutfitName}" title="${w.OutfitName}" />` : ''}
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:var(--bright-gold);">${w.name}</strong>
+              <span style="color:var(--light-cyan); font-size:0.84rem; font-weight:700;">${getWeaponEffectProfile(w).name}</span>
+            </div>
+            <div style="font-size:0.8rem; color:#90e0ef; margin-top:2px;">袍服：${w.OutfitName}</div>
+            <div style="font-size:0.78rem; color:#d0d8df; margin-top:3px;">${w.desc}<br>劍氣演出強度 ${w.atk}・每關練習題數不變</div>
           </div>
-          <div style="font-size:0.8rem; color:#90e0ef; margin-top:2px;">外觀：${w.OutfitName}</div>
-          <div style="font-size:0.8rem; color:#adb5bd; margin-top:4px;">${w.desc}</div>
         </div>
-        <button class="wuxia-btn ${equipped ? 'gold' : ''}">
-          ${equipped ? '✅ 已佩帶' : owned ? '佩帶此劍' : `🪙 ${w.price} 銅錢購買`}
+        <button class="wuxia-btn ${equipped ? 'gold' : ''}" style="display:flex; align-items:center; justify-content:center; gap:5px;" ${(!owned && !canAfford) ? 'disabled' : ''}>
+          ${
+            equipped
+              ? '✅ 已佩帶'
+              : owned
+              ? '⚔️ 佩帶此劍'
+              : canAfford
+              ? `<img src="./assets/icons/copper_coins_v3.png" alt="銅錢" style="width:16px;height:16px;object-fit:contain;" /> ${w.price} 銅錢購買`
+              : `🔒 銅錢不足（需 ${w.price}）`
+          }
         </button>
       `;
 
       box.querySelector('button').addEventListener('click', () => {
         if (equipped) return;
+        let msg = '';
         if (owned) {
           st.equippedWeaponId = w.id;
           this.audio.playCoin();
+          msg = `✨ 已換上【${w.name}】與【${w.OutfitName}】，少俠英姿煥發！`;
         } else if (st.coins >= w.price) {
           st.coins -= w.price;
           st.ownedWeapons.push(w.id);
           st.equippedWeaponId = w.id;
           this.audio.playCoin();
+          msg = `🎉 恭賀少俠購得名門神兵【${w.name}】，立繪與劍氣已同步升級！`;
         } else {
           this.audio.playMiss();
           return;
@@ -932,7 +1392,7 @@ class WuxiaGameApp {
         this.storage.save();
         this.refreshBattleVisuals();
         this.updateHUD();
-        this.renderShopItems();
+        this.renderShopItems(msg);
       });
 
       weaponGrid.appendChild(box);
@@ -942,37 +1402,67 @@ class WuxiaGameApp {
     itemGrid.innerHTML = '';
 
     SHOP_ITEMS.forEach((item) => {
+      const isFullHp = st.currentHp >= st.maxHp;
+      const isMaxCapHp = st.maxHp >= MAX_HERO_HP_CAP;
+      const isMaxShields = st.missShields >= 10;
+
+      let disabledReason = '';
+      if (item.type === 'heal' && isFullHp) {
+        disabledReason = '✅ 氣血已滿（無須服用）';
+      } else if (item.type === 'full_heal_boost' && isMaxCapHp && isFullHp) {
+        disabledReason = `✅ 已達宗師氣血極限 (${MAX_HERO_HP_CAP})`;
+      } else if (item.type === 'shield_miss' && isMaxShields) {
+        disabledReason = '✅ 護身符已達上限 (10張)';
+      } else if (st.coins < item.price) {
+        disabledReason = `🔒 銅錢不足（需 ${item.price}）`;
+      }
+
       const box = document.createElement('div');
       box.className = 'item-box';
       box.innerHTML = `
-        <div>
-          <div style="display:flex; justify-content:space-between;">
-            <strong style="color:#69db7c;">${item.name}</strong>
-            <span style="color:var(--bright-gold);">🪙 ${item.price}</span>
+        <div class="shop-item-thumb-row">
+          ${item.icon ? `<img class="shop-item-icon" src="${item.icon}" alt="${item.name}" title="${item.name}" />` : ''}
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <strong style="color:#69db7c;">${item.name}</strong>
+              <span style="color:var(--bright-gold); display:inline-flex; align-items:center; gap:3px; font-weight:700;">
+                <img src="./assets/icons/copper_coins_v3.png" alt="銅錢" style="width:16px;height:16px;object-fit:contain;" /> ${item.price}
+              </span>
+            </div>
+            <div style="font-size:0.8rem; color:#adb5bd; margin-top:4px;">${item.desc}</div>
           </div>
-          <div style="font-size:0.82rem; color:#adb5bd; margin-top:4px;">${item.desc}</div>
         </div>
-        <button class="wuxia-btn">購買使用</button>
+        <button class="wuxia-btn" ${disabledReason ? 'disabled' : ''}>
+          ${disabledReason || '🧪 購買並立即使用'}
+        </button>
       `;
 
       box.querySelector('button').addEventListener('click', () => {
-        if (st.coins < item.price) {
+        if (disabledReason || st.coins < item.price) {
           this.audio.playMiss();
           return;
         }
         st.coins -= item.price;
+        let msg = '';
         if (item.type === 'heal') {
+          const before = st.currentHp;
           st.currentHp = Math.min(st.maxHp, st.currentHp + item.value);
+          msg = `🌿 已敷上【${item.name}】，氣血恢復 +${st.currentHp - before}（目前 ${st.currentHp} / ${st.maxHp}）！`;
         } else if (item.type === 'full_heal_boost') {
-          st.maxHp += item.maxHpBonus;
+          const oldMax = st.maxHp;
+          st.maxHp = Math.min(MAX_HERO_HP_CAP, st.maxHp + item.maxHpBonus);
           st.currentHp = st.maxHp;
+          msg = st.maxHp > oldMax
+            ? `🔥 服下【${item.name}】打通任督二脈！氣血上限提升至 ${st.maxHp} 並全滿恢復！`
+            : `🔥 服下【${item.name}】，氣血已全滿恢復至 ${st.currentHp} / ${st.maxHp}！`;
         } else if (item.type === 'shield_miss') {
-          st.missShields += item.value;
+          st.missShields = Math.min(10, st.missShields + item.value);
+          msg = `🛡️ 已佩掛【${item.name}】，目前共有 ${st.missShields} 張護身符可抵擋按錯斷連！`;
         }
         this.audio.playCoin();
         this.storage.save();
         this.updateHUD();
-        this.renderShopItems();
+        this.renderShopItems(msg);
       });
 
       itemGrid.appendChild(box);
@@ -980,11 +1470,21 @@ class WuxiaGameApp {
   }
 
   openTextbookModal() {
-    this.isBattlePaused = true;
     const container = document.getElementById('textbook-list-container');
     container.innerHTML = '';
+    const resources = document.getElementById('publisher-resource-links');
+    resources.replaceChildren();
+    PUBLISHER_RESOURCE_LINKS.forEach((resource) => {
+      const link = document.createElement('a');
+      link.href = resource.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = resource.name;
+      link.style.marginRight = '1rem';
+      resources.appendChild(link);
+    });
 
-    Object.values(TEXTBOOK_CATALOG).forEach((pub) => {
+    [TEXTBOOK_CATALOG.mixed].forEach((pub) => {
       pub.grades.forEach((grade) => {
         grade.lessons.forEach((lesson) => {
           const isSelected =
@@ -993,32 +1493,31 @@ class WuxiaGameApp {
 
           const card = document.createElement('div');
           card.className = 'item-box' + (isSelected ? ' active-choice' : '');
-          const previewWords = lesson.words.map((w) => w.text).join('、');
+          const previewWords = lesson.words.slice(0, 5).map((w) => w.text).join('、');
           card.innerHTML = `
-            <div>
-              <div style="display:flex; justify-content:space-between;">
-                <strong style="color:var(--bright-gold);">【${pub.publisherName}】${grade.gradeName}</strong>
+            <div class="shop-item-thumb-row">
+              <span style="font-size:2rem;">${pub.publisherId === 'moe' ? '📖' : '📚'}</span>
+              <div style="flex:1;">
+                <div style="display:flex; justify-content:space-between;">
+                  <strong style="color:var(--bright-gold);">【${pub.publisherName}】${grade.gradeName}</strong>
+                </div>
+                <div style="font-size:0.9rem; color:#fff; margin-top:3px;">${lesson.title}</div>
+                <div style="font-size:0.8rem; color:#ffd166;">${(pub.sourceStatus || TEXTBOOK_SOURCE_STATUS).label}</div>
+                <div style="font-size:0.8rem; color:#d0d8df; margin-top:4px;">共 ${lesson.words.length} 題・每關隨機練習 10 題<br>內容預覽：${previewWords}${lesson.words.length > 5 ? '…' : ''}</div>
               </div>
-              <div style="font-size:0.9rem; color:#fff; margin-top:3px;">${lesson.title}</div>
-              <div style="font-size:0.8rem; color:#adb5bd; margin-top:4px;">收錄生字詞：${previewWords}</div>
             </div>
-            <button class="wuxia-btn ${isSelected ? 'gold' : ''}">
-              ${isSelected ? '✅ 目前修煉課次' : '📘 選用此課本題庫'}
+            <button class="wuxia-btn ${isSelected ? 'gold' : ''}" style="justify-content:center;">
+              ${isSelected ? '✅ 目前修煉題庫' : '📘 選用此練習題庫'}
             </button>
           `;
 
           card.querySelector('button').addEventListener('click', () => {
-            this.storage.state.selectedTextbook = {
-              publisherId: pub.publisherId,
-              gradeId: grade.gradeId,
-              lessonId: lesson.lessonId
-            };
-            this.storage.state.useCustomVocabulary = false;
-            this.storage.state.languageMode = 'bopomofo';
-            this.storage.save();
-            this.rebuildQuestionPool();
-            this.nextQuestion();
-            this.closeAllModals();
+            const choice = PRACTICE_CHOICES.find(c => c.source?.selectedTextbook?.lessonId === lesson.lessonId && c.source.selectedTextbook.publisherId === pub.publisherId);
+            if (!choice) return;
+            this.pendingPracticeKey = choice.key;
+            const profile = this.storage.getPracticeProfile(choice.key);
+            this.renderStageSelectionTabs(profile.currentDifficulty);
+            this.openExclusiveModal('modal-stages');
           });
 
           container.appendChild(card);
@@ -1027,34 +1526,67 @@ class WuxiaGameApp {
     });
 
     document.getElementById('btn-clear-textbook').onclick = () => {
-      this.storage.state.selectedTextbook = null;
-      this.storage.save();
-      this.rebuildQuestionPool();
-      this.nextQuestion();
-      this.closeAllModals();
+      this.openPracticeModal();
     };
 
-    document.getElementById('modal-textbook').classList.add('open');
+    this.openExclusiveModal('modal-textbook');
   }
 
   openCustomWordsModal() {
-    this.isBattlePaused = true;
     const inputEl = document.getElementById('custom-vocab-textarea');
     inputEl.value = this.storage.state.customVocabularyRaw || '';
-    document.getElementById('modal-custom-words').classList.add('open');
+    const errorEl = document.getElementById('custom-vocab-error');
+    errorEl.textContent = '';
+    document.getElementById('dictionary-source').textContent =
+      `${MOE_MINI_METADATA.attribution}（版本 ${MOE_MINI_METADATA.version}）。${MOE_MINI_METADATA.characterCount.toLocaleString()} 字、${MOE_MINI_METADATA.entryCount.toLocaleString()} 筆條目。`;
+    document.getElementById('dictionary-reading-result').textContent = '';
+    document.getElementById('btn-dictionary-lookup').onclick = () => {
+      const character = document.getElementById('dictionary-character').value.trim();
+      const result = document.getElementById('dictionary-reading-result');
+      if (Array.from(character).length !== 1) {
+        result.textContent = '請輸入一個國字。';
+        return;
+      }
+      const readings = getCharacterReadings(character);
+      result.textContent = readings.length
+        ? `「${character}」：${readings.join('／')}。${readings.length > 1 ? '多音字請依詞義選定讀音。' : ''}`
+        : `「${character}」未收錄，請由家長或教師補上注音。`;
+    };
+    this.openExclusiveModal('modal-custom-words');
 
     document.getElementById('btn-save-custom-vocab').onclick = () => {
       const raw = inputEl.value.trim();
-      const parsed = parseCustomVocabularyInput(raw);
+      let parsed;
+      try {
+        parsed = parseCustomVocabularyInput(raw);
+        if (!parsed.length) throw new Error('請輸入國字詞彙或英文單字。');
+      } catch (error) {
+        errorEl.textContent = error.message;
+        return;
+      }
       if (parsed.length > 0) {
         this.storage.state.customVocabularyRaw = raw;
-        this.storage.state.useCustomVocabulary = true;
         this.storage.save();
-        this.rebuildQuestionPool();
-        this.nextQuestion();
+        this.pendingPracticeKey = 'custom';
+        const profile = this.storage.getPracticeProfile('custom');
+        this.renderStageSelectionTabs(profile.currentDifficulty);
+        this.openExclusiveModal('modal-stages');
       }
-      this.closeAllModals();
     };
+  }
+
+  /**
+   * 在畫面中央輕輕浮現水墨招式橫幅，施展後優雅淡出
+   */
+  showSkillFloatingBanner(title) {
+    const banner = document.getElementById('floating-skill-banner');
+    if (!banner) return;
+    banner.textContent = title;
+    banner.classList.add('active');
+    if (this._skillBannerTimer) clearTimeout(this._skillBannerTimer);
+    this._skillBannerTimer = setTimeout(() => {
+      banner.classList.remove('active');
+    }, 1100);
   }
 
   /**
@@ -1065,27 +1597,30 @@ class WuxiaGameApp {
     const weapon = this.getEquippedWeapon();
 
     if (skillId === 'q') {
-      // ⚡ 青蓮劍氣：消耗 2 氣，造成 1.5 倍攻擊
+      // ⚡ 青蓮劍氣：消耗 2 氣，以 1.5 倍劍氣演出完成整題。
       if (this.qiOrbs < 2) return;
       this.qiOrbs -= 2;
+      this.showSkillFloatingBanner('⚡ 青蓮劍氣！');
       const dmg = Math.round(weapon.atk * 1.5);
       this.audio.playSkillSlash();
       if (this.battleScene) {
         this.battleScene.playSkillSlash({ damage: dmg, isCrit: true });
       }
       this.clearedWordsCount = Math.min(this.stageGoal, this.clearedWordsCount + 1);
+      this.typing.active = false;
+      this.saveCurrentSessionProgress();
       this.updateHUD();
       if (this.clearedWordsCount >= this.stageGoal) {
-        this.handleStageVictory();
+        if (this.isMistakeDrill) this.handleMistakeDrillVictory();
+        else this.handleStageVictory();
       } else {
-        setTimeout(() => {
-          if (!this.isStageClearing) this.nextQuestion();
-        }, 280);
+        this.scheduleNextQuestion(280);
       }
     } else if (skillId === 'w') {
       // 🌊 凌波微步：消耗 2 氣，將敵人蓄力條歸零並定身 3 秒
       if (this.qiOrbs < 2) return;
       this.qiOrbs -= 2;
+      this.showSkillFloatingBanner('🌊 凌波微步！');
       this.enemyAtb = 0;
       this.isEnemyFrozen = true;
       this.audio.playSkillDodge();
@@ -1095,36 +1630,46 @@ class WuxiaGameApp {
       setTimeout(() => {
         this.isEnemyFrozen = false;
       }, 3000);
+      this.saveCurrentSessionProgress();
       this.updateHUD();
     } else if (skillId === 'e') {
-      // 🌿 太極回春：消耗 3 氣，恢復 35 HP
+      // 🌿 太極回春：消耗 3 氣，恢復 35 HP（滿血時不扣氣）
       if (this.qiOrbs < 3) return;
-      this.qiOrbs -= 3;
       const st = this.storage.state;
+      if (st.currentHp >= st.maxHp) {
+        this.showSkillFloatingBanner('🌿 少俠氣血已滿，無須調息！');
+        return;
+      }
+      this.qiOrbs -= 3;
+      this.showSkillFloatingBanner('🌿 太極回春！');
+      const healAmount = Math.min(35, st.maxHp - st.currentHp);
       st.currentHp = Math.min(st.maxHp, st.currentHp + 35);
       this.storage.save();
+      this.saveCurrentSessionProgress();
       this.audio.playSkillHeal();
       if (this.battleScene) {
-        this.battleScene.playSkillHeal({ healAmount: 35 });
+        this.battleScene.playSkillHeal({ healAmount });
       }
       this.updateHUD();
     } else if (skillId === 'r') {
       // 🔥 流雲劍訣：消耗 5 氣（滿氣），全屏水墨一刀斬
       if (this.qiOrbs < 5) return;
       this.qiOrbs = 0;
+      this.showSkillFloatingBanner('🔥 流雲劍訣！');
       const dmg = Math.round(weapon.atk * 3.2);
       this.audio.playUltimateBurst();
       if (this.battleScene) {
         this.battleScene.playUltimateBurst({ damage: dmg });
       }
       this.clearedWordsCount = Math.min(this.stageGoal, this.clearedWordsCount + 1);
+      this.typing.active = false;
+      this.saveCurrentSessionProgress();
       this.updateHUD();
       if (this.clearedWordsCount >= this.stageGoal) {
-        this.handleStageVictory();
+        if (this.isMistakeDrill) this.handleMistakeDrillVictory();
+        else this.handleStageVictory();
       } else {
-        setTimeout(() => {
-          if (!this.isStageClearing) this.nextQuestion();
-        }, 320);
+        this.scheduleNextQuestion(320);
       }
     }
   }
@@ -1133,17 +1678,15 @@ class WuxiaGameApp {
    * 打開開場主頁彈窗
    */
   openTitleModal() {
-    this.isBattlePaused = true;
-    document.getElementById('modal-title-screen').classList.add('open');
+    this.openExclusiveModal('modal-title-screen');
   }
 
   /**
    * 打開錯題墨寶閣彈窗
    */
   openMistakesModal() {
-    this.isBattlePaused = true;
     this.renderMistakesDOM();
-    document.getElementById('modal-mistakes').classList.add('open');
+    this.openExclusiveModal('modal-mistakes');
   }
 
   /**
@@ -1187,29 +1730,34 @@ class WuxiaGameApp {
     }
 
     // 將錯題轉化為題目清單
-    const drillQuestions = list.map((item) => ({
-      text: item.char,
-      meaning: `【錯題特訓】歷次生疏 ${item.count} 次`,
-      characters: [
-        {
-          char: item.char,
-          symbols: item.symbols && item.symbols.length > 0 ? item.symbols : ['ㄅ']
-        }
-      ]
-    }));
+    const drillQuestions = list.map((item) => {
+      const cleanZy =
+        item.symbols && item.symbols.length > 0
+          ? item.symbols.filter((s) => s !== '␣').join('')
+          : item.char;
+      return {
+        text: item.char,
+        bopomofo: [cleanZy],
+        meaning: `【錯題特訓】歷次生疏 ${item.count} 次`,
+        mode: 'bopomofo'
+      };
+    });
 
-    this.questionQueue = drillQuestions;
+    this.isMistakeDrill = true;
+    this.questionQueue = shuffleQuestions(drillQuestions);
     this.questionCursor = 0;
     this.stageGoal = Math.min(10, drillQuestions.length);
     this.clearedWordsCount = 0;
     this.isStageClearing = false;
     this.isBattlePaused = false;
+    this.closeAllModals();
     this.nextQuestion();
     this.updateHUD();
-    this.closeAllModals();
   }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  new WuxiaGameApp();
-});
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    window.gameApp = new WuxiaGameApp();
+  });
+}

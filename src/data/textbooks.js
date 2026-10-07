@@ -1,9 +1,50 @@
 /**
- * 臺灣國小三大出版社（康軒、翰林、南一）公開課綱生字與生詞題庫 (textbooks.js)
- * 供小朋友依照學校國語課本進度直接選擇對應版本與課次進行修煉
+ * 國語生字詞練習範例，以康軒、翰林、南一名稱分類 (textbooks.js)
+ * 學年度、冊次與正式課名尚未附來源核對，不代表出版社正式同步題庫。
  */
 
+import { COMMON_CHAR_BOPOMOFO_MAP, MOE_MINI_METADATA } from './moeDictionary.js';
+import { getOriginalProseWords } from './originalProse.js';
+
+export const PUBLISHER_RESOURCE_LINKS = [
+  { name: '康軒官方資源', url: 'https://digitalmaster.knsh.com.tw/v3/' },
+  { name: '翰林官方資源', url: 'https://www.hle.com.tw/user-teacher.html' },
+  { name: '南一官方資源', url: 'https://nanidigi.nani.com.tw/' }
+];
+
+const dictionaryGroups = [
+  ['生活與家人', '家爸媽朋友手足心口人兄弟姐妹祖孫親兒女老幼我你他她們名字姓身頭臉眼耳鼻牙舌肩背肚腿指皮毛衣帽鞋襪裙褲袋床枕被桌椅門窗牆房屋廚浴飯菜米粥茶湯杯碗盤筷匙鍋洗吃喝睡坐站跑走跳玩笑哭唱聽看說讀寫畫學校班師生書筆紙課包早晚午安禮謝愛幫忙陪抱問答'],
+  ['自然與四季', '天山水火木日月雲春秋夏冬風雨雪霜露雷電冰氣光晴陰冷熱暖涼晨夜星空海河湖溪泉池浪沙石土地岩峰谷坡林森竹葉花草根枝芽果種苗瓜豆稻米鳥魚蟲蝶蜂蟻貓狗牛羊馬兔鼠虎龍蛇雞鴨鵝熊鹿蝦蟹貝龜紫紅黃綠藍白黑亮暗乾濕'],
+  ['數量與方向', '二三四五六七八九十百千萬億零數量個位元次件本張杯碗盒袋串雙群隊排列層套頁年季月週日秒時刻點歲斤尺寸度圓方角邊線長短寬窄高低大細厚薄輕重多滿半全少空左右上下前後內外東西南北中遠近旁間頂底首尾先末來去進退出入直斜平正反順逆快慢增減倍總均等']
+];
+
+// 尚無學年度及出版社原始來源，僅可作為待核對練習範例。
+export const TEXTBOOK_SOURCE_STATUS = {
+  verified: false,
+  schoolYear: null,
+  sourceUrl: null,
+  label: '練習範例・學年度與正式課次尚待核對'
+};
+
 export const TEXTBOOK_CATALOG = {
+  moe: {
+    publisherId: 'moe',
+    publisherName: '教育部國語小字典',
+    sourceStatus: {
+      verified: true, schoolYear: null, sourceUrl: MOE_MINI_METADATA.sourceUrl,
+      label: `官方字音練習・字典版本 ${MOE_MINI_METADATA.version}・非出版社課次`
+    },
+    grades: [{
+      gradeId: 'common', gradeName: '常用字練習（遊戲自編分組）',
+      lessons: dictionaryGroups.map(([title, characters], i) => ({
+        lessonId: `moe_common_${i + 1}`, title,
+        // 自編主題範圍去重；僅納入官方字典中可明確判定單一讀音的字。
+        words: [...new Set(Array.from(characters))].filter((character) => COMMON_CHAR_BOPOMOFO_MAP[character])
+          .map((character) => ({ text: character, bopomofo: [COMMON_CHAR_BOPOMOFO_MAP[character]],
+            meaning: '依教育部國語小字典收錄字音練習。' }))
+      }))
+    }]
+  },
   knsh: {
     publisherId: 'knsh',
     publisherName: '康軒版',
@@ -193,4 +234,64 @@ export const TEXTBOOK_CATALOG = {
       }
     ]
   }
+};
+
+export function getGradeMixedWords(gradeLevel) {
+  const words = new Map();
+  for (const publisherId of ['knsh', 'hanlin', 'nani']) {
+    const pub = TEXTBOOK_CATALOG[publisherId];
+    for (const grade of pub.grades.filter((item) => item.gradeId.startsWith(`g${gradeLevel}_`))) {
+      for (const lesson of grade.lessons) {
+        for (const word of lesson.words) {
+          const key = JSON.stringify([word.text, word.bopomofo]);
+          const item = words.get(key) || { ...word, gradeLevel, sourceKind: 'practice-example', sourceRefs: [] };
+          item.sourceRefs.push({ publisherId, gradeId: grade.gradeId, lessonId: lesson.lessonId });
+          words.set(key, item);
+        }
+      }
+    }
+  }
+  for (const word of getOriginalProseWords(gradeLevel)) {
+    const key = JSON.stringify([word.text, word.bopomofo]);
+    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+  }
+  for (const word of getGradeCommonWords(gradeLevel)) {
+    const key = JSON.stringify([word.text, word.bopomofo]);
+    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+  }
+  return [...words.values()];
+}
+
+// 遊戲自編的漸進範圍，並非出版社或教育部正式年級字表。
+const gradeCommonAdditions = [
+  '家爸媽朋友手足心口人我你他她名字頭耳牙衣帽鞋床門飯米茶杯吃喝坐走玩看書筆紙大小上下左右一二三四五六七八九十天山水火木日月鳥魚花草貓狗',
+  '兄弟姐妹祖孫親兒女老幼姓身臉眼鼻舌背腿指毛襪裙褲袋枕桌椅窗房屋菜粥湯碗盤筷洗睡站跑跳笑哭唱聽說讀寫畫學校班師生課早晚午安禮謝愛幫忙陪抱問答春夏秋冬風雨雪雲星光紅黃綠藍白黑百千',
+  '肩肚皮被牆廚浴匙鍋氣晴陰冷熱暖涼晨夜海河湖溪泉池浪沙石土地林森竹葉根果種苗瓜豆稻雞鴨鵝牛羊馬兔鼠蜂蟻紫亮暗乾濕數量個位元次件本張盒串雙群隊排列年季週秒時刻點歲斤尺寸度',
+  '岩峰谷坡根枝芽蟲蝶虎龍蛇熊鹿蝦蟹貝龜萬億零層套頁圓方角邊線長短寬窄高低細厚薄輕重多滿半全少空前後內外東西南北中遠近旁間頂底首尾先末來去進退出入直斜平正反順逆快慢增減倍總均等',
+  '責任誠信尊敬勤勞勇敢耐心合作觀察探索思考理解表達規則公平珍惜資源環境保護',
+  '溝通協助判斷選擇比較推論證據實驗研究創意規劃目標反省改善文化歷史社會自然科學'
+];
+
+export function getGradeCommonWords(gradeLevel) {
+  const characters = new Set(Array.from(gradeCommonAdditions.slice(0, gradeLevel).join('')));
+  return [...characters].filter(character => COMMON_CHAR_BOPOMOFO_MAP[character]).map(character => ({
+    text: character, bopomofo: [COMMON_CHAR_BOPOMOFO_MAP[character]], gradeLevel,
+    sourceKind: 'dictionary-practice', meaning: '教育部國語小字典字音・遊戲自編年級練習。'
+  }));
+}
+
+TEXTBOOK_CATALOG.mixed = {
+  publisherId: 'mixed', publisherName: '同年級混合練習',
+  sourceStatus: { verified: false, schoolYear: null, sourceUrl: null,
+    label: '出版社分類範例尚待核對；散文為本遊戲原創' },
+  grades: Array.from({ length: 6 }, (_, i) => {
+    const gradeLevel = i + 1;
+    const words = getGradeMixedWords(gradeLevel);
+    const publishers = new Set(words.flatMap((word) => word.sourceRefs.map((ref) => ref.publisherId)));
+    return {
+      gradeId: `g${gradeLevel}_mix`, gradeName: `${gradeLevel} 年級`,
+      lessons: [{ lessonId: `mixed_grade_${gradeLevel}`, words,
+        title: publishers.size ? '同年級常用字、練習範例與原創散文' : '同年級常用字與原創散文' }]
+    };
+  })
 };

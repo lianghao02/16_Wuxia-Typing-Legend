@@ -13,7 +13,7 @@ import {
   EN_TO_KEY_INFO,
   TONE_MARKS,
   normalizeBopomofoSequence
-} from '../data/daqianLayout.js';
+} from '../data/daqianLayout.js?v=20261007_fix6';
 
 const IGNORED_CODES = new Set([
   'ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight',
@@ -25,7 +25,7 @@ const IGNORED_CODES = new Set([
 export class TypingEngine {
   constructor(options = {}) {
     this.listeners = new Map();
-    this.requireSpaceForFirstTone = options.requireSpaceForFirstTone ?? false;
+    this.requireSpaceForFirstTone = options.requireSpaceForFirstTone ?? true;
     this.active = false;
     this.mode = 'bopomofo'; // 'bopomofo' | 'english'
 
@@ -161,6 +161,49 @@ export class TypingEngine {
     const charObj = this.characters[this.charIndex];
     if (!charObj) return null;
     return charObj.symbols[this.symbolIndex] || null;
+  }
+
+  /** 保存目前題目與待輸入位置；完成題目時不保存為未完成題。 */
+  getProgress() {
+    if (!this.currentWord || !this.getExpectedSymbol()) return null;
+    const now = performance.now();
+    const stats = {};
+    for (const key of ['combo', 'maxCombo', 'totalHits', 'totalMisses', 'completedWords', 'completedChars']) {
+      stats[key] = this[key];
+    }
+    return {
+      word: structuredClone(this.currentWord),
+      charIndex: this.charIndex,
+      symbolIndex: this.symbolIndex,
+      stats,
+      elapsedMs: this.sessionStartTime === null ? 0 : now - this.sessionStartTime,
+      wordElapsedMs: this.wordStartTime === null ? 0 : now - this.wordStartTime
+    };
+  }
+
+  /** 依目前已載入題目恢復進度，題目或索引不一致時拒絕套用。 */
+  restoreProgress(progress) {
+    if (!progress || JSON.stringify(progress.word) !== JSON.stringify(this.currentWord)) return false;
+    const { charIndex, symbolIndex } = progress;
+    if (!Number.isInteger(charIndex) || !Number.isInteger(symbolIndex) ||
+        charIndex < 0 || charIndex >= this.characters.length || symbolIndex < 0 ||
+        symbolIndex >= this.characters[charIndex].symbols.length) return false;
+    this.charIndex = charIndex;
+    this.symbolIndex = symbolIndex;
+    this.characters.forEach((ch, i) => {
+      ch.completed = i < charIndex;
+      ch.typedCount = i < charIndex ? ch.symbols.length : i === charIndex ? symbolIndex : 0;
+    });
+    for (const key of ['combo', 'maxCombo', 'totalHits', 'totalMisses', 'completedWords', 'completedChars']) {
+      this[key] = Math.max(0, Number(progress.stats?.[key]) || 0);
+    }
+    const now = performance.now();
+    this.sessionStartTime = now - Math.max(0, Number(progress.elapsedMs) || 0);
+    this.wordStartTime = now - Math.max(0, Number(progress.wordElapsedMs) || 0);
+    this.lastCompositionData = '';
+    this.emit('targetLoaded', { word: this.currentWord, characters: this.characters,
+      mode: this.mode, expectedKeyInfo: this.getExpectedKeyInfo() });
+    return true;
   }
 
   getExpectedKeyInfo() {
@@ -326,12 +369,22 @@ export class TypingEngine {
 
       // 檢查該國字／字母是否已完成所有音標
       const isCharCompleted = this.symbolIndex >= charObj.symbols.length;
+      const isLastChar = isCharCompleted && (matchedCharIndex >= this.characters.length - 1);
 
-      // 僅在「完成一整個國字」或「英文單字／單鍵」時 Combo +1
+      // 僅在「完成一整個國字」或「英文單字／單鍵」時 Combo +1，並同步推進游標至下一字
       if (isCharCompleted) {
+        charObj.completed = true;
+        this.completedChars++;
         this.combo++;
         if (this.combo > this.maxCombo) {
           this.maxCombo = this.combo;
+        }
+        if (charObj.isFirstTone && !this.requireSpaceForFirstTone) {
+          this.lastFirstToneCompleteAt = now;
+        }
+        if (!isLastChar) {
+          this.charIndex++;
+          this.symbolIndex = 0;
         }
       }
 
@@ -364,25 +417,11 @@ export class TypingEngine {
         comboTier,
         wpm: stats.wpm,
         accuracy: stats.accuracy,
-        isCharCompleted
+        isCharCompleted,
+        expectedKeyInfo: this.getExpectedKeyInfo()
       });
 
       if (isCharCompleted) {
-        charObj.completed = true;
-        this.completedChars++;
-
-        if (charObj.isFirstTone && !this.requireSpaceForFirstTone) {
-          this.lastFirstToneCompleteAt = now;
-        }
-
-        const isLastChar = this.charIndex >= this.characters.length - 1;
-
-        // 重要修正：先推進 charIndex，確保後續監聽者讀取 getExpectedKeyInfo 時指向下一個字
-        if (!isLastChar) {
-          this.charIndex++;
-          this.symbolIndex = 0;
-        }
-
         this.emit('charComplete', {
           charObj,
           charIndex: matchedCharIndex,
