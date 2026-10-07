@@ -48,3 +48,4 @@
 - [x] 39 項自動測試、英打、字典與商店本機實測。
 - [x] 整合先前年級與操作修復，更新 README、CHANGELOG、版本與 HANDOFF。
 - 發布斷點以 HANDOFF.md 為準；前述尚未發布段落是前輪歷史狀態。
+- [x] 功能提交 `0c10c5a` 推送 origin/master，GitHub Pages built，公開版題庫／字典查詢及 console 檢查通過。
