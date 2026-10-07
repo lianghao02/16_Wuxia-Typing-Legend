@@ -1470,9 +1470,23 @@ textarea.custom-input {
   background-position: left center;
 }
 
+.shopkeeper-frame {
+  position: relative;
+  height: clamp(220px, 42vh, 430px);
+  aspect-ratio: 4 / 7;
+  max-width: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* 只略去原圖的透明留白，保留人物、茶盤與四周安全邊距。 */
 .shop-layout .shopkeeper-portrait {
-  width: 100%;
-  height: clamp(180px, 40vh, 390px);
+  position: absolute;
+  width: 180%;
+  max-width: none;
+  height: auto;
+  left: -41.6667%;
+  top: -23.8095%;
 }
 
 .shop-products {
@@ -1504,15 +1518,20 @@ textarea.custom-input {
     max-height: 200px;
   }
 
-  .shop-layout .shopkeeper-portrait {
-    width: 120px;
-    height: 160px;
+  .shopkeeper-frame {
+    height: 175px;
   }
 }
 
 @media (max-height: 600px) {
-  .shop-layout .shopkeeper-portrait {
-    height: 150px;
+  .shopkeeper-frame {
+    height: 230px;
+  }
+}
+
+@media (max-height: 600px) and (max-width: 850px) {
+  .shopkeeper-frame {
+    height: 145px;
   }
 }
 

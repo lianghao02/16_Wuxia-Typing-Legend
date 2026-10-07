@@ -76,3 +76,9 @@ GitHub Pages built 對應 0c10c5a6fb93cb26c1169e2819c6296775b7c860。公開頁�
 - main.js 低高度時不再強制題目最低 top 120px；樣式與主程式快取改 20261007_small_screen。
 - 本機驗證：1024×580、1366×600、1024×561、768×540、1440×900，四字與長句下一鍵位於題目框內，題目／底座不重疊；39/39 測試、語法與差異格式檢查通過。
 - 本輪異動：css/style.css、src/main.js、index.html、README.md、CHANGELOG.md、HANDOFF.md。保留 assets/ART_RULES_V2_HANDOFF.md。
+
+## 最新客棧人物修正
+- 基準：87ee124；調整 index.html 與 css/style.css 的店小二顯示框及樣式快取參數。
+- 原始素材透明留白過大，加上低高度螢幕 150px 高度限制，使人物過小；改以顯示框略去透明區域，低高度桌機顯示框為 230px。
+- 本機 Browser 實測 1024×580、1440×900、768×540：全身、茶盤與對話完整，商品可獨立捲動，console error 為零。
+- 本輪僅 UI 樣式與文件更新，不改購買邏輯或原始圖片；其他工作階段的 ART_RULES_V2_HANDOFF.md 保留。
