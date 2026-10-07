@@ -116,9 +116,17 @@ html, body {
   width: min(440px, calc(100vw - 40px));
 }
 #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card {
-  bottom: 330px;
-  width: min(315px, calc((100vw - 500px) / 2));
+  bottom: 12px;
+  width: min(315px, calc((100vw - 860px) / 2));
   min-width: 0;
+}
+@media (max-width: 1360px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .fighter-card {
+    top: 12px;
+    bottom: auto;
+    width: min(295px, calc((100vw - 480px) / 2));
+    padding: 8px 10px;
+  }
 }
 #dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap {
   position: fixed;
