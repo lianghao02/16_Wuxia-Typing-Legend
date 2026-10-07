@@ -74,3 +74,6 @@
 
 ## 下一步建議動作 (Next Recommended Action)
 Codex 接手時可直接讀取本 `HANDOFF.md` 與最新 Commit Diff（`7420c81..head`），無須重新掃描全專案。
+
+## Codex 公開發布驗證（2026-10-07）
+已核對 GitHub Pages build 為 built，部署來源提交 854b405。使用正式網址實測七個修煉選項、英文 ten 完成後進入第 2/10 題、商店開啟、教育部字典查行字三音、two 打完 t 後重新整理仍提示 W；人物與山門背景正常。瀏覽器 console error 無紀錄，30 項測試與兩個主要模組語法檢查通過。儲存庫及遊戲網址已可公開分享。保留 assets/ART_RULES_V2_HANDOFF.md 未提交修改；未混入本輪文件提交。
