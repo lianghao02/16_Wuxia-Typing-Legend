@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>武俠打字傳｜文印江湖</title><link rel="stylesheet" href="./css/adventure.css"></head>
+<body><div id="adventure-stage" aria-hidden="true"></div>
+<header id="journey-hud" hidden><strong id="stage-name"></strong><span id="progress"></span><div class="route" id="route"></div></header>
+<main id="battle" tabindex="-1" hidden>
+  <section id="question" aria-label="打字題目"><small id="phase"></small><div id="context"></div><div id="characters"></div><p id="usage"></p><div id="next-key"></div></section>
+  <section id="keyboard" aria-label="指法鍵盤"><div class="keyboard-head"><span id="keyboard-label">大千注音・F／J 定位點</span><button id="hide-keyboard">收起 Tab</button></div><div id="keys"></div></section>
+  <aside id="hero-status"><strong id="hero-name"></strong><progress id="hp" value="100" max="100"></progress><span id="hero-detail"></span></aside>
+  <aside id="enemy-status"><strong id="enemy-name"></strong><progress id="enemy-hp" value="100" max="100"></progress><span id="enemy-detail"></span><progress id="atb" value="0" max="100"></progress></aside>
+</main>
+<nav id="controls" hidden aria-label="遊戲操作"><button id="home">江湖首頁</button><button id="shop">客棧</button><button id="settings">設定</button><button id="ultimate" disabled>絕招 0／5 · Alt＋1</button><button id="show-keyboard" hidden>鍵盤 Tab</button></nav>
+<div id="notice" role="status" aria-live="polite"></div>
+<dialog id="panel"><div id="panel-content"></div></dialog>
+<script type="module" src="./src/adventure.js"></script></body></html>

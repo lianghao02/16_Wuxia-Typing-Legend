@@ -215,7 +215,7 @@ export class TypingEngine {
     const sym = this.getExpectedSymbol();
     if (!sym) return null;
     if (this.mode === 'english') {
-      return EN_TO_KEY_INFO[sym.toLowerCase()] || null;
+      return EN_TO_KEY_INFO[sym === '␣' ? ' ' : sym.toLowerCase()] || null;
     }
     return BOPOMOFO_TO_KEY_INFO[sym] || null;
   }

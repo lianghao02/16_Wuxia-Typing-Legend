@@ -1,5 +1,13 @@
 # 武俠打字傳 (Wuxia Typing Legend)
 
+> **冒險新版 v2.0.0-alpha.1｜分支 `feat/jianghu-adventure`**
+>
+> 本分支新增 [文印江湖冒險入口](adventure.html)：六章三十關完整故事，首次選年級與角色，之後直接繼續冒險。每關十題實際輸入，單一守護絕招、裝備收益、弱點回流與逐音續玩。原版 `index.html` 與公開 master 仍保留。
+>
+> 本機伺服器開啟 `/adventure.html` 即可試玩；不要直接以 `file://` 開啟 ES Module。詳見 [世界觀與遊戲規則](docs/ADVENTURE_WORLD.md)、[三輪驗證紀錄](docs/adventure-validation.md)。新版使用獨立冒險存檔，不寫回原版；初次單向複製既有裝備與銅錢。
+>
+> 以下章節說明仍為原版 Beta.2 的玩法，冒險新版以連結文件為準。
+
 [![Version](https://img.shields.io/badge/version-v1.0.0--beta.2-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
 [![Platform](https://img.shields.io/badge/Platform-Pure%20Web%20%2F%20HTML5%20Canvas-emerald.svg)](https://lianghao02.github.io/16_Wuxia-Typing-Legend/)
 [![Dictionary](https://img.shields.io/badge/MOE%20Mini%20Dict-4%2C311%20Chars-blue.svg)](https://dict.mini.moe.edu.tw/)
