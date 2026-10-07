@@ -3,7 +3,7 @@
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：feat/jianghu-adventure
-- **Commit SHA**：未提交（基準 92be4ba）
+- **Commit SHA**：b74d848（新版功能提交；基準 92be4ba）
 - **Skill Version**：v1.0.0
 - **Task Type**：IMPROVE / HANDOFF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
@@ -55,9 +55,9 @@
 alpha 試玩版；自動與開發者測試不能代替兒童使用研究。存檔仍限定相同瀏覽器與網站來源。
 
 ## Git 狀態
-- Commit：待提交新版與交接。
-- Push：待推送 feat/jianghu-adventure。
-- Working Tree：新版變更及兩份排除文件。
+- Commit：b74d848 新版功能；交接文件另行提交。
+- Push：交接提交後同步 origin/feat/jianghu-adventure。
+- Working Tree：交接提交後僅保留兩份排除文件。
 - Branch：feat/jianghu-adventure。
 
 ## 下一步建議動作 (Next Recommended Action)
