@@ -1686,3 +1686,71 @@ textarea.custom-input {
 
 /* 完整釋義可捲動，避免將自訂題庫視窗撐出螢幕。 */
 #dictionary-reading-result { white-space: pre-line; max-height: 180px; overflow-y: auto; line-height: 1.6; }
+
+/* 筆電扣除瀏覽器與工作列後高度有限：題目與鍵盤分欄，避免把作答區壓成細條。 */
+@media (max-height: 579px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .bottom-dock {
+    left: auto;
+    right: 16px;
+    transform: none;
+    width: calc(50vw - 24px);
+    max-width: none;
+  }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .question-center-wrap {
+    left: 16px;
+    transform: none;
+    width: calc(50vw - 32px);
+    min-width: 0;
+    max-width: none;
+  }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .paper-scroll {
+    max-height: calc(100dvh - var(--question-top, 120px) - 16px);
+    padding: 8px;
+  }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-panel { padding: 5px 6px; gap: 3px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-hint-row { font-size: 0.6rem; padding-right: 96px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-close-btn { padding: 4px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-key { height: 32px; padding: 2px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-zy { font-size: 1.15rem; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-en { font-size: 0.55rem; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .skill-slot-btn { font-size: 0.65rem; padding: 3px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .skill-hotkey-badge { font-size: 0.55rem; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .skill-dock-hint { display: none; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .toolbar { padding: 5px; gap: 4px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .toolbar .wuxia-btn { padding: 5px; font-size: 0.72rem; }
+}
+
+/* 低高度筆電先縮小鍵盤與控制列，將完整作答區留在中央。 */
+@media (min-height: 580px) and (max-height: 700px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-key { height: 26px; padding: 1px 4px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-panel { padding: 4px 10px; gap: 2px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-en { font-size: 0.48rem; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-zy { font-size: 0.95rem; line-height: 1; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .vk-hint-row { min-height: 24px; padding-bottom: 0; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .skill-slot-btn { padding: 4px; font-size: 0.68rem; white-space: nowrap; overflow: hidden; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .skill-hotkey-badge,
+  #dom-overlay:has(.vk-panel:not(.hidden)) .skill-dock-hint,
+  #dom-overlay:has(.vk-panel:not(.hidden)) #word-meaning-text { display: none; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .toolbar { padding: 5px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .toolbar .wuxia-btn { padding: 4px 7px; font-size: 0.78rem; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .paper-scroll { padding: 4px 8px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .scroll-footer { margin-top: 4px; padding-top: 4px; }
+}
+
+@media (max-height: 700px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .word-characters { min-height: 64px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .v4-keycap-widget { width: 40px; height: 40px; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .v4-keycap-widget.is-space { width: 100px; }
+}
+@media (min-height: 580px) and (max-height: 700px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .paper-scroll { max-height: calc(100dvh - var(--question-top, 120px) - var(--dock-height, 260px) - 18px); }
+}
+
+@media (min-height: 580px) and (max-height: 700px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) #question-context { display: none; }
+  #dom-overlay:has(.vk-panel:not(.hidden)) .question-page-progress { margin: 0; font-size: 0.68rem; }
+}
+
+@media (min-height: 580px) and (max-height: 700px) and (min-width: 761px) {
+  #dom-overlay:has(.vk-panel:not(.hidden)) .scroll-footer { margin-top: 2px; padding-top: 2px; }
+}

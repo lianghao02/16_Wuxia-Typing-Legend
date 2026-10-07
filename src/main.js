@@ -190,7 +190,7 @@ export class WuxiaGameApp {
         const topCards = window.innerWidth <= 960 || (window.innerWidth <= 1360 && this.storage.state.showVirtualKeyboard);
         const cards = [...document.querySelectorAll(topCards ? '.hud-top > *' : '.hud-center')];
         const bottom = Math.max(...cards.map(card => card.getBoundingClientRect().bottom));
-        overlay.style.setProperty('--question-top', `${Math.max(120, Math.ceil(bottom + 12))}px`);
+        overlay.style.setProperty('--question-top', `${Math.max(window.innerHeight <= 700 && this.storage.state.showVirtualKeyboard ? 90 : 120, Math.ceil(bottom + 12))}px`);
       };
       this.dockObserver = new ResizeObserver(updateBattleLayout);
       document.querySelectorAll('.bottom-dock, .hud-top > *').forEach(element => this.dockObserver.observe(element));

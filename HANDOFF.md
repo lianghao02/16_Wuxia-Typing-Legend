@@ -3,13 +3,13 @@
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：master
-- **Commit SHA**：0c10c5a（Beta.2 功能提交；本檔補記部署驗證）
+- **Commit SHA**：9d282c0（本輪小螢幕修復基準；最新修復提交見 master 紀錄）
 - **Skill Version**：v1.0.0
 - **Task Type**：FIX / IMPROVE / RELEASE / HANDOFF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
 
 ## 目前狀態
-v1.0.0-beta.2 已推送 origin/master，GitHub Pages build 為 built，公開頁面驗證通過。
+Beta.2 小螢幕鍵盤修復已完成本機驗證；本輪提交與部署對應 master 最新紀錄。前輪 Beta.2 已公開部署。
 
 ## 本輪目標
 完成先前年級題庫及操作修復的發布，補齊計時、字典與背景載入改善。
@@ -69,3 +69,10 @@ v1.0.0-beta.2 已推送 origin/master，GitHub Pages build 為 built，公開頁
 已公開發布：https://lianghao02.github.io/16_Wuxia-Typing-Legend/
 
 GitHub Pages built 對應 0c10c5a6fb93cb26c1169e2819c6296775b7c860。公開頁面確認 beta2_final 腳本／樣式、六年級 381 題與 1／3／6 抽題配額、行字三音完整釋義，console error 為零；未更動公開存檔的作答位置。
+
+## 最新斷點：小螢幕鍵盤遮擋修正
+- 使用者照片反映低高度筆電展開鍵盤後題目被裁切，並建議縮小鍵盤比例。
+- 580～700px 高度、至少 761px 寬度：縮小鍵帽／控制列，保留目前字卡、組數、下一鍵，暫收全文預覽與例詞。更低高度採左右配置；一般桌機維持原配置。
+- main.js 低高度時不再強制題目最低 top 120px；樣式與主程式快取改 20261007_small_screen。
+- 本機驗證：1024×580、1366×600、1024×561、768×540、1440×900，四字與長句下一鍵位於題目框內，題目／底座不重疊；39/39 測試、語法與差異格式檢查通過。
+- 本輪異動：css/style.css、src/main.js、index.html、README.md、CHANGELOG.md、HANDOFF.md。保留 assets/ART_RULES_V2_HANDOFF.md。
