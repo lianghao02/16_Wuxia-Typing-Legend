@@ -77,3 +77,4 @@ alpha 試玩版；自動與開發者測試不能代替兒童使用研究。存�
 - 驗證：48／48 測試、八種獨立尺寸診斷、1280×720 真實逐鍵完成一題、Console error 0；詳細證據見 docs/adventure-validation.md。
 - 使用者試玩頁未重新整理、未改視窗或存檔，載入修正須使用者自行重新整理。原版與 master 未修改。
 - assets/ART_RULES_V2_HANDOFF.md 與 project-scorecard.md 既有修改仍排除提交。暫時診斷頁測後移除。
+- 提交 5734ca3 已完成；GitHub 推送因 DNS 無法解析 github.com 失敗。連線恢復後推送 feat/jianghu-adventure，不合併 master。
