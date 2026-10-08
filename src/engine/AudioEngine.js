@@ -13,6 +13,7 @@ export class AudioEngine {
   constructor() {
     this.ctx = null;
     this.muted = false;
+    this.speechEnabled = true;
     this.volume = 0.7;
   }
 
@@ -30,12 +31,82 @@ export class AudioEngine {
 
   setMuted(muted) {
     this.muted = Boolean(muted);
+    if (this.muted && typeof window !== 'undefined' && window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch {}
+    }
     return this.muted;
   }
 
+  setSpeechEnabled(enabled) {
+    this.speechEnabled = Boolean(enabled);
+    if (!this.speechEnabled && typeof window !== 'undefined' && window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch {}
+    }
+    return this.speechEnabled;
+  }
+
   toggleMute() {
-    this.muted = !this.muted;
-    return this.muted;
+    return this.setMuted(!this.muted);
+  }
+
+  /**
+   * 挑選最適合的系統內建語音（優先台灣繁體中文 zh-TW 與美式英文 en-US）
+   */
+  pickVoice(lang = 'zh-TW') {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices?.() || [];
+    if (!voices.length) return null;
+
+    if (lang.toLowerCase().startsWith('en')) {
+      return (
+        voices.find(v => /en[-_]US/i.test(v.lang) && /(Natural|Online|Microsoft|Google|Samantha|Aria|Jenny|Guy)/i.test(v.name)) ||
+        voices.find(v => /en[-_]US/i.test(v.lang)) ||
+        voices.find(v => /^en/i.test(v.lang)) ||
+        null
+      );
+    }
+
+    return (
+      voices.find(v => /zh[-_]TW/i.test(v.lang) && /(HsiaoChen|HsiaoYu|YunJhe|Hanhan|Yating|Zhiwei|Taiwan|臺灣|台灣)/i.test(v.name)) ||
+      voices.find(v => /zh[-_]TW/i.test(v.lang)) ||
+      voices.find(v => /zh[-_]HK|zh[-_]CN|^zh/i.test(v.lang)) ||
+      null
+    );
+  }
+
+  /**
+   * 零體積語音朗讀（打對國字、詞語或英文單字時發音；自動截斷前一句避免延遲堆積）
+   */
+  speakText(text, lang = 'zh-TW') {
+    if (this.muted || !this.speechEnabled) return false;
+    const clean = String(text ?? '').trim();
+    if (!clean) return false;
+
+    if (this.playCustomSound(`word_${clean}`)) return true;
+
+    if (
+      typeof window === 'undefined' ||
+      !('speechSynthesis' in window) ||
+      typeof SpeechSynthesisUtterance === 'undefined'
+    ) {
+      return false;
+    }
+
+    try {
+      const synth = window.speechSynthesis;
+      synth.cancel();
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.lang = lang;
+      const voice = this.pickVoice(lang);
+      if (voice) utter.voice = voice;
+      utter.rate = lang.toLowerCase().startsWith('en') ? 0.96 : 1.05;
+      utter.pitch = 1.0;
+      utter.volume = Math.min(1, Math.max(0.25, this.volume * 1.15));
+      synth.speak(utter);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -164,29 +235,158 @@ export class AudioEngine {
   }
 
   /**
-   * 4. 失誤架招（Miss）：短促溫和的木劍/鐵劍格擋聲，不刺耳
+   * 掛載外部自訂音效檔（如 mp3 / wav / ogg），若未掛載或載入失敗則自動使用 WebAudio 合成音效
    */
-  playMiss() {
+  registerCustomSound(key, url) {
+    this.customSounds = this.customSounds || {};
+    const audio = typeof Audio !== 'undefined' ? new Audio(url) : null;
+    if (audio) {
+      audio.preload = 'auto';
+      this.customSounds[key] = audio;
+    }
+  }
+
+  playCustomSound(key) {
+    const sample = this.customSounds?.[key];
+    if (!sample) return false;
+    try {
+      sample.currentTime = 0;
+      sample.volume = this.volume;
+      const p = sample.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * 4. 失誤架招（Miss）：木鐵偏斜震盪聲；若原本達 5 連擊以上則疊加「斷弦破功」音效
+   */
+  playMiss(previousCombo = 0) {
     if (this.muted) return;
+    if (this.playCustomSound(previousCombo >= 5 ? 'miss_break' : 'miss')) return;
     this.init();
     if (!this.ctx) return;
 
     const now = this.ctx.currentTime;
+
+    // 劍身偏斜震盪主音
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(320, now);
-    osc.frequency.exponentialRampToValueAtTime(190, now + 0.09);
-
-    gain.gain.setValueAtTime(0.2 * this.volume, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
-
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(360, now);
+    osc.frequency.exponentialRampToValueAtTime(145, now + 0.14);
+    gain.gain.setValueAtTime(0.26 * this.volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-
     osc.start(now);
-    osc.stop(now + 0.11);
+    osc.stop(now + 0.16);
+
+    // 若原本有 5 連擊以上被打斷，額外播放「古琴斷弦＋氣息潰散」下行音效
+    if (previousCombo >= 5) {
+      [587.33, 440.0, 293.66, 174.61].forEach((freq, i) => {
+        const bOsc = this.ctx.createOscillator();
+        const bGain = this.ctx.createGain();
+        bOsc.type = 'sawtooth';
+        const t = now + i * 0.045;
+        bOsc.frequency.setValueAtTime(freq, t);
+        bOsc.frequency.exponentialRampToValueAtTime(freq * 0.72, t + 0.12);
+        bGain.gain.setValueAtTime(0.16 * this.volume, t);
+        bGain.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+        bOsc.connect(bGain);
+        bGain.connect(this.ctx.destination);
+        bOsc.start(t);
+        bOsc.stop(t + 0.14);
+      });
+    }
+  }
+
+  /**
+   * 4.5 連擊里程碑專屬音效（5 連清風、10 連驚雷、15+ 連龍鳳宗師劍意）
+   */
+  playComboMilestone(combo = 5) {
+    if (this.muted) return;
+    const tierKey = combo >= 15 ? 'combo_15' : combo >= 10 ? 'combo_10' : 'combo_5';
+    if (this.playCustomSound(tierKey)) return;
+    this.init();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    if (combo >= 15) {
+      // 15 連擊：金鐘共鳴＋雙八度五聲龍鳳華麗琶音
+      const bell = this.ctx.createOscillator();
+      const bellGain = this.ctx.createGain();
+      bell.type = 'sine';
+      bell.frequency.setValueAtTime(261.63, now);
+      bellGain.gain.setValueAtTime(0.32 * this.volume, now);
+      bellGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+      bell.connect(bellGain);
+      bellGain.connect(this.ctx.destination);
+      bell.start(now);
+      bell.stop(now + 0.56);
+
+      [523.25, 659.25, 783.99, 880.0, 1046.5, 1318.51, 1567.98, 2093.0].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = i % 2 === 0 ? 'triangle' : 'sine';
+        const t = now + i * 0.042;
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.03, t + 0.34);
+        g.gain.setValueAtTime(0.24 * this.volume, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.36);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.38);
+      });
+    } else if (combo >= 10) {
+      // 10 連擊：驚雷低音＋五聲電弧疾升音
+      const thunder = this.ctx.createOscillator();
+      const tGain = this.ctx.createGain();
+      thunder.type = 'sawtooth';
+      thunder.frequency.setValueAtTime(140, now);
+      thunder.frequency.exponentialRampToValueAtTime(58, now + 0.28);
+      tGain.gain.setValueAtTime(0.28 * this.volume, now);
+      tGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      thunder.connect(tGain);
+      tGain.connect(this.ctx.destination);
+      thunder.start(now);
+      thunder.stop(now + 0.32);
+
+      [587.33, 783.99, 880.0, 1174.66, 1567.98].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'triangle';
+        const t = now + i * 0.04;
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.12, t + 0.24);
+        g.gain.setValueAtTime(0.23 * this.volume, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.28);
+      });
+    } else {
+      // 5 連擊：清風竹笛雙音上揚
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        const t = now + i * 0.045;
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.06, t + 0.2);
+        g.gain.setValueAtTime(0.22 * this.volume, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.24);
+      });
+    }
   }
 
   /**

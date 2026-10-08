@@ -267,7 +267,7 @@ export class TypingEngine {
   }
 
   getComboTier(combo = this.combo) {
-    if (combo >= 20) return 3; // 劍意狀態
+    if (combo >= 15) return 3; // 劍意狀態
     if (combo >= 10) return 2; // 氣流殘影
     if (combo >= 5) return 1;  // 劍光強化
     return 0;
@@ -514,6 +514,7 @@ export class TypingEngine {
       this.emit('miss', {
         expectedSymbol,
         actualSymbol: inputSymbol,
+        actualCode: meta.code,
         charObj,
         charIndex: this.charIndex,
         symbolIndex: this.symbolIndex,
