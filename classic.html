@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>武俠打字傳｜以字為劍，打出你的江湖</title>
+  <link rel="stylesheet" href="./css/style.css?v=20261007_center_keyboard" />
+</head>
+<body>
+  <!-- Phaser 3 戰鬥畫布底層 -->
+  <div id="phaser-Stage"></div>
+
+  <!-- Combo 燃燒字樣 -->
+  <div class="combo-banner" id="combo-banner" style="opacity: 0;">
+    <div class="combo-num" id="combo-num">Combo ×0</div>
+    <div class="combo-tag" id="combo-tag">初窺門徑</div>
+  </div>
+
+  <!-- DOM 排版覆蓋層（負責題目、注音、HUD、選單） -->
+  <div id="dom-overlay">
+    <!-- 頂部狀態列 HUD -->
+    <div class="hud-top interactive">
+      <!-- 左側：玩家少俠 -->
+      <div class="fighter-card">
+        <div class="fighter-header">
+          <div class="fighter-name">
+            <img id="hero-avatar-img" src="./assets/icons/yun_avatar_v3.png" alt="少俠頭像" class="hero-avatar-thumb" />
+            <span class="seal-badge">劍俠</span>
+            <span id="hero-name-text">雲清川</span>
+            <button class="wuxia-btn" id="btn-switch-hero" style="padding:2px 8px; font-size:0.75rem;" title="切換雲清川／蘇映雪">
+              ⇄ 換角
+            </button>
+          </div>
+          <span style="font-size:0.8rem; color:var(--light-cyan); display:flex; align-items:center; gap:4px;">
+            <img id="hero-weapon-icon" src="./assets/icons/wood_sword_v3.png" alt="神兵" class="inline-weapon-icon" />
+            <span id="hero-weapon-badge">桃木短劍</span>
+          </span>
+        </div>
+        <div class="hp-bar-outer">
+          <div class="hp-bar-inner" id="hero-hp-bar"></div>
+        </div>
+        <div class="qi-row">
+          <span>氣血：<strong id="hero-hp-text">100 / 100</strong></span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span>內力：</span>
+            <div class="qi-dots">
+              <span class="qi-dot" id="qi-dot-1"></span>
+              <span class="qi-dot" id="qi-dot-2"></span>
+              <span class="qi-dot" id="qi-dot-3"></span>
+              <span class="qi-dot" id="qi-dot-4"></span>
+              <span class="qi-dot" id="qi-dot-5"></span>
+            </div>
+          </div>
+          <span>🛡️ 靜心符：<strong id="shield-count">1</strong></span>
+        </div>
+      </div>
+
+      <!-- 中央：章節與表現統計 -->
+      <div class="hud-center">
+        <div class="chapter-title" id="chapter-title">第一章・山門｜雲霧山門</div>
+        <div class="practice-progress-label" id="scroll-source-label">大千注音（免選字直拼）</div>
+        <div class="hud-meta">
+          <span style="display:inline-flex; align-items:center; gap:4px;">
+            <img src="./assets/icons/copper_coins_v3.png" alt="銅錢" class="inline-coin-icon" />
+            銅錢：<strong style="color:var(--bright-gold);" id="coin-count">80</strong>
+          </span>
+          <span>⚡ 速度：<strong style="color:var(--sword-cyan);" id="wpm-display">0</strong> <span id="speed-unit">字／分</span></span>
+          <span>🎯 準度：<strong style="color:#69db7c;" id="acc-display">100%</strong></span>
+        </div>
+      </div>
+
+      <!-- 右側：敵人與出招蓄力條 -->
+      <div class="fighter-card">
+        <div class="fighter-header">
+          <div class="fighter-name">
+            <span class="seal-badge" id="enemy-title-badge">Lv.1</span>
+            <span id="enemy-name-text">稻草人</span>
+          </div>
+          <span style="font-size:0.8rem; color:#ffccd5;">破題進度：<strong id="enemy-hp-text">剩餘 10 / 10 題</strong></span>
+        </div>
+        <div class="hp-bar-outer">
+          <div class="hp-bar-inner enemy" id="enemy-hp-bar"></div>
+        </div>
+        <div class="atb-row">
+          <span>敵方出招蓄力：</span>
+          <div class="atb-bar-outer">
+            <div class="atb-bar-inner" id="enemy-atb-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中央第一視覺焦點：宣紙題目與注音卷軸 -->
+    <div class="question-center-wrap interactive">
+      <div class="paper-scroll">
+        <div class="scroll-header">
+          <span class="parry-alert-banner" id="parry-alert-banner">
+            ⚡ 看破破綻時機！立即打完字詞可打斷敵人並暴擊！
+          </span>
+          <span style="font-family:var(--font-calligraphy); color:#9b2226; font-weight:700;">
+            【以字為劍】
+          </span>
+        </div>
+
+        <div class="question-context" id="question-context" hidden></div>
+        <div class="question-page-progress" id="question-page-progress" hidden></div>
+        <div class="word-characters" id="word-characters"></div>
+
+        <div class="scroll-footer">
+          <span id="word-meaning-text">請直接敲擊鍵盤對應注音鍵位出招（無需選字）</span>
+          <span class="finger-guide-pill" id="finger-guide-pill" aria-live="polite">準備出劍...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 施展武功時輕輕浮現之水墨燙金橫幅 -->
+    <div class="floating-skill-banner" id="floating-skill-banner"></div>
+
+    <!-- 底部：半透明水墨虛擬鍵盤 + 武功技能槽 + 功能導覽列 -->
+    <div class="bottom-dock interactive">
+      <!-- Q / W / E / R 武功技能槽（清爽微光，收攏置中，絕不遮擋視線） -->
+      <div class="skill-dock-container">
+        <div class="skill-bar-dock" id="skill-bar-dock">
+          <button class="skill-slot-btn" id="btn-skill-q" title="青蓮劍氣：消耗 2 氣，完成目前整題並演出劍氣重創">
+            <span class="skill-hotkey-badge">Alt+1 / F1</span>
+            <span>⚡ 青蓮劍氣 (2氣)</span>
+          </button>
+          <button class="skill-slot-btn" id="btn-skill-w" title="凌波微步：將敵蓄力條歸零並定身 3 秒">
+            <span class="skill-hotkey-badge">Alt+2 / F2</span>
+            <span>🌊 凌波微步 (2氣)</span>
+          </button>
+          <button class="skill-slot-btn" id="btn-skill-e" title="太極回春：立即調息恢復 35 氣血">
+            <span class="skill-hotkey-badge">Alt+3 / F3</span>
+            <span>🌿 太極回春 (3氣)</span>
+          </button>
+          <button class="skill-slot-btn" id="btn-skill-r" title="流雲劍訣：滿氣時立即引發全屏水墨一刀斬">
+            <span class="skill-hotkey-badge">Alt+4 / F4</span>
+            <span>🔥 流雲劍訣 (滿氣)</span>
+          </button>
+        </div>
+        <div class="skill-dock-hint">
+          💡 點擊按鈕或按 Alt+1～4／F1～F4；滿 5 氣保留供主動施招
+        </div>
+      </div>
+
+      <div class="vk-panel" id="vk-panel"></div>
+
+      <div class="toolbar">
+        <div class="btn-group">
+          <button class="wuxia-btn" id="btn-open-title">🏠 江湖首頁</button>
+          <button class="wuxia-btn gold" id="btn-open-practice">⚔️ 開始修煉</button>
+          <button class="wuxia-btn" id="btn-shop">🏮 客棧神兵</button>
+          <button class="wuxia-btn" id="btn-open-settings">⚙️ 設定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop interactive" id="modal-settings">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-header">
+        <span class="modal-title" id="settings-title">修煉設定</span>
+        <button class="wuxia-btn" data-close-modal>✕ 返回練習</button>
+      </div>
+      <section class="settings-section" aria-labelledby="textbook-settings-title">
+        <h3 id="textbook-settings-title">課本題庫</h3>
+        <div class="settings-actions">
+          <button class="wuxia-btn" id="btn-textbook">📘 課本題庫</button>
+        </div>
+      </section>
+      <section class="settings-section" aria-labelledby="display-settings-title">
+        <h3 id="display-settings-title">鍵盤與聲音</h3>
+        <div class="settings-actions">
+          <button class="wuxia-btn" id="btn-toggle-vk">⌨️ 指法鍵盤 (Tab)</button>
+          <button class="wuxia-btn" id="btn-toggle-audio">🔊 音效：開</button>
+          <button class="wuxia-btn" id="btn-toggle-bgm">🎵 配樂：關</button>
+        </div>
+      </section>
+      <details class="settings-section">
+        <summary>進階工具</summary>
+        <a class="wuxia-btn" href="./prototype-input.html">🔬 輸入實驗室</a>
+      </details>
+    </div>
+  </div>
+
+  <div class="modal-backdrop interactive" id="modal-practice">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="practice-title">
+      <div class="modal-header">
+        <span class="modal-title" id="practice-title">開始修煉・先選年級與題本</span>
+        <button class="wuxia-btn" data-close-modal>✕ 返回練習</button>
+      </div>
+      <label for="practice-book">第一步：選擇年級／練習內容</label>
+      <select id="practice-book" class="practice-select"></select>
+      <p id="practice-summary"></p>
+      <button class="wuxia-btn gold" id="btn-practice-realms">第二步：選擇境界與關卡 →</button>
+      <section class="settings-section" aria-labelledby="practice-settings-title">
+        <h3 id="practice-settings-title">今天練什麼？</h3>
+        <p>年級題本各自保存進度，銅錢與裝備共用。也可以建立自訂題本或進行錯題特訓。</p>
+        <div class="settings-actions">
+          <button class="wuxia-btn" id="btn-custom-words">📜 爸媽祕笈</button>
+          <button class="wuxia-btn" id="btn-mistakes">📝 錯題墨寶閣</button>
+          <button class="wuxia-btn" id="btn-stages">🗺️ 目前題本境界 (Esc)</button>
+        </div>
+      </section>
+      <button class="wuxia-btn" id="btn-toggle-lang" hidden>選擇英文練習</button>
+    </div>
+  </div>
+
+  <!-- 彈窗 1：江湖歷練地圖與關卡選擇 -->
+  <div class="modal-backdrop interactive" id="modal-stages">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">江湖歷練・三大境界十關地圖</span>
+        <button class="wuxia-btn" id="btn-practice-back">← 重選年級／題本</button>
+        <button class="wuxia-btn" data-close-modal>✕ 關閉</button>
+      </div>
+      <p id="stage-practice-label"></p>
+      <div class="jianghu-map-banner">
+        <picture><source srcset="./assets/backgrounds/jianghu_map_v3.webp" type="image/webp" /><img src="./assets/backgrounds/jianghu_map_v3.png" alt="江湖歷練路線圖" class="jianghu-map-img" loading="lazy" decoding="async" /></picture>
+        <div class="jianghu-map-caption">⛰️ 山門演武 ➔ 🎋 翠竹幽林 ➔ 🏮 古驛客棧 ➔ 🏯 襄陽擂台 ➔ 🌙 月下機關 ➔ ☁️ 雲海山巔</div>
+      </div>
+      <div class="grid-list" id="stage-list-grid"></div>
+    </div>
+  </div>
+
+  <!-- 彈窗 2：古驛客棧・神兵閣（商店） -->
+  <div class="modal-backdrop interactive" id="modal-shop">
+    <div class="modal-card shop-modal-card">
+      <div class="modal-header" style="flex-wrap:wrap; gap:8px;">
+        <span class="modal-title">古驛客棧・神兵閣與丹藥房</span>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:0.88rem;">
+          <span>❤️ 氣血：<strong style="color:#69db7c;" id="shop-hp-display">100 / 100</strong></span>
+          <span>🛡️ 靜心符：<strong style="color:var(--sword-cyan);" id="shop-shield-display">1</strong></span>
+          <span style="display:inline-flex; align-items:center; gap:4px;">
+            銅錢：<img src="./assets/icons/copper_coins_v3.png" alt="銅錢" class="inline-coin-icon" />
+            <strong style="color:var(--bright-gold);" id="shop-coin-display">0</strong>
+          </span>
+          <button class="wuxia-btn" data-close-modal>✕ 返回江湖</button>
+        </div>
+      </div>
+      <div class="shop-layout">
+        <aside class="shop-hero-banner" aria-label="店小二接待區">
+          <div class="shopkeeper-frame">
+            <img src="./assets/characters/shopkeeper_idle_v3.png" alt="掌櫃店小二" class="shopkeeper-portrait" loading="lazy" decoding="async" />
+          </div>
+          <div class="shopkeeper-dialogue">
+            <strong>🏮 客棧掌櫃・店小二：</strong>
+            <span id="shop-dialogue-text">「少俠裡面請！本店神兵皆由玄鐵精鋼打造，佩帶後不僅劍氣暴漲，連少俠身上的俠客袍服也會一併煥然一新！」</span>
+          </div>
+        </aside>
+        <div class="shop-products" aria-label="客棧商品">
+          <h4 style="color:var(--light-cyan);">⚔️ 名門神兵與俠客袍服（佩帶後同步升級少俠立繪與劍氣）</h4>
+          <div class="grid-list" id="shop-weapons-grid"></div>
+          <h4 style="color:#69db7c; margin-top:6px;">🧪 靈丹妙藥與護身符</h4>
+          <div class="grid-list" id="shop-items-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗 3：國小三大出版社課本題庫 -->
+  <div class="modal-backdrop interactive" id="modal-textbook">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">國語題庫（同年級混合／教育部字音）</span>
+        <div style="display:flex; gap:8px;">
+          <button class="wuxia-btn" id="btn-clear-textbook">返回年級與題本選擇</button>
+          <button class="wuxia-btn" data-close-modal>✕ 關閉</button>
+        </div>
+      </div>
+      <p>依年級混合已收錄的康軒、翰林、南一分類範例與原創散文短句，每關隨機練習 10 題。現有出版社範例只涵蓋一至三年級，正式課次尚待核對；四至六年級目前為原創散文。教育部字音練習採官方國語小字典。</p>
+      <p id="publisher-resource-links"></p>
+      <div class="grid-list" id="textbook-list-container"></div>
+    </div>
+  </div>
+
+  <!-- 彈窗 4：爸媽自訂聯絡簿生字祕笈盒 -->
+  <div class="modal-backdrop interactive" id="modal-custom-words">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">爸媽祕笈書閣（自訂本週聯絡簿生字／圈詞）</span>
+        <button class="wuxia-btn" data-close-modal>✕ 關閉</button>
+      </div>
+      <p style="font-size:0.88rem; color:#ced4da; line-height:1.5;">
+        直接貼上學校聯絡簿的國語生字、成語或英文單字（以逗號或換行分隔）。<br>
+        使用教育部國語小字典離線標音。字典例詞或既有遊戲詞庫可採完整標音，其餘多音字會提示候選讀音；未收錄字請手動補上。<br>
+        可輸入純國字（如：<code>小橋, 流水</code>）或附帶注音（如：<code>小橋(ㄒㄧㄠˇ ㄑㄧㄠˊ)</code>），每字一組、以空白分隔：
+      </p>
+      <textarea class="custom-input" id="custom-vocab-textarea"></textarea>
+      <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px;">
+        <label for="dictionary-character">查字讀音</label>
+        <input id="dictionary-character" type="text" style="width:5rem; font-size:1.2rem;" placeholder="行" />
+        <button class="wuxia-btn" id="btn-dictionary-lookup">查詢</button>
+      </div>
+      <p id="dictionary-reading-result" aria-live="polite" style="color:#ffd166;"></p>
+      <p style="font-size:0.8rem; line-height:1.5;">
+        <span id="dictionary-source"></span><br>
+        <a href="https://dict.mini.moe.edu.tw/" target="_blank" rel="noopener noreferrer">教育部國語小字典</a>・
+        <a href="./data/dictionaries/moe-mini/使用說明.pdf" target="_blank" rel="noopener noreferrer">完整使用說明</a>・
+        <a href="https://creativecommons.org/licenses/by-nd/3.0/tw/" target="_blank" rel="noopener noreferrer">CC BY-ND 3.0 臺灣</a>
+      </p>
+      <p id="custom-vocab-error" role="alert" style="color:#ffd166; white-space:pre-line;"></p>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="wuxia-btn gold" id="btn-save-custom-vocab">⚡ 立即生成專屬修煉關卡</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗 5：勝利／調息結算 -->
+  <div class="modal-backdrop interactive" id="modal-result">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title" id="result-modal-title">武林捷報</span>
+        <button class="wuxia-btn" data-close-modal>✕ 關閉</button>
+      </div>
+      <div id="result-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- 彈窗 6：開場主頁（Title Screen） -->
+  <div class="modal-backdrop interactive" id="modal-title-screen">
+    <div class="modal-card title-screen-card">
+      <div class="title-screen-content">
+        <div class="title-logo-wrap">
+          <img src="./assets/ui/title_logo_v4.png" alt="武俠打字傳" class="title-logo-img" />
+          <div class="title-main-banner sr-only">武俠打字傳</div>
+        </div>
+        <div class="title-sub-banner">以字為劍・打出你的江湖</div>
+        <div class="title-desc-text">
+          專為臺灣國小學童與打字修煉打造之教育仙俠遊戲<br>
+          免選字即時直拼・暗黑三難度三十斬・國小三本課本字庫
+        </div>
+
+        <div class="title-heroes-preview">
+          <div class="title-hero-box">
+            <span class="title-hero-badge" style="background:#2d6a4f;">初出茅廬 (易)</span>
+            <div class="title-realm-icons">
+              <img src="./assets/icons/realm_beginner_v4.png" alt="初出茅廬徽章" class="title-realm-badge-img" />
+              <img src="./assets/icons/wood_sword_v3.png" alt="桃木短劍" class="title-weapon-preview-img" />
+            </div>
+            <div style="font-weight:700; color:var(--sword-cyan); font-size:1.05rem;">青衫客</div>
+            <div style="font-size:0.78rem; color:#ced4da; margin-top:3px;">每個年級的第一境界・穩定練習</div>
+            <div style="font-size:0.74rem; color:#ffd166; margin-top:3px;">持桃木劍・山門練功</div>
+          </div>
+          <div class="title-hero-box">
+            <span class="title-hero-badge" style="background:#1d4ed8;">名震江湖 (中)</span>
+            <div class="title-realm-icons">
+              <img src="./assets/icons/realm_renowned_v4.png" alt="名震江湖徽章" class="title-realm-badge-img" />
+              <img src="./assets/icons/qingfeng_sword_v3.png" alt="三尺青鋒劍" class="title-weapon-preview-img" />
+            </div>
+            <div style="font-weight:700; color:var(--bright-gold); font-size:1.05rem;">白衣劍俠</div>
+            <div style="font-size:0.78rem; color:#ced4da; margin-top:3px;">同一題本・提升戰鬥挑戰</div>
+            <div style="font-size:0.74rem; color:#ffd166; margin-top:3px;">佩青鋒劍・激鬥盜寇</div>
+          </div>
+          <div class="title-hero-box">
+            <span class="title-hero-badge" style="background:#7c2d12;">一代宗師 (難)</span>
+            <div class="title-realm-icons">
+              <img src="./assets/icons/realm_grandmaster_v4.png" alt="一代宗師徽章" class="title-realm-badge-img" />
+              <img src="./assets/icons/xuantie_sword_v3.png" alt="流雲玄鐵神劍" class="title-weapon-preview-img" />
+            </div>
+            <div style="font-weight:700; color:#ff8787; font-size:1.05rem;">玄金劍仙</div>
+            <div style="font-size:0.78rem; color:#ced4da; margin-top:3px;">同一題本・挑戰宗師境界</div>
+            <div style="font-size:0.74rem; color:#ffd166; margin-top:3px;">祭玄鐵神劍・決戰魔門</div>
+          </div>
+        </div>
+
+        <div class="title-btn-bar">
+          <button class="title-start-btn" id="btn-title-start">⚔️ 進入遊戲</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗 7：錯題墨寶閣（錯題本特訓） -->
+  <div class="modal-backdrop interactive" id="modal-mistakes">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">📝 錯題墨寶閣・專項特訓</span>
+        <button class="wuxia-btn" data-close-modal>✕ 關閉</button>
+      </div>
+      <div class="mistakes-inkstone-banner">
+        <img src="./assets/ui/review_inkstone_v4.png" alt="墨寶閣硯台與毛筆" class="review-inkstone-img" />
+        <div style="flex:1;">
+          <div style="font-weight:700; color:var(--bright-gold); font-size:0.96rem; margin-bottom:4px;">🖋️ 勤磨墨硯・化生疏為劍意</div>
+          <div style="font-size:0.86rem; color:#ced4da;">此處收錄歷次打錯的國字、注音與英文字母，每次最多練習十題：</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="wuxia-btn gold" id="btn-start-mistake-drill">⚡ 發起錯題特訓</button>
+          <button class="wuxia-btn" id="btn-clear-mistakes">🗑️ 清空錯題本</button>
+        </div>
+      </div>
+      <div class="mistake-card-grid" id="mistake-card-grid"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js?v=20261007_small_screen"></script>
+</body>
+</html>

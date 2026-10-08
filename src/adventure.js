@@ -204,7 +204,7 @@ function home() {
     <div class="chapter-list">${CHAPTERS.map((c,i)=>`<div class="${profile.records[i*5+4]?'earned':''}">${profile.records[i*5+4]?'✦':'◇'} ${c.name}<br>${profile.records[i*5+4]?c.seal+'文印已尋回':`第 ${i*5+1}～${i*5+5} 關`}</div>`).join('')}</div>
     <p class="muted">${save.grade==='english'?'英文':save.grade+' 年級'} · ${REALMS[profile.realm]} · 已完成 ${Object.keys(profile.records).length}／30 關<br>裝備：${w.name.split('・')[1]||w.name}｜${b.name}｜${a.name} · 空白鍵完成一聲，Tab 開關鍵盤，Alt＋1 施放${w.ultName||'守護絕招'}。</p>
     <div class="actions"><button class="primary" data-action="continue">${profile.stage===30?'重遊江湖':profile.session?'繼續上次冒險':'繼續冒險'} · Enter</button><button data-action="shop">客棧</button><button data-action="settings">設定</button></div>
-    <p class="muted">${storageFailed?'目前無法儲存進度。':'冒險進度自動儲存在此瀏覽器。'} <a href="./index.html">原版修煉入口</a></p>`, 'home');
+    <p class="muted">${storageFailed?'目前無法儲存進度。':'冒險進度自動儲存在此瀏覽器。'} <a href="./classic.html">原版修煉入口</a></p>`, 'home');
   $('battle').hidden = true; $('journey-hud').hidden = true; $('controls').hidden = true;
 }
 function makeQueue() {

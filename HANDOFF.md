@@ -2,69 +2,64 @@
 
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
-- **Branch**：feat/jianghu-adventure
-- **Commit SHA**：本輪基準 9fd93ed；最新提交以 Git 歷史為準
+- **Branch**：master
+- **Commit SHA**：836bf62（發布前基準；最新提交以 Git 歷史為準）
 - **Skill Version**：v1.0.0
-- **Task Type**：IMPROVE / HANDOFF
+- **Task Type**：RELEASE / HANDOFF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
 
 ## 目前狀態
-新版 2.0.0-alpha.1 已完成三輪測試與修復，可交付試玩。原版入口與公開 master 維持既有版本。
+可交付並已正式發布 `v2.0.0`（文印江湖六章冒險、刀槍劍三流派與屬性狀態正式版）。已將新版「文印江湖」設為預設首頁 `index.html`（同時保留 `adventure.html` 相容入口，原版 v1.0 移至 `classic.html`），並將 `feat/jianghu-adventure` 合併至 `master` 主分支發布至 GitHub Pages 及 GitHub Release `v2.0.0`。
 
 ## 本輪目標
-建立獨立分支，完成具完整世界觀與故事收束的打字闖關新版，減少選項並改善小螢幕體驗。
+將 `feat/jianghu-adventure` 新分支升版為正式版 `v2.0.0`，設為預設首頁 `index.html`，合併至 `master` 主分支並建立 GitHub Release，同時連動更新 `13_Project-Hub` 展示卡片與說明專頁。
 
 ## 基準與已確認事實 (Baseline & Confirmed Facts)
-- 以 master 92be4ba 為基準，新入口 adventure.html。
-- 使用現有字音、年級題庫、美術與 Canvas，不新增相依套件。
-- 新存檔 wuxia_adventure_v1；舊財產初次單向複製，保留零銅錢，不改寫原版存檔。
+- 預設首頁 `index.html` 與相容入口 `adventure.html` 皆指向 `v2.0.0` 文印江湖新版；原版 v1.0 保留於 `classic.html`。
+- 使用現有字音、年級題庫、美術與 Canvas，不新增外部套件。
+- 新存檔 `wuxia_adventure_v1`；舊財產初次單向複製，保留零銅錢，不改寫原版存檔。
 
 ## 已完成 (Completed)
 - 文印江湖六章三十關、六枚文印、完整引言／結算／結局與足跡重遊。
-- 六年級與英文各自進度；三境界控制回擊壓力，每關實際輸入十題。
-- 新手先選年級與人物，之後直接續行；單一絕招凍結與抵擋，不代答。
-- 商店換裝、銅錢加成、每日首關獎勵、逐音續玩與錯字回練。
-- 小螢幕中央上下題目與鍵盤，左右人物保留；取消常駐四技能列，放大店小二。
-- 三輪驗證與修復完成，README、CHANGELOG、規劃及世界觀／驗證文件更新。
+- 四大裝備部位（劍／刀／槍三流派兵器、護腕、防具、丹藥）與持刀／持槍全身立繪、刀罡／槍芒特效及專屬絕招。
+- 敵人毒／火／冰三屬性氣場、主角狀態全身染色與連對 2 字運功化解機制。
+- Web Speech 零體積中英發音朗讀、5／10／15 連擊水墨特效、過關朱紅印章、奇遇掉寶與本關練功小錦囊。
+- 跨螢幕響應式版面（小筆電與 125%／150% 縮放零遮擋）與 450ms 跨鍵盤前景出招演出。
+- 將新版設為預設首頁 `index.html`（原版移至 `classic.html`），更新 `package.json`、`CHANGELOG.md`、`README.md`、`docs/ADVENTURE_WORLD.md` 為 `v2.0.0`。
 
 ## 異動檔案 (Changed Files)
-- adventure.html、css/adventure.css、src/adventure.js。
-- src/data/adventureWorld.js、src/engine/AdventureEngine.js、tests/adventure.test.js。
-- TypingEngine.js 修正英文空白提示；package.json 納入新版測試。
-- README、CHANGELOG、IMPLEMENTATION_PLAN、HANDOFF、docs/ADVENTURE_WORLD.md、docs/adventure-validation.md。
+- `index.html`、`adventure.html`、`classic.html`（原 `index.html` 移轉）、`css/adventure.css`、`src/adventure.js`。
+- `src/data/adventureWorld.js`、`src/data/weaponEffects.js`、`src/engine/AdventureEngine.js`、`src/scenes/CanvasBattleScene.js`、`tests/adventure.test.js`。
+- `package.json`、`README.md`、`CHANGELOG.md`、`HANDOFF.md`、`docs/ADVENTURE_WORLD.md`、`docs/adventure-validation.md`。
 
 ## 刻意未修改 (Do Not Do / Deliberately Omitted)
-- 其他工作階段的 assets/ART_RULES_V2_HANDOFF.md 及先前評估 project-scorecard.md 排除本輪提交。
-- 不改原 PNG、官方字典來源及原版玩法，不合併到 master 或切換正式站。
+- 不改動教育部官方字典原始資料與原版（`classic.html`）既有玩法與存檔結構。
 
 ## 尚未完成 (Remaining Work)
 - **P1 (阻斷/必須)**：無。
 - **P2 (重要/當次)**：無。
-- **P3 (改善建議/暫緩)**：實際學童試玩回饋與數值調整；經試玩再決定正式替換入口。
+- **P3 (改善建議/暫緩)**：持續收集實際學童遊玩回饋。
 
 ## 驗證結果 (Validation)
 ### 已執行測試與結果
-- npm test：46／46 通過；七題本三境界共 6,300 題逐鍵輸入驗證。
-- Browser 完成三十關三百題、完整結局，另重遊首關十題；逐音續玩、換裝、絕招、回擊與連錯提示正常。
-- 768×540、1024×561、1366×650 版面實測；題目與鍵盤保持間距，兩側人物可見。
-- 新版模組語法、差異格式通過；Browser 最終 Console error 0。
-- 三輪發現及修復細節見 docs/adventure-validation.md。
+- `npm test`：50／50 單元測試全數通過（含七題本三境界共 6,300 題逐鍵輸入驗證、11 組視窗尺寸與縮放淨空、四大裝備部位與毒火冰屬性特效驗證）。
+- `git diff --check`：通過（零空白與格式錯誤）。
 ### 尚未驗證項目
-真實學童學習成效、長期黏著度、各校網路及中文輸入法完整組合。
+真實學童長期學習成效追蹤。
 ### 已知風險 (Known Risks)
-alpha 試玩版；自動與開發者測試不能代替兒童使用研究。存檔仍限定相同瀏覽器與網站來源。
+存檔保存在相同瀏覽器與網站來源之 `localStorage`。
 
 ## Git 狀態
-- Commit：b74d848 新版功能；交接文件另行提交。
-- Push：交接提交後同步 origin/feat/jianghu-adventure。
-- Working Tree：交接提交後僅保留兩份排除文件。
-- Branch：feat/jianghu-adventure。
+- Commit：已提交 `v2.0.0` 正式版並合併至 `master`。
+- Push：已同步推送 `origin/master`、`origin/feat/jianghu-adventure` 與 Tag `v2.0.0`。
+- Working Tree：Clean。
+- Branch：master。
 
 ## 下一步建議動作 (Next Recommended Action)
-讓學童實玩新版，觀察首次操作、每關時間、提示依賴與失敗率；再決定調整數值與正式入口。
+直接透過正式網址 https://lianghao02.github.io/16_Wuxia-Typing-Legend/ 遊玩 `v2.0.0` 文印江湖正式版。
 
 ## 發布狀態 (Release Status)
-可發布分支試玩；公開原版維持 https://lianghao02.github.io/16_Wuxia-Typing-Legend/ 。
+已發布 `v2.0.0` 正式版（GitHub Pages & GitHub Release：`v2.0.0`）。
 
 ## 最新修復斷點：長句閱讀（2026-10-08）
 - 新版長句改同字級整句、朱紅當前字、獨立目前注音；原版不變。

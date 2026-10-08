@@ -1,24 +1,21 @@
 # 武俠打字傳 (Wuxia Typing Legend)
 
-> **冒險新版 v2.0.0-alpha.1｜分支 `feat/jianghu-adventure`**
->
-> 本分支新增 [文印江湖冒險入口](adventure.html)：六章三十關完整故事，首次選年級與角色，之後直接繼續冒險。每關十題實際輸入，單一守護絕招、裝備收益、弱點回流與逐音續玩。原版 `index.html` 與公開 master 仍保留。
->
-> 本機伺服器開啟 `/adventure.html` 即可試玩；不要直接以 `file://` 開啟 ES Module。詳見 [世界觀與遊戲規則](docs/ADVENTURE_WORLD.md)、[三輪驗證紀錄](docs/adventure-validation.md)。新版使用獨立冒險存檔，不寫回原版；初次單向複製既有裝備與銅錢。
->
-> 新版題目與鍵盤共用中央操作區，兩側保留角色演出空間，平時出招位移限制於角色區；完成整題時，人物與劍氣以 450ms 透明前景演出跨過中央，題目保持上層；減少動態效果模式改為 180ms 定點刺擊。人物尺寸依素材可見範圍計算，收起鍵盤會擴大兩側角色區；窄直式視窗將角色放於題目與鍵盤之間，依可用空間調整比例。
->
-> 以下章節說明仍為原版 Beta.2 的玩法，冒險新版以連結文件為準。
-
-[![Version](https://img.shields.io/badge/version-v1.0.0--beta.2-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
+[![Version](https://img.shields.io/badge/version-v2.0.0-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
 [![Platform](https://img.shields.io/badge/Platform-Pure%20Web%20%2F%20HTML5%20Canvas-emerald.svg)](https://lianghao02.github.io/16_Wuxia-Typing-Legend/)
 [![Dictionary](https://img.shields.io/badge/MOE%20Mini%20Dict-4%2C311%20Chars-blue.svg)](https://dict.mini.moe.edu.tw/)
 
-> **以字為劍，打出你的江湖。指尖起字，劍意行雲；打字，亦是修行。**
+> **以字為劍，找回江湖的記憶。指尖起字，劍意行雲；打字，亦是修行。**
 > **線上即玩網址**：[https://lianghao02.github.io/16_Wuxia-Typing-Legend/](https://lianghao02.github.io/16_Wuxia-Typing-Legend/)
 > **GitHub 儲存庫**：[https://github.com/lianghao02/16_Wuxia-Typing-Legend](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
 
-《武俠打字傳》是一款專為臺灣國小學童與注音／英打修煉者設計的「**新國風水墨動畫 × 打字闖關戰鬥**」教育網頁遊戲。採用 **HTML5 Canvas 2D 戰鬥渲染層（[`CanvasBattleScene.js`](src/scenes/CanvasBattleScene.js)）+ 原生高對比 DOM 題目與注音排版層 + 事件驅動輸入引擎（[`TypingEngine.js`](src/engine/TypingEngine.js)）** 三層解耦架構，並整合 **61 件新國風水墨動畫美術素材（v3 + v4）** 與 **教育部《國語小字典》4,311 字離線索引**。
+《武俠打字傳》是一款專為臺灣國小學童與注音／英打修煉者設計的「**新國風水墨動畫 × 打字闖關戰鬥**」教育網頁遊戲。**v2.0.0 正式版**將「**文印江湖**」六章三十關完整故事冒險設為預設首頁 [`index.html`](index.html)（同時保留 [`adventure.html`](adventure.html) 相容入口，原版 v1.0 修煉模式保留於 [`classic.html`](classic.html)）。
+
+### 🌟 v2.0.0 文印江湖正式版亮點
+- **六章三十關主線與六枚文印**：涵蓋山門初行（勇氣）、竹海尋信（信任）、古驛燈火（互助）、襄陽會武（堅毅）、月下墨閣（明辨）、雲海歸字（傳承），每章 5 關敵人外觀 100% 不重複，每關實打 10 題，首次選年級（1～6 年級／英文）與雙主角（雲清川／蘇映雪）後即可直接續玩（詳見 [世界觀與遊戲規則](docs/ADVENTURE_WORLD.md)、[驗證報告](docs/adventure-validation.md)）。
+- **四大裝備部位與三流派兵器（劍／刀／槍）**：客棧擴充**兵器**（桃木短劍、三尺青鋒劍、赤炎寶刀、龍膽亮銀槍、流雲玄鐵神劍）、**護腕**、**防具**與**隨身丹藥**四大分頁（支援數字鍵 `1～4` 切換），配置持刀／持槍專屬全身立繪與劍痕、烈焰刀罡、雷霆槍芒特效，`Alt+1` 絕招自動隨兵器切換為【守護劍陣】、【烈焰焚天斬】或【雷霆破軍槍】。
+- **敵人毒／火／冰屬性氣場與連打 2 字運功化解**：敵人常駐屬性法陣且蓄力 `>75%` 時泛起強光與氣旋；主角受擊染上毒綠／赤焰／寒霜時，**連續打對 2 個字**即可運功逼毒（回血）、劍風滅火（回氣）或真氣破冰（擊退敵人蓄力）。
+- **Web Speech 零體積語音朗讀與過關結算錦囊**：整合瀏覽器內建中英發音朗讀（點擊題目框隨時重聽）、5／10／15 連擊水墨特效與獎勵、過關朱紅印章、`🎁 江湖奇遇掉寶` 與 `📖 本關練功小錦囊`（錯字複習＋發音）。
+- **跨螢幕響應式與 450ms 前景出招演出**：題目與鍵盤共用中央寬度、兩側保留放大角色演出區，完成整題時人物與兵器特效以 450ms 跨鍵盤前景突進演出，小筆電（`1366×650`）與 125%／150% 縮放零遮擋。
 
 ---
 
@@ -134,6 +131,9 @@
 5. **第五階段：1～6 年級混合題本、國小英打與 GitHub Pages 公開試玩版（`v1.0.0-beta.1`）**
    - **分齡修煉與獨立存檔**：簡化修煉入口為「1 年級～6 年級」與「英文」7 大選項，將教育部單一讀音常用字與 12 篇（60 句）原創散文依年級混入，各題本獨立保存境界、星等、洗牌隊列與逐音續玩位置（銅錢與裝備共用）。
    - **版面與跨解析度最佳化**：題目卷軸上移、長句每 4 字分組顯示、英文單字完整水平呈現不拆斷，並通過 `1280×720` 與 `1024×768` 指法鍵盤展開測試與 30 項自動化單元測試，正式部署至 GitHub Pages。
+6. **第六階段：文印江湖六章冒險、刀槍劍三流派與屬性狀態正式版（`v2.0.0`）**
+   - **完整世界觀與四大裝備部位**：實作六章三十關主線與六枚文印結局、客棧四大裝備部位（劍／刀／槍三流派兵器、護腕、防具、丹藥）與對應持刀／持槍立繪及刀罡／槍芒特效。
+   - **元素狀態、語音朗讀與跨螢幕驗證**：新增敵人毒／火／冰三屬性氣場、主角狀態染色與連對 2 字運功化解、Web Speech 零體積語音朗讀、結算朱紅印章與練功小錦囊，將「文印江湖」正式設為預設首頁 `index.html`（原版保留於 `classic.html`），通過 50 項單元測試與 11 組視窗尺寸／縮放實測。
 
 ---
 
@@ -141,7 +141,9 @@
 
 ```text
 16_Wuxia-Typing-Legend/
-├── index.html                    # 主遊戲入口（武林大門首頁、HUD、題目卷軸與 7 大彈窗）
+├── index.html                    # 預設首頁（v2.0.0 文印江湖六章冒險主入口）
+├── adventure.html                # 文印江湖相容入口
+├── classic.html                  # 原版 v1.0 三大境界修煉模式入口
 ├── prototype-input.html          # 注音免選字輸入核心驗證與事件診斷實驗室
 ├── start_game.bat                # Windows 一鍵啟動本機 HTTP 伺服器並開啟瀏覽器
 ├── package.json                  # 測試與腳本設定
@@ -149,18 +151,21 @@
 ├── NOTICE.md                     # 授權與教育部國語小字典來源聲明
 ├── HANDOFF.md                    # 跨階段開發與素材整合交接紀錄
 ├── data/dictionaries/moe-mini/   # 教育部《國語小字典》原始 Excel、PDF 使用說明與來源文件
-├── assets/                       # 61 件新國風水墨動畫素材（v3 37 件 + v4 24 件）
+├── assets/                       # 新國風水墨動畫素材（v3 + v4 擴充立繪、圖示與狀態特效）
 │   ├── backgrounds/              # 8 張場景背景與首頁雙主角主視覺
-│   ├── characters/               # 雙主角三階全身立繪、掌櫃與初階格擋／受擊姿態
+│   ├── characters/               # 雙主角劍／刀／槍全身立繪、掌櫃與初階格擋／受擊姿態
 │   ├── enemies/                  # 10 款練功靶、山賊、劍客、傀儡與魔皇立繪
-│   ├── effects/                  # 練功靶草木碎屑與人型敵人受擊白光特效
-│   ├── icons/                    # 主角頭像、三階武器／袍服、丹藥、境界徽章、課本古籍
+│   ├── effects/                  # 5／10／15 連擊水墨、毒／火／冰氣旋與受擊特效
+│   ├── icons/                    # 主角頭像、刀／槍／劍／護腕／防具、丹藥、境界徽章、課本古籍
 │   └── ui/                       # 書法標題 Logo、技能橫幅、結算宣紙卷軸、三枚朱砂印章、墨寶閣硯台與四色鍵帽
 ├── css/
-│   └── style.css                 # 新國風仙俠 UI 與高對比鍵帽／注音排版樣式
+│   ├── adventure.css             # v2.0.0 文印江湖響應式戰鬥與客棧介面樣式
+│   └── style.css                 # 原版新國風仙俠 UI 樣式
 ├── src/
-│   ├── main.js                   # 遊戲主控制器（串聯引擎、畫布、DOM、商店、選關與錯題特訓）
+│   ├── adventure.js              # v2.0.0 文印江湖主控制器（六章主線、裝備、屬性、語音與結算）
+│   ├── main.js                   # 原版遊戲主控制器
 │   ├── data/
+│   │   ├── adventureWorld.js     # 文印江湖六章三十關劇情、首領與六枚文印定義
 │   │   ├── daqianLayout.js       # 臺灣大千注音鍵盤、手指指法對應與注音正規化引擎
 │   │   ├── enemies.js            # 三大境界 30 關首領、雙主角、三階武器與客棧丹藥設定
 │   │   ├── moeDictionary.js      # 教育部《國語小字典》離線查詢索引與例詞消歧引擎
@@ -169,26 +174,30 @@
 │   │   ├── practice.js           # 1～6 年級混合題本、常用字與國小三階英文題庫管理
 │   │   ├── textbooks.js          # 按出版社分類的待核對練習範例與來源狀態
 │   │   ├── vocabulary.js         # 三大境界 300 題題庫、國字注音字典與自訂祕笈解析器
-│   │   └── weaponEffects.js      # 三階神兵劍痕、半月劍氣與殘影特效參數
+│   │   └── weaponEffects.js      # 劍、刀、槍三流派揮砍軌跡、刀罡／槍芒與絕招特效參數
 │   ├── engine/
+│   │   ├── AdventureEngine.js    # 文印江湖進度、四大裝備部位、元素狀態與蓄力速率引擎
 │   │   ├── TypingEngine.js       # 純邏輯事件驅動輸入判定引擎（支援一聲空白鍵與免選字）
-│   │   ├── AudioEngine.js        # Web Audio API 原生五聲音階與刀劍音效合成器
+│   │   ├── AudioEngine.js        # Web Audio API 原生五聲音階、刀劍音效合成與 Web Speech 朗讀
+│   │   ├── battleLayout.js       # 跨螢幕角色演出區與前景突進座標計算
+│   │   ├── sentenceLayout.js     # 長句兩行分段與當前字視窗定位
 │   │   └── StorageEngine.js      # LocalStorage 多題本獨立進度、逐音續玩與錯題墨寶閣存檔
 │   └── scenes/
-│       └── CanvasBattleScene.js  # HTML5 Canvas 2D 戰鬥場景、接地比例校正與劍氣特效渲染
+│       └── CanvasBattleScene.js  # HTML5 Canvas 2D 戰鬥場景、刀槍劍特效與毒火冰狀態染色渲染
 └── tests/
-    └── typingEngine.test.js      # 30 項輸入引擎、字典核對、題本隔離與續玩自動化單元測試
+    ├── typingEngine.test.js      # 輸入引擎、字典核對、題本隔離與續玩單元測試
+    └── adventure.test.js         # 文印江湖六章通關、版面淨空、四大裝備與元素屬性單元測試
 ```
 
 ---
 
 ## 六、快速啟動與驗證方式
 
-### 網頁試玩版
+### 網頁正式版
 
 - **遊戲網址**：https://lianghao02.github.io/16_Wuxia-Typing-Legend/
 - **儲存庫**：https://github.com/lianghao02/16_Wuxia-Typing-Legend
-- **版本**：`v1.0.0-beta.2`。網頁玩家不需要安裝 Python 或 Node.js。進度保存在同一瀏覽器及網站網址，本機紀錄不會自動移轉到此網址。請參閱 [更新日誌](CHANGELOG.md) 與 [來源及使用說明](NOTICE.md)。
+- **版本**：`v2.0.0`。網頁玩家不需要安裝 Python 或 Node.js。進度保存在同一瀏覽器及網站網址，本機紀錄不會自動移轉到此網址。請參閱 [更新日誌](CHANGELOG.md) 與 [來源及使用說明](NOTICE.md)。
 - GitHub Pages 從 `master` 分支根目錄發布，`.nojekyll` 保持純靜態網站；網站使用相對路徑載入程式、字典與圖片。
 
 ### 1. 啟動遊戲（Windows 本機）
@@ -196,11 +205,11 @@
 ```powershell
 python -m http.server 8765 --bind 127.0.0.1
 ```
-接著於瀏覽器開啟：`http://127.0.0.1:8765/index.html`
+接著於瀏覽器開啟：`http://127.0.0.1:8765/index.html`（原版修煉入口為 `http://127.0.0.1:8765/classic.html`）
 
 ### 2. 執行自動化測試
 ```powershell
-node --test tests/typingEngine.test.js
+npm test
 ```
 
 ## v1.0.0-beta.2 計時、教學與載入調整

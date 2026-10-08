@@ -1,7 +1,7 @@
 {
   "name": "wuxia-typing-legend",
-  "version": "2.0.0-alpha.1",
-  "description": "《武俠打字傳》國風打字教育網頁試玩版（Canvas 2D + DOM）",
+  "version": "2.0.0",
+  "description": "《武俠打字傳｜文印江湖》新國風水墨動畫 × 打字闖關教育網頁遊戲（Canvas 2D + DOM）",
   "type": "module",
   "scripts": {
     "test": "node --test tests/typingEngine.test.js tests/adventure.test.js",
