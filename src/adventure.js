@@ -1,5 +1,6 @@
 import { TypingEngine } from './engine/TypingEngine.js';
 import { sentenceWindow } from './engine/sentenceLayout.js';
+import { battleLayout } from './engine/battleLayout.js';
 import { AudioEngine } from './engine/AudioEngine.js';
 import { CanvasBattleScene } from './scenes/CanvasBattleScene.js';
 import { HEROES, WEAPONS } from './data/enemies.js';
@@ -31,11 +32,28 @@ class AdventureScene extends CanvasBattleScene {
   }
   resize() {
     super.resize();
-    this.heroBaseX = this.width * .13;
-    this.enemyBaseX = this.width * .87;
-    this.heroBaseY = this.enemyBaseY = this.height * .79;
+    this.layoutBattle();
   }
-  getFighterImageHeight() { return Math.min(490, this.height * .6, this.width * .4); }
+  layoutBattle() {
+    const q=$('question').getBoundingClientRect(),k=$('keyboard').getBoundingClientRect();
+    this.layout=battleLayout(this.width,this.height,q.bottom+12,$('keyboard').hidden?this.height-70:k.top-12);
+    document.body.style.setProperty('--battle-center',`${this.layout.center}px`);
+    document.body.style.setProperty('--battle-side',`${this.layout.side}px`);
+    this.heroBaseX=this.layout.heroX;this.enemyBaseX=this.layout.enemyX;
+    this.heroBaseY=this.enemyBaseY=this.layout.baseline;
+    if(this.layout.stacked)document.body.style.setProperty('--fighter-status-top',`${($('keyboard').hidden?this.height-70:k.top-12)-48}px`);
+  }
+  getFighterImageHeight() { return this.layout?.fighterHeight || 200; }
+  drawHero(ctx,x,y) {
+    const margin=this.getFighterImageHeight()*.405;
+    const low=this.layout.stacked?0:12,high=this.layout.stacked?this.width*.44:this.layout.side-12;
+    super.drawHero(ctx,Math.max(low+margin,Math.min(high-margin,x)),y);
+  }
+  drawEnemy(ctx,x,y) {
+    const margin=this.getFighterImageHeight()*.405;
+    const low=this.layout.stacked?this.width*.56:this.width-this.layout.side+12,high=this.width-12;
+    super.drawEnemy(ctx,Math.max(low+margin,Math.min(high-margin,x)),y);
+  }
 }
 const scene = new AdventureScene('adventure-stage');
 function persist() {
@@ -131,7 +149,8 @@ function render() {
     const font=parseFloat(getComputedStyle($('characters')).fontSize);
     const padding=parseFloat(getComputedStyle($('question')).paddingLeft)*2;
     const columns=Math.max(1,Math.floor(($('question').clientWidth-padding-2)/(font*1.12)));
-    ({left,right}=sentenceWindow(length,engine.charIndex,columns));
+    const rows=parseInt(getComputedStyle($('question')).getPropertyValue('--sentence-rows'))||2;
+    ({left,right}=sentenceWindow(length,engine.charIndex,columns,rows));
     const current=engine.characters[engine.charIndex];
     $('context').innerHTML=`<span class="sounds" aria-label="目前字的注音">${current?sounds(current,true):''}</span>${length>right||left>0?`<small class="sentence-range">${left+1}～${right}／${length} 字</small>`:''}`;
     $('characters').innerHTML=engine.characters.slice(left,right).map((ch,i)=>`<span class="sentence-char ${ch.completed?'done':''} ${left+i===engine.charIndex?'current':''}" ${left+i===engine.charIndex?'aria-current="true"':''}>${escape(ch.char)}</span>`).join('');
@@ -158,6 +177,7 @@ function render() {
   $('atb').hidden=!['boss','duel'].includes(stage.kind);
   $('ultimate').disabled=session.qi<5;
   $('ultimate').textContent=session.qi>=5?'守護劍陣 · Alt＋1':`絕招 ${session.qi}／5 · Alt＋1`;
+  scene.layoutBattle();
 }
 function finish() {
   pause();

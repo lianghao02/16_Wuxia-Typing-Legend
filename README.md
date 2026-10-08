@@ -6,6 +6,8 @@
 >
 > 本機伺服器開啟 `/adventure.html` 即可試玩；不要直接以 `file://` 開啟 ES Module。詳見 [世界觀與遊戲規則](docs/ADVENTURE_WORLD.md)、[三輪驗證紀錄](docs/adventure-validation.md)。新版使用獨立冒險存檔，不寫回原版；初次單向複製既有裝備與銅錢。
 >
+> 新版題目與鍵盤共用中央操作區，兩側保留角色演出空間，出招位移限制於角色區；窄直式視窗將角色放於題目與鍵盤之間，依可用空間調整比例。
+>
 > 以下章節說明仍為原版 Beta.2 的玩法，冒險新版以連結文件為準。
 
 [![Version](https://img.shields.io/badge/version-v1.0.0--beta.2-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)

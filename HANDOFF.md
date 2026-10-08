@@ -3,7 +3,7 @@
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：feat/jianghu-adventure
-- **Commit SHA**：b74d848（新版功能提交；基準 92be4ba）
+- **Commit SHA**：本輪基準 9fd93ed；最新提交以 Git 歷史為準
 - **Skill Version**：v1.0.0
 - **Task Type**：IMPROVE / HANDOFF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
@@ -70,3 +70,10 @@ alpha 試玩版；自動與開發者測試不能代替兒童使用研究。存�
 - 新版長句改同字級整句、朱紅當前字、獨立目前注音；原版不變。
 - 五個尺寸診斷無題目／鍵盤重疊；47／47測試、獨立來源實機游標推進通過。
 - 細節見 docs/adventure-validation.md；待使用者自行重新整理載入。
+
+## 最新交接斷點：角色演出區保護（2026-10-08）
+- 本輪 FIX：題目與鍵盤共用中央寬度，左右角色尺寸、位置及出招位移共用 battleLayout 計算；窄直式角色放於題目與鍵盤之間。
+- 異動：css/adventure.css、src/adventure.js、src/engine/battleLayout.js、src/engine/sentenceLayout.js、tests/adventure.test.js 與核心說明文件。
+- 驗證：48／48 測試、八種獨立尺寸診斷、1280×720 真實逐鍵完成一題、Console error 0；詳細證據見 docs/adventure-validation.md。
+- 使用者試玩頁未重新整理、未改視窗或存檔，載入修正須使用者自行重新整理。原版與 master 未修改。
+- assets/ART_RULES_V2_HANDOFF.md 與 project-scorecard.md 既有修改仍排除提交。暫時診斷頁測後移除。

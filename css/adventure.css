@@ -405,6 +405,7 @@ select {
   top:12px;
   bottom:auto}
 }
+
 @media(max-width:1000px) {
   #question,#keyboard {
   width:calc(100vw - 340px)}
@@ -592,4 +593,66 @@ body:has(#keyboard:not([hidden])) #question.sentence #context {
     line-height:1.2}
   #question.sentence #next-key kbd {
     font-size:18px}
+}
+
+/* 共用演出區尺寸：操作元件不能伸入左右角色區。 */
+@media(min-height:701px) and (max-height:800px) {
+  #question.sentence #characters {
+    font-size:28px;
+    line-height:1.45}
+  #question.sentence #context {
+    font-size:18px}
+  body:has(#keyboard:not([hidden])) #question.sentence #usage {
+    display:none}
+}
+#question,#keyboard,#journey-hud {
+  width:var(--battle-center,min(620px,calc(46vw - 24px)))}
+#hero-status,#enemy-status {
+  width:min(195px,calc(var(--battle-side,27vw) - 24px))}
+#question.english #characters {
+  flex-wrap:wrap}
+#question.english .char {
+  flex:0 1 36px;
+  min-width:28px}
+#question.english .char strong {
+  font-size:26px}
+@media(max-width:700px) {
+  #question,#question.sentence {
+    top:82px}
+  #question #phase,#question #usage {
+    display:none}
+  #question .char:not(.current) {
+    display:none}
+  #hero-status,#enemy-status {
+    top:var(--fighter-status-top,60%);
+    bottom:auto;
+    width:44%;
+    padding:4px;
+    font-size:10px}
+  #hero-status strong,#enemy-status strong {
+    display:none}
+  #controls button {
+    padding:6px;
+    font-size:10px}
+  #question #context {
+    display:none}
+}
+@media(max-width:700px) and (max-height:600px) {
+  #question {
+    --sentence-rows:1;
+    top:72px!important}
+  #keyboard {
+    padding:4px}
+  .key {
+    height:18px;
+    padding-top:2px;
+    font-size:12px}
+  .key small {
+    display:none}
+  .key.space {
+    height:20px}
+  .key-row {
+    margin:2px 0}
+  .keyboard-head {
+    margin-bottom:2px}
 }
