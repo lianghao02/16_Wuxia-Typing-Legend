@@ -26,6 +26,41 @@ let readUntil = 0, noticeTimer, lastTick = performance.now(), resumeView = 'home
 const engine = new TypingEngine();
 const audio = new AudioEngine(); audio.setMuted(Boolean(save.muted));
 class AdventureScene extends CanvasBattleScene {
+  constructor(id) {
+    super(id);
+    this.attackCanvas=document.createElement('canvas');
+    this.attackCanvas.id='attack-overlay';
+    this.attackCanvas.setAttribute('aria-hidden','true');
+    document.body.append(this.attackCanvas);
+    this.attackUntil=0;
+  }
+  playWordFinisher(detail) {
+    super.playWordFinisher(detail);
+    this.attackUntil=performance.now()+450;
+  }
+  hasForegroundAttack() {
+    return this.attackCanvas && performance.now()<this.attackUntil && !$('keyboard').hidden && !$('battle').hidden && !$('panel').open && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  render() {
+    super.render();
+    if(!this.attackCanvas)return;
+    const canvas=this.attackCanvas;
+    if(canvas.width!==this.width||canvas.height!==this.height){canvas.width=this.width;canvas.height=this.height;}
+    const ctx=canvas.getContext('2d');
+    ctx.clearRect(0,0,this.width,this.height);
+    if(!this.hasForegroundAttack())return;
+    // 透明演出層僅畫人物與劍氣；題目保持在這一層上方。
+    const progress=1-(this.attackUntil-performance.now())/450;
+    const advance=(this.enemyBaseX-this.heroBaseX)*.58*Math.sin(Math.PI*progress);
+    super.drawHero(ctx,this.heroBaseX+advance,this.heroBaseY+Math.sin(this.breathTime)*3.5);
+    for(const s of this.slashes){
+      const alpha=Math.max(0,1-s.life/s.maxLife);
+      ctx.save();ctx.strokeStyle=`rgba(${s.rgb},${alpha})`;ctx.lineWidth=s.isWave?12:s.thickness;ctx.lineCap='round';ctx.beginPath();
+      if(s.isWave){ctx.arc(s.x1+(s.life/s.maxLife)*48,s.y1,s.radius,-1.15,1.15);}
+      else{ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);}
+      ctx.stroke();ctx.restore();
+    }
+  }
   spawnFloatingText(x,y,text,color,size) {
     const label=String(text).replace(/劍氣 0/g,'劍意').replace(/・破題 \+1/g,'・出招成功').replace(/傷害 0/g,'守護');
     super.spawnFloatingText(x,y,label,color,size);
@@ -45,6 +80,7 @@ class AdventureScene extends CanvasBattleScene {
   }
   getFighterImageHeight() { return this.layout?.fighterHeight || 200; }
   drawHero(ctx,x,y) {
+    if(this.hasForegroundAttack())return;
     const margin=this.getFighterImageHeight()*.405;
     const low=this.layout.stacked?0:12,high=this.layout.stacked?this.width*.44:this.layout.side-12;
     super.drawHero(ctx,Math.max(low+margin,Math.min(high-margin,x)),y);
@@ -163,7 +199,8 @@ function render() {
   $('usage').textContent=usage?.length?`例詞：${usage.join('、')}`:word.meaning || '';
   const info=engine.getExpectedKeyInfo();
   $('next-key').classList.toggle('help',misses>=2);
-  $('next-key').innerHTML=info?`${misses>=2?'慢慢來，請按':'下一鍵'} <kbd>${escape(info.en==='Space'?'空白鍵':info.en)}</kbd> ${escape(engine.getExpectedSymbol())} · ${escape(info.finger)}`:'完成！';
+  const symbol=engine.getExpectedSymbol();
+  $('next-key').innerHTML=info?`${misses>=2?'慢慢來，':''}${english?'':escape(symbol)+' → '}按 <kbd>${escape(info.en==='Space'?'空白鍵':info.en)}</kbd> · ${escape(info.finger)}`:'完成！';
   $('keyboard').hidden=!save.keyboard;
   $('show-keyboard').hidden=save.keyboard;
   for(const key of $('keys').querySelectorAll('.key')) key.classList.toggle('active',key.dataset.code===info?.code);

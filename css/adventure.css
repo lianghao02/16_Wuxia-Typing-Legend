@@ -656,3 +656,16 @@ body:has(#keyboard:not([hidden])) #question.sentence #context {
   .keyboard-head {
     margin-bottom:2px}
 }
+
+/* 操作提示保持單一按鍵；整題出招層跨過鍵盤，題目優先。 */
+#keyboard {z-index:1}
+#attack-overlay {position:fixed;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+#question {z-index:4}
+#journey-hud,#controls,#hero-status,#enemy-status {z-index:3}
+#notice {z-index:5}
+#next-key {text-align:left;font-size:18px;line-height:1.4;padding:8px 12px;min-height:44px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#next-key kbd {font-size:22px}
+@media(max-height:600px), (max-width:700px) {
+  #next-key {font-size:14px;min-height:36px;padding:6px 8px}
+  #next-key kbd {font-size:18px}
+}

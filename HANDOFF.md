@@ -78,3 +78,9 @@ alpha 試玩版；自動與開發者測試不能代替兒童使用研究。存�
 - 使用者試玩頁未重新整理、未改視窗或存檔，載入修正須使用者自行重新整理。原版與 master 未修改。
 - assets/ART_RULES_V2_HANDOFF.md 與 project-scorecard.md 既有修改仍排除提交。暫時診斷頁測後移除。
 - 提交 5734ca3 已完成；GitHub 推送因 DNS 無法解析 github.com 失敗。連線恢復後推送 feat/jianghu-adventure，不合併 master。
+
+## 最新斷點：提示與前景出招（2026-10-08）
+- 基準 86bc87a，維持 feat/jianghu-adventure；精簡下一鍵、完成整題跨鍵盤透明演出 450ms，題目保持上層，遵循減少動態效果偏好。
+- 獨立 localhost 中英文實測、提示同步、Tab 收起、連錯單鍵帽、動畫跨鍵盤與返回通過，Console error 0；48 項測試通過。完整證據見 docs/adventure-validation.md。
+- 公開原版與使用者存檔未修改；本機新版 adventure.html 載入修正須自行重新整理。
+- 排除既有 assets/ART_RULES_V2_HANDOFF.md、project-scorecard.md。GitHub 前次 DNS 失敗，本輪提交後再重試推送；以實際推送結果為準。
