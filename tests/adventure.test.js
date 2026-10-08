@@ -9,21 +9,29 @@ import { buildGradeQuestionQueue } from '../src/data/gradeQuestionMix.js';
 import { ENGLISH_PRACTICE_BANKS } from '../src/data/practice.js';
 import { WEAPONS } from '../src/data/enemies.js';
 import { sentenceWindow } from '../src/engine/sentenceLayout.js';
-import { battleLayout } from '../src/engine/battleLayout.js';
+import { battleLayout, FIGHTER_VISIBLE_WIDTH } from '../src/engine/battleLayout.js';
 
-test('中央操作區與角色完整圖框分離，窄直式使用中間演出帶',()=>{
+test('中央操作區與角色可見圖框分離，窄直式使用中間演出帶',()=>{
   for(const [width,height] of [[1920,1080],[1366,650],[1024,561],[768,540],[911,433]]){
     const layout=battleLayout(width,height);
     assert.ok((width-layout.center)/2>=layout.side+11);
-    assert.ok(layout.fighterHeight*.81+24<=layout.side+.01);
+    assert.ok(layout.fighterHeight*FIGHTER_VISIBLE_WIDTH+24<=layout.side+.01);
   }
   for(const [width,height,top,bottom] of [[390,844,260,530],[360,540,190,340]]){
     const layout=battleLayout(width,height,top,bottom);
     assert.ok(layout.stacked);
-    assert.ok(layout.baseline-layout.fighterHeight*.864>=top-.01);
-    assert.ok(top+layout.fighterHeight*1.08<=bottom-48+.01);
+    assert.ok(layout.baseline-layout.fighterHeight*.70>=top-.01);
+    assert.ok(top+layout.fighterHeight*.80<=bottom-48+.01);
   }
   assert.deepEqual(sentenceWindow(21,12,9,1),{left:9,right:18});
+});
+
+test('收起鍵盤將中央寬度還給角色，桌面可見人物維持較大比例',()=>{
+  const shown=battleLayout(1100,870),hidden=battleLayout(1100,870,0,870,false);
+  assert.ok(hidden.center<shown.center);
+  assert.ok(hidden.fighterHeight>shown.fighterHeight);
+  assert.ok(shown.fighterHeight*.64>=300);
+  assert.ok(hidden.fighterHeight*.64>=340);
 });
 
 test('長句兩行依可用寬度分段，當前字永遠可見，縮放後仍能定位',()=>{

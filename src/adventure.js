@@ -1,6 +1,6 @@
 import { TypingEngine } from './engine/TypingEngine.js';
 import { sentenceWindow } from './engine/sentenceLayout.js';
-import { battleLayout } from './engine/battleLayout.js';
+import { battleLayout, FIGHTER_VISIBLE_WIDTH } from './engine/battleLayout.js';
 import { AudioEngine } from './engine/AudioEngine.js';
 import { CanvasBattleScene } from './scenes/CanvasBattleScene.js';
 import { HEROES, WEAPONS } from './data/enemies.js';
@@ -36,10 +36,12 @@ class AdventureScene extends CanvasBattleScene {
   }
   playWordFinisher(detail) {
     super.playWordFinisher(detail);
-    this.attackUntil=performance.now()+450;
+    this.attackReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.attackDuration=this.attackReduced?180:450;
+    this.attackUntil=performance.now()+this.attackDuration;
   }
   hasForegroundAttack() {
-    return this.attackCanvas && performance.now()<this.attackUntil && !$('keyboard').hidden && !$('battle').hidden && !$('panel').open && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return this.attackCanvas && performance.now()<this.attackUntil && !$('battle').hidden && !$('panel').open;
   }
   render() {
     super.render();
@@ -50,9 +52,14 @@ class AdventureScene extends CanvasBattleScene {
     ctx.clearRect(0,0,this.width,this.height);
     if(!this.hasForegroundAttack())return;
     // 透明演出層僅畫人物與劍氣；題目保持在這一層上方。
-    const progress=1-(this.attackUntil-performance.now())/450;
-    const advance=(this.enemyBaseX-this.heroBaseX)*.58*Math.sin(Math.PI*progress);
-    super.drawHero(ctx,this.heroBaseX+advance,this.heroBaseY+Math.sin(this.breathTime)*3.5);
+    const progress=1-(this.attackUntil-performance.now())/this.attackDuration;
+    const advance=(this.enemyBaseX-this.heroBaseX)*.58*(this.attackReduced?.7:Math.sin(Math.PI*progress));
+    const questionBottom=$('question').getBoundingClientRect().bottom;
+    const floor=$('controls').getBoundingClientRect().top-12;
+    this.attackDrawHeight=Math.min(this.layout.fighterHeight,Math.max(1,(floor-questionBottom-12)/.78));
+    const attackY=Math.max(this.heroBaseY,questionBottom+12+this.attackDrawHeight*.70);
+    super.drawHero(ctx,this.heroBaseX+advance,attackY);
+    this.attackDrawHeight=null;
     for(const s of this.slashes){
       const alpha=Math.max(0,1-s.life/s.maxLife);
       ctx.save();ctx.strokeStyle=`rgba(${s.rgb},${alpha})`;ctx.lineWidth=s.isWave?12:s.thickness;ctx.lineCap='round';ctx.beginPath();
@@ -71,22 +78,22 @@ class AdventureScene extends CanvasBattleScene {
   }
   layoutBattle() {
     const q=$('question').getBoundingClientRect(),k=$('keyboard').getBoundingClientRect();
-    this.layout=battleLayout(this.width,this.height,q.bottom+12,$('keyboard').hidden?this.height-70:k.top-12);
+    this.layout=battleLayout(this.width,this.height,q.bottom+12,$('keyboard').hidden?this.height-70:k.top-12,!$('keyboard').hidden);
     document.body.style.setProperty('--battle-center',`${this.layout.center}px`);
     document.body.style.setProperty('--battle-side',`${this.layout.side}px`);
     this.heroBaseX=this.layout.heroX;this.enemyBaseX=this.layout.enemyX;
     this.heroBaseY=this.enemyBaseY=this.layout.baseline;
     if(this.layout.stacked)document.body.style.setProperty('--fighter-status-top',`${($('keyboard').hidden?this.height-70:k.top-12)-48}px`);
   }
-  getFighterImageHeight() { return this.layout?.fighterHeight || 200; }
+  getFighterImageHeight() { return this.attackDrawHeight || this.layout?.fighterHeight || 200; }
   drawHero(ctx,x,y) {
     if(this.hasForegroundAttack())return;
-    const margin=this.getFighterImageHeight()*.405;
+    const margin=this.getFighterImageHeight()*FIGHTER_VISIBLE_WIDTH/2;
     const low=this.layout.stacked?0:12,high=this.layout.stacked?this.width*.44:this.layout.side-12;
     super.drawHero(ctx,Math.max(low+margin,Math.min(high-margin,x)),y);
   }
   drawEnemy(ctx,x,y) {
-    const margin=this.getFighterImageHeight()*.405;
+    const margin=this.getFighterImageHeight()*FIGHTER_VISIBLE_WIDTH/2;
     const low=this.layout.stacked?this.width*.56:this.width-this.layout.side+12,high=this.width-12;
     super.drawEnemy(ctx,Math.max(low+margin,Math.min(high-margin,x)),y);
   }

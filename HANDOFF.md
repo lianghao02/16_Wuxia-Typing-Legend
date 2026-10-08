@@ -84,3 +84,7 @@ alpha 試玩版；自動與開發者測試不能代替兒童使用研究。存�
 - 獨立 localhost 中英文實測、提示同步、Tab 收起、連錯單鍵帽、動畫跨鍵盤與返回通過，Console error 0；48 項測試通過。完整證據見 docs/adventure-validation.md。
 - 公開原版與使用者存檔未修改；本機新版 adventure.html 載入修正須自行重新整理。
 - 排除既有 assets/ART_RULES_V2_HANDOFF.md、project-scorecard.md。GitHub 前次 DNS 失敗，本輪提交後再重試推送；以實際推送結果為準。
+## 最新斷點：角色放大與出招可見性（2026-10-08）
+- 基準 12a8c83 已推送。此次修正 battleLayout 素材透明邊界計算，縮小中央上限、收鍵盤增加角色區；一般出招 450ms、減少動態效果定點刺擊 180ms，鍵盤收起仍能演出，出招避開題目頭部遮擋。
+- 49 項測試通過，獨立 localhost 實測 1280×720 與 1453×792；詳細證據見 docs/adventure-validation.md。使用者試玩頁與存檔未改寫，需自行重新整理載入。
+- 定時監測仍為 PAUSED，未因本次修復恢復。公開 master 與原版維持原狀；兩份既有修改排除。
