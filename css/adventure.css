@@ -515,3 +515,81 @@ a {
   body:has(#keyboard:not([hidden])) #context {
   display:none}
 }
+
+/* 長句只呈現一次，現在的字以朱紅與上提標記；注音保留獨立清楚的一列。 */
+#question.sentence #context,
+body:has(#keyboard:not([hidden])) #question.sentence #context {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  font-size:20px;
+  line-height:1.4;
+  white-space:normal;
+  overflow:visible;
+  margin:4px 0}
+.sentence-range {
+  font-size:12px;
+  color:#59636a}
+#question.sentence #characters {
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:0;
+  font-size:32px;
+  line-height:1.6;
+  margin:5px 0}
+.sentence-char {
+  flex:0 0 1.12em;
+  width:1.12em;
+  text-align:center;
+  border-radius:4px;
+  color:#26333a}
+.sentence-char.done {
+  color:#386d5a}
+.sentence-char.current {
+  color:#a52426;
+  background:#ffe4ce;
+  box-shadow:inset 0 -3px #b93831;
+  transform:translateY(-3px)}
+@media(max-height:700px) {
+  #question.sentence #characters {
+    font-size:24px;
+    line-height:1.5;
+    margin:3px 0}
+  #question.sentence #context,
+  body:has(#keyboard:not([hidden])) #question.sentence #context {
+    font-size:18px;
+    line-height:1.25;
+    margin:3px 0}
+}
+@media(max-height:600px) {
+  #question.sentence {
+    top:84px}
+  #question.sentence #phase {
+    display:none}
+}
+@media(max-height:500px) {
+  #question.sentence {
+    top:76px}
+  body:has(#question.sentence) #keyboard {
+    padding:4px}
+  body:has(#question.sentence) .key {
+    height:18px;
+    padding-top:2px;
+    font-size:12px}
+  body:has(#question.sentence) .key small {
+    display:none}
+  body:has(#question.sentence) .key.space {
+    height:20px}
+  body:has(#question.sentence) .key-row {
+    margin:2px 0}
+  body:has(#question.sentence) .keyboard-head {
+    margin-bottom:2px}
+  #question.sentence #characters {
+    line-height:1.35}
+  #question.sentence #next-key {
+    padding:4px;
+    line-height:1.2}
+  #question.sentence #next-key kbd {
+    font-size:18px}
+}

@@ -8,6 +8,17 @@ import { getGradeMixedWords } from '../src/data/textbooks.js';
 import { buildGradeQuestionQueue } from '../src/data/gradeQuestionMix.js';
 import { ENGLISH_PRACTICE_BANKS } from '../src/data/practice.js';
 import { WEAPONS } from '../src/data/enemies.js';
+import { sentenceWindow } from '../src/engine/sentenceLayout.js';
+
+test('長句兩行依可用寬度分段，當前字永遠可見，縮放後仍能定位',()=>{
+  for(const length of [5,21,50])for(const columns of [4,12,16,24])for(let index=0;index<length;index++){
+    const {left,right}=sentenceWindow(length,index,columns);
+    assert.ok(index>=left&&index<right);
+    assert.ok(right-left<=columns*2);
+  }
+  assert.deepEqual(sentenceWindow(21,0,16),{left:0,right:21});
+  assert.deepEqual(sentenceWindow(50,25,12),{left:24,right:48});
+});
 
 test('六章三十關有起承轉合與六個文印',()=>{
   assert.equal(ADVENTURE_STAGES.length,30); assert.equal(new Set(CHAPTERS.map(c=>c.seal)).size,6);

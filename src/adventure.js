@@ -1,4 +1,5 @@
 import { TypingEngine } from './engine/TypingEngine.js';
+import { sentenceWindow } from './engine/sentenceLayout.js';
 import { AudioEngine } from './engine/AudioEngine.js';
 import { CanvasBattleScene } from './scenes/CanvasBattleScene.js';
 import { HEROES, WEAPONS } from './data/enemies.js';
@@ -123,8 +124,21 @@ function render() {
     if(length>12){ left=text.lastIndexOf(' ',engine.charIndex-1)+1; const space=text.indexOf(' ',engine.charIndex); right=space<0?length:space; if(text[engine.charIndex]===' '){left=engine.charIndex;right=left+1;} }
   }
   $('question').classList.toggle('english',english);
-  $('context').textContent=length>(english?12:4)?`${engine.currentWord.text} · ${left+1}～${right} 字`:'';
-  $('characters').innerHTML=engine.characters.slice(left,right).map((ch,i)=>`<div class="char ${ch.completed?'done':''} ${left+i===engine.charIndex?'current':''}"><div class="sounds">${ch.symbols.map((sym,j)=>`<b class="${j<ch.typedCount?'typed':left+i===engine.charIndex&&j===engine.symbolIndex?'expected':''}">${escape(sym==='␣'?'␣':sym)}</b>`).join(' ')}</div><strong>${escape(ch.char===' '?'␣':ch.char)}</strong></div>`).join('');
+  const sentence=!english&&length>4;
+  $('question').classList.toggle('sentence',sentence);
+  const sounds=(ch,current)=>ch.symbols.map((sym,j)=>`<b class="${j<ch.typedCount?'typed':current&&j===engine.symbolIndex?'expected':''}">${escape(sym)}</b>`).join(' ');
+  if(sentence) {
+    const font=parseFloat(getComputedStyle($('characters')).fontSize);
+    const padding=parseFloat(getComputedStyle($('question')).paddingLeft)*2;
+    const columns=Math.max(1,Math.floor(($('question').clientWidth-padding-2)/(font*1.12)));
+    ({left,right}=sentenceWindow(length,engine.charIndex,columns));
+    const current=engine.characters[engine.charIndex];
+    $('context').innerHTML=`<span class="sounds" aria-label="目前字的注音">${current?sounds(current,true):''}</span>${length>right||left>0?`<small class="sentence-range">${left+1}～${right}／${length} 字</small>`:''}`;
+    $('characters').innerHTML=engine.characters.slice(left,right).map((ch,i)=>`<span class="sentence-char ${ch.completed?'done':''} ${left+i===engine.charIndex?'current':''}" ${left+i===engine.charIndex?'aria-current="true"':''}>${escape(ch.char)}</span>`).join('');
+  } else {
+    $('context').textContent=length>(english?12:4)?`${engine.currentWord.text} · ${left+1}～${right} 字`:'';
+    $('characters').innerHTML=engine.characters.slice(left,right).map((ch,i)=>`<div class="char ${ch.completed?'done':''} ${left+i===engine.charIndex?'current':''}"><div class="sounds">${sounds(ch,left+i===engine.charIndex)}</div><strong>${escape(ch.char===' '?'␣':ch.char)}</strong></div>`).join('');
+  }
   const word=engine.currentWord;
   const usage=!english&&word.text.length===1?getDictionaryUsage(word.text,word.bopomofo[0]):null;
   $('usage').textContent=usage?.length?`例詞：${usage.join('、')}`:word.meaning || '';
@@ -242,6 +256,7 @@ document.addEventListener('keydown',event=>{
 document.addEventListener('compositionupdate',event=>{if(view==='battle')engine.handleCompositionUpdate(event);});
 document.addEventListener('visibilitychange',()=>{engine.setPaused(document.hidden||view!=='battle');lastTick=performance.now();});
 window.addEventListener('pagehide',rememberSession);
+window.addEventListener('resize',()=>{if(view==='battle')render();});
 function tick(now){
   const dt=Math.min(100,now-lastTick);lastTick=now;
   if(view==='battle'&&!document.hidden&&now>readUntil&&now>frozenUntil&&engine.wordStartTime!==null){
