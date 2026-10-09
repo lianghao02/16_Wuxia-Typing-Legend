@@ -276,7 +276,20 @@ test('v2.1.0 動態補題與四層防重、馴獸師裝備切換、音訊四開�
   // 1. 驗證第三角色「馴獸師・林牧風」與四靈獸皆已註冊並有對應素材
   assert.ok(HEROES.mu);
   assert.equal(HEROES.mu.school, 'beast');
-  assert.equal(SPIRIT_BEASTS.length, 4);
+  const { ADVENTURE_WEAPONS, calculateAttackDamage } = await import('../src/engine/AdventureEngine.js');
+  assert.equal(ADVENTURE_WEAPONS.length, 6);
+  assert.equal(SPIRIT_BEASTS.length, 6);
+  for (let i = 0; i < 6; i++) {
+    const w = ADVENTURE_WEAPONS[i];
+    const b = SPIRIT_BEASTS[i];
+    assert.equal(b.rank, w.rank);
+    assert.equal(b.atk, w.atk);
+    assert.equal(b.price, w.price);
+    assert.equal(b.bonus, w.bonus);
+    const wDmg = calculateAttackDamage({ actionType: 'word', wordObj: { text: '行俠仗義' }, combo: 5, grade: '4', loadout: w });
+    const bDmg = calculateAttackDamage({ actionType: 'word', wordObj: { text: '行俠仗義' }, combo: 5, grade: '4', loadout: b });
+    assert.ok(Math.abs(wDmg.finalDamage - bDmg.finalDamage) <= 1);
+  }
   for (const beast of SPIRIT_BEASTS) {
     const rel = beast.icon.replace(/^\.\//, '');
     assert.ok(existsSync(new URL('../' + rel, import.meta.url)), `缺少靈獸圖示: ${rel}`);

@@ -585,8 +585,8 @@ function shop(tab = shopTab) {
         const owned = (save.ownedBeasts || []).includes(item.id);
         const active = save.beast === item.id;
         const bond = getBeastBond(save, item.id);
-        const bondPct = Math.round((bond.mult - 1) * 100);
-        const bondInfo = `<small class="bond-tag">🐾 羈絆 Lv.${bond.level}・${bond.title}${bond.nextExp ? `（經驗 ${bond.exp}／${bond.nextExp}）` : '（滿階）'}${bondPct > 0 ? ` · 戰技傷害 +${bondPct}%` : ''}</small>`;
+        const bondFlat = bond.atkBonusFlat || 0;
+        const bondInfo = `<small class="bond-tag">🐾 羈絆 Lv.${bond.level}・${bond.title}${bond.nextExp ? `（經驗 ${bond.exp}／${bond.nextExp}）` : '（滿階）'}${bondFlat > 0 ? ` · 親密攻擊 ＋${bondFlat}` : ''}</small>`;
         const feedBtn = owned && bond.level < 5
           ? `<button type="button" data-feed-beast="${item.id}" ${save.coins < 60 ? 'disabled' : ''}>${save.coins < 60 ? '靈果 60 銅錢' : '🍖 餵食靈果 (60)'}</button>`
           : '';
@@ -606,7 +606,7 @@ function shop(tab = shopTab) {
     }).join('');
   }
   modal(`<h2>古驛客棧 · 銅錢 ${save.coins}</h2>
-    <div class="gear-summary">目前穿戴：${isTamer?'🐾':'⚔️'} ${loadout.name.split('・')[1]||loadout.name}${isTamer&&loadout.bondTitle?`（Lv.${loadout.bondLevel} ${loadout.bondTitle}）`:''} ｜ 🧤 ${b.name} ｜ 🛡️ ${a.name} ｜ 🧪 回春丹×${healCnt}・清心散×${antiCnt}</div>
+    <div class="gear-summary">目前穿戴：${isTamer?'🐾':'⚔️'} ${loadout.name.split('・')[1]||loadout.name}（攻擊力 ${loadout.atk}）${isTamer&&loadout.bondTitle?` · Lv.${loadout.bondLevel} ${loadout.bondTitle}`:''} ｜ 🧤 ${b.name} ｜ 🛡️ ${a.name} ｜ 🧪 回春丹×${healCnt}・清心散×${antiCnt}</div>
     <div class="shop-tabs">
       <button class="${shopTab==='weapon'?'active':''}" data-shop-tab="weapon">${isTamer?'🐾 靈獸（馴獸與餵養）':'⚔️ 兵器（劍／刀／槍）'}</button>
       <button class="${shopTab==='bracer'?'active':''}" data-shop-tab="bracer">🧤 護腕（打字輔助）</button>
@@ -854,7 +854,7 @@ engine.on('wordComplete',event=>{
   }
   const atk = applyPlayerAttack('word', { wordObj: event.word, combo: engine.combo, isParryBreak, isPerfectWord });
   session.atb = Math.min(20, session.atb);
-  audio.playWeaponAttack(loadout.style === 'beast' ? loadout.id : loadout.style, true);
+  audio.playWeaponAttack(loadout.style === 'beast' ? (loadout.spriteKey || loadout.id) : loadout.style, true);
   audio.playWordComplete(engine.getComboTier());
   audio.speakText?.(event.word.text,engine.mode==='english'?'en-US':'zh-TW',{manual:false});
   scene.playWordFinisher({wordText:event.word.text,damage:atk.finalDamage,isCrit:atk.isCrit||atk.multiHitCount>1||isParryBreak,isParryBreak:isParryBreak||stage.kind==='boss',comboTier:engine.getComboTier()});

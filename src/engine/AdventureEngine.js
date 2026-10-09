@@ -29,6 +29,7 @@ export const GRADE_DAMAGE_SCALE = {
 export const ADVENTURE_WEAPONS = [
   {
     id: 'wood_sword',
+    rank: 1,
     tier: 1,
     style: 'sword',
     atk: 16,
@@ -37,240 +38,274 @@ export const ADVENTURE_WEAPONS = [
     wordBurstMult: 1.0,
     armorPen: 0,
     effectName: '木劍單斬',
-    name: '初階・桃木短劍',
+    name: '一階・桃木短劍',
     spriteWeaponId: 'wood_sword',
     price: 0,
-    bonus: 1,
+    bonus: 1.0,
     knockbackBonus: 0,
     healPerWord: 0,
     slashColor: 0xe9ecef,
     ultName: '太極守護陣',
     icon: './assets/icons/wood_sword_v3.png',
-    desc: '劍系連擊型（每連字傷害＋1.8%）· 絕招【太極守護陣】（劍氣重創＋凍結對手 8 秒＋護印）'
+    desc: '【第 1 階 · 攻擊力 16】劍系連擊型（每連字＋1.8%）· 絕招【太極守護陣】（重創＋凍結 8 秒＋護印）'
   },
   {
     id: 'qingfeng_sword',
+    rank: 2,
     tier: 2,
     style: 'sword',
-    atk: 24,
+    atk: 20,
     comboRate: 0.02,
     comboCap: 0.70,
     wordBurstMult: 1.0,
     armorPen: 0,
     effectName: '青鋒雙影',
-    name: '中階・三尺青鋒劍',
+    name: '二階・三尺青鋒劍',
     spriteWeaponId: 'qingfeng_sword',
-    price: 150,
-    bonus: 1.25,
+    price: 140,
+    bonus: 1.2,
     knockbackBonus: 5,
     healPerWord: 0,
     slashColor: 0x48cae4,
     ultName: '青蓮流雲陣',
     icon: './assets/icons/qingfeng_sword_v3.png',
-    desc: '劍系連擊型（每連字傷害＋2.0%）· 雙道青色劍氣 · 銅錢＋25% · 擊退蓄力＋5%'
+    desc: '【第 2 階 · 攻擊力 20】劍系連擊型（每連字＋2.0%）· 雙道青色劍氣 · 銅錢＋20% · 擊退蓄力＋5%'
   },
   {
     id: 'iron_spear',
+    rank: 3,
     tier: 2,
     style: 'spear',
-    atk: 23,
-    comboRate: 0.012,
-    comboCap: 0.45,
+    atk: 24,
+    comboRate: 0.014,
+    comboCap: 0.50,
     wordBurstMult: 1.0,
     armorPen: 1.0,
     effectName: '破甲寒槍',
-    name: '中階・百鍊破甲槍',
+    name: '三階・百鍊破甲槍',
     spriteWeaponId: 'thunder_spear',
-    price: 180,
+    price: 210,
     bonus: 1.3,
     knockbackBonus: 16,
-    healPerWord: 0,
+    healPerWord: 1,
     slashColor: 0x90e0ef,
     ultName: '破軍穿雲刺',
     icon: './assets/icons/thunder_spear_v4.png',
-    desc: '槍系破防型（無視敵方護體減傷）· 大幅擊退對手蓄力＋16% · 銅錢＋30%'
+    desc: '【第 3 階 · 攻擊力 24】槍系破防型（無視敵方護體減傷）· 擊退蓄力＋16% · 每題回血＋1 · 銅錢＋30%'
   },
   {
     id: 'flame_saber',
+    rank: 4,
     tier: 2,
     style: 'saber',
-    atk: 30,
+    atk: 28,
     comboRate: 0.012,
     comboCap: 0.45,
     wordBurstMult: 1.28,
     armorPen: 0,
     effectName: '赤炎烈焰斬',
-    name: '中階・赤炎寶刀',
+    name: '四階・赤炎寶刀',
     spriteWeaponId: 'flame_saber',
-    price: 220,
-    bonus: 1.35,
+    price: 280,
+    bonus: 1.4,
     knockbackBonus: 14,
-    healPerWord: 0,
+    healPerWord: 1,
     slashColor: 0xff5a1f,
     ultName: '烈焰焚天斬',
     icon: './assets/icons/flame_saber_v4.png',
-    desc: '刀系爆發型（完成詞語爆發傷害＋28%）· 銅錢＋35% · 擊退蓄力＋14% · 絕招【烈焰焚天斬】'
+    desc: '【第 4 階 · 攻擊力 28】刀系爆發型（多字詞爆發傷害＋28%）· 擊退蓄力＋14% · 銅錢＋40%'
   },
   {
     id: 'xuantie_sword',
+    rank: 5,
     tier: 3,
     style: 'sword',
-    atk: 38,
+    atk: 34,
     comboRate: 0.022,
     comboCap: 0.75,
     wordBurstMult: 1.05,
     armorPen: 0.3,
     effectName: '玄鐵流雲',
-    name: '高階・流雲玄鐵神劍',
+    name: '五階・流雲玄鐵神劍',
     spriteWeaponId: 'xuantie_sword',
     price: 360,
     bonus: 1.5,
-    knockbackBonus: 8,
+    knockbackBonus: 10,
     healPerWord: 2,
     slashColor: 0xf59f00,
     ultName: '流雲萬劍訣',
     icon: './assets/icons/xuantie_sword_v3.png',
-    desc: '劍系宗師神兵（每連字傷害＋2.2%，上限＋75%）· 銅錢＋50% · 每題回血＋2'
-  },
-  {
-    id: 'dragon_saber',
-    tier: 3,
-    style: 'saber',
-    atk: 44,
-    comboRate: 0.014,
-    comboCap: 0.50,
-    wordBurstMult: 1.35,
-    armorPen: 0.25,
-    effectName: '焚天赤龍斬',
-    name: '高階・焚天赤龍刀',
-    spriteWeaponId: 'flame_saber',
-    price: 390,
-    bonus: 1.55,
-    knockbackBonus: 16,
-    healPerWord: 3,
-    slashColor: 0xff4d00,
-    ultName: '赤龍焚天斬',
-    icon: './assets/icons/flame_saber_v4.png',
-    desc: '刀系宗師重兵（完成詞語爆發傷害＋35%）· 銅錢＋55% · 每題回血＋3'
+    desc: '【第 5 階 · 攻擊力 34】劍系宗師神兵（每連字＋2.2%，上限＋75%）· 每題回血＋2 · 銅錢＋50%'
   },
   {
     id: 'thunder_spear',
+    rank: 6,
     tier: 3,
     style: 'spear',
-    atk: 36,
-    comboRate: 0.015,
-    comboCap: 0.50,
+    atk: 40,
+    comboRate: 0.016,
+    comboCap: 0.55,
     wordBurstMult: 1.08,
     armorPen: 1.0,
     effectName: '龍膽雷霆槍',
-    name: '高階・龍膽亮銀槍',
+    name: '六階・龍膽亮銀槍',
     spriteWeaponId: 'thunder_spear',
-    price: 420,
+    price: 440,
     bonus: 1.6,
     knockbackBonus: 20,
-    healPerWord: 5,
+    healPerWord: 4,
     slashColor: 0x00d2ff,
     ultName: '雷霆破陣槍',
     icon: './assets/icons/thunder_spear_v4.png',
-    desc: '槍系宗師神兵（完全無視敵方減傷＋擊退蓄力＋20%）· 銅錢＋60% · 每題回血＋5'
+    desc: '【第 6 階 · 攻擊力 40】槍系傳說神兵（完全無視減傷＋擊退蓄力＋20%）· 每題回血＋4 · 銅錢＋60%'
   }
 ];
 
 export const SPIRIT_BEASTS = [
   {
     id: 'beast_dog',
+    rank: 1,
     tier: 1,
     style: 'beast',
-    atk: 18,
-    charBonusDmg: 5,
-    comboRate: 0.015,
-    comboCap: 0.50,
+    atk: 16,
+    charBonusDmg: 0,
+    comboRate: 0.018,
+    comboCap: 0.65,
     wordBurstMult: 1.0,
     armorPen: 0,
     effectName: '疾風撲咬',
-    name: '初階・追風靈犬',
+    name: '一階・追風靈犬',
     spriteKey: 'beast_dog',
     price: 0,
     bonus: 1.0,
     knockbackBonus: 4,
-    healPerWord: 1,
+    healPerWord: 0,
     slashColor: 0xf4a261,
     ultName: '疾風連撲',
     icon: './assets/icons/beast_dog_icon_v5.png',
-    desc: '初始贈送 · 快速撲咬（每完成單一國字追加＋5 撕咬傷害，每題回血＋1）· 絕招【疾風連撲】'
+    desc: '【第 1 階 · 攻擊力 16】靈敏連擊型（每連字＋1.8%，對應一階桃木短劍）· 絕招【疾風連撲】'
   },
   {
     id: 'beast_eagle',
+    rank: 2,
     tier: 2,
     style: 'beast',
-    atk: 26,
-    charBonusDmg: 2,
-    comboRate: 0.015,
-    comboCap: 0.55,
-    wordBurstMult: 1.12,
-    armorPen: 1.0,
+    atk: 20,
+    charBonusDmg: 0,
+    comboRate: 0.02,
+    comboCap: 0.70,
+    wordBurstMult: 1.0,
+    armorPen: 0,
     effectName: '穿雲俯衝',
-    name: '中階・穿雲靈鷹',
+    name: '二階・穿雲靈鷹',
     spriteKey: 'beast_eagle',
-    price: 180,
-    bonus: 1.28,
-    knockbackBonus: 22,
+    price: 140,
+    bonus: 1.2,
+    knockbackBonus: 8,
     healPerWord: 0,
     slashColor: 0x2a9d8f,
     ultName: '九霄穿雲擊',
     icon: './assets/icons/beast_eagle_icon_v5.png',
-    desc: '破防斷招型 · 完成詞語俯衝無視敵方防禦，並打斷敵人蓄力＋22% · 銅錢＋28%'
+    desc: '【第 2 階 · 攻擊力 20】疾速連擊型（每連字＋2.0%，對應二階青鋒劍）· 銅錢＋20% · 擊退蓄力＋8%'
   },
   {
     id: 'beast_toad',
+    rank: 3,
     tier: 2,
     style: 'beast',
     atk: 24,
-    charBonusDmg: 2,
+    charBonusDmg: 0,
     comboRate: 0.014,
     comboCap: 0.50,
-    wordBurstMult: 1.05,
-    armorPen: 0.3,
+    wordBurstMult: 0.82,
+    armorPen: 1.0,
     poisonTurns: 3,
-    poisonMaxHpRatio: 0.045,
+    poisonDirectShare: 0.18,
     bossPoisonCap: 35,
     enemySlowRatio: 0.15,
     effectName: '碧玉毒霧',
-    name: '中階・碧玉毒蟾',
+    name: '三階・碧玉毒蟾',
     spriteKey: 'beast_toad',
-    price: 260,
-    bonus: 1.38,
-    knockbackBonus: 8,
-    healPerWord: 2,
+    price: 210,
+    bonus: 1.3,
+    knockbackBonus: 12,
+    healPerWord: 1,
     slashColor: 0x52b788,
     ultName: '萬毒碧霧陣',
     icon: './assets/icons/beast_toad_icon_v5.png',
-    desc: '持續毒傷型 · 施加碧玉奇毒（每題扣敵方 4.5% 氣血，首領上限 35 點）並緩速 15% · 銅錢＋38%'
+    desc: '【第 3 階 · 攻擊力 24】破防奇毒型（82% 直擊＋18% 碧玉毒傷，總傷對應三階破甲槍）· 每題回血＋1 · 銅錢＋30%'
   },
   {
     id: 'beast_wolf',
-    tier: 3,
+    rank: 4,
+    tier: 2,
     style: 'beast',
-    atk: 38,
-    charBonusDmg: 4,
-    comboRate: 0.018,
-    comboCap: 0.65,
-    wordBurstMult: 1.15,
-    armorPen: 0.35,
+    atk: 28,
+    charBonusDmg: 0,
+    comboRate: 0.012,
+    comboCap: 0.45,
+    wordBurstMult: 1.0,
+    armorPen: 0,
     multiHitComboStep: 10,
     multiHitWordLen: 4,
-    multiHitRatio: 0.45,
+    multiHitRatio: 0.28,
     effectName: '嘯月連爪',
-    name: '高階・嘯月蒼狼',
+    name: '四階・嘯月蒼狼',
     spriteKey: 'beast_wolf',
-    price: 380,
-    bonus: 1.55,
+    price: 280,
+    bonus: 1.4,
     knockbackBonus: 14,
-    healPerWord: 3,
+    healPerWord: 1,
     slashColor: 0x48cae4,
     ultName: '蒼狼嘯月斬',
     icon: './assets/icons/beast_wolf_icon_v5.png',
-    desc: '連擊爆發型 · 隨連擊提升攻擊，滿 10 連擊或 4 字詞追加【嘯月二連爪】（＋45% 傷害）· 銅錢＋55%'
+    desc: '【第 4 階 · 攻擊力 28】連爪爆發型（滿 10 連擊或 4 字詞追加＋28% 二連爪，對應四階赤炎寶刀）· 銅錢＋40%'
+  },
+  {
+    id: 'beast_flame_dog',
+    rank: 5,
+    tier: 3,
+    style: 'beast',
+    atk: 34,
+    charBonusDmg: 0,
+    comboRate: 0.022,
+    comboCap: 0.75,
+    wordBurstMult: 1.05,
+    armorPen: 0.3,
+    effectName: '赤焰猛撲',
+    name: '五階・赤焰靈獒',
+    spriteKey: 'beast_dog',
+    price: 360,
+    bonus: 1.5,
+    knockbackBonus: 10,
+    healPerWord: 2,
+    slashColor: 0xf59f00,
+    ultName: '烈焰天犬陣',
+    icon: './assets/icons/beast_dog_icon_v5.png',
+    desc: '【第 5 階 · 攻擊力 34】宗師護主靈獸（每連字＋2.2%，對應五階玄鐵神劍）· 每題回血＋2 · 銅錢＋50%'
+  },
+  {
+    id: 'beast_sky_wolf',
+    rank: 6,
+    tier: 3,
+    style: 'beast',
+    atk: 40,
+    charBonusDmg: 0,
+    comboRate: 0.016,
+    comboCap: 0.55,
+    wordBurstMult: 1.08,
+    armorPen: 1.0,
+    effectName: '九霄雷爪',
+    name: '六階・九霄天狼',
+    spriteKey: 'beast_wolf',
+    price: 440,
+    bonus: 1.6,
+    knockbackBonus: 20,
+    healPerWord: 4,
+    slashColor: 0x00d2ff,
+    ultName: '九霄天狼破',
+    icon: './assets/icons/beast_wolf_icon_v5.png',
+    desc: '【第 6 階 · 攻擊力 40】傳說破防神獸（完全無視減傷＋擊退蓄力＋20%，對應六階龍膽亮銀槍）· 每題回血＋4 · 銅錢＋60%'
   }
 ];
 
@@ -339,7 +374,8 @@ export function getBeastBond(save, beastId = save?.beast || 'beast_dog') {
   const level = Math.min(5, Math.max(1, Number(entry.level) || 1));
   const exp = Math.max(0, Number(entry.exp) || 0);
   const nextExp = level >= 5 ? 0 : level * 50;
-  const atkBonusRatio = Number(((level - 1) * 0.08).toFixed(2));
+  const atkBonusFlat = Math.max(0, level - 1);
+  const atkBonusRatio = Number(((level - 1) * 0.02).toFixed(2));
   const mult = Number((1 + atkBonusRatio).toFixed(2));
   return {
     beastId,
@@ -347,6 +383,7 @@ export function getBeastBond(save, beastId = save?.beast || 'beast_dog') {
     exp,
     nextExp,
     title: BEAST_BOND_TITLES[level] || '初識靈伴',
+    atkBonusFlat,
     atkBonusRatio,
     mult
   };
@@ -470,7 +507,7 @@ export function newAdventure(legacy = {}) {
     ownedBeasts: [...new Set(['beast_dog', ...(legacy.ownedBeasts || [])])],
     beastBonds: legacy.beastBonds && typeof legacy.beastBonds === 'object'
       ? { ...legacy.beastBonds }
-      : { beast_dog: { level: 1, exp: 0 }, beast_eagle: { level: 1, exp: 0 }, beast_toad: { level: 1, exp: 0 }, beast_wolf: { level: 1, exp: 0 } },
+      : { beast_dog: { level: 1, exp: 0 }, beast_eagle: { level: 1, exp: 0 }, beast_toad: { level: 1, exp: 0 }, beast_wolf: { level: 1, exp: 0 }, beast_flame_dog: { level: 1, exp: 0 }, beast_sky_wolf: { level: 1, exp: 0 } },
     bracer: legacy.bracer || null,
     armor: legacy.armor || 'linen_armor',
     potions: legacy.potions ? { ...legacy.potions } : { heal_potion: 1, antidote_potion: 1 },
@@ -492,6 +529,10 @@ export function newAdventure(legacy = {}) {
 export function migrateAdventureSave(raw) {
   if (!raw || typeof raw !== 'object') return newAdventure();
   const base = newAdventure(raw);
+  if (base.weapon === 'dragon_saber') {
+    base.weapon = 'thunder_spear';
+    if (!base.owned.includes('thunder_spear')) base.owned.push('thunder_spear');
+  }
   for (const id of ['wood_sword', 'cloth_bracer', 'linen_armor']) {
     if (!base.owned.includes(id)) base.owned.push(id);
   }
@@ -501,7 +542,7 @@ export function migrateAdventureSave(raw) {
   base.beast ||= 'beast_dog';
   base.potions ||= { heal_potion: 1, antidote_potion: 1 };
   base.customRaw ||= '小橋, 流水, 行俠仗義, 自強不息, 見義勇為, 一氣呵成';
-  base.beastBonds ||= { beast_dog: { level: 1, exp: 0 }, beast_eagle: { level: 1, exp: 0 }, beast_toad: { level: 1, exp: 0 }, beast_wolf: { level: 1, exp: 0 } };
+  base.beastBonds ||= { beast_dog: { level: 1, exp: 0 }, beast_eagle: { level: 1, exp: 0 }, beast_toad: { level: 1, exp: 0 }, beast_wolf: { level: 1, exp: 0 }, beast_flame_dog: { level: 1, exp: 0 }, beast_sky_wolf: { level: 1, exp: 0 } };
   base.streak ||= { count: 0, lastDate: '' };
   base.dailyQuests ||= { date: '', progress: { stages: 0, words: 0, perfects: 0 }, claimed: {} };
   if (base.profiles && typeof base.profiles === 'object') {
@@ -551,7 +592,8 @@ export function getActiveLoadout(save) {
     const bond = getBeastBond(save, beast.id);
     return {
       ...beast,
-      atk: Math.round(beast.atk * (1 + bond.atkBonusRatio)),
+      baseAtk: beast.atk,
+      atk: beast.atk + (bond.atkBonusFlat || 0),
       bondLevel: bond.level,
       bondTitle: bond.title
     };
@@ -676,8 +718,7 @@ export function calculateAttackDamage({
     // 單字完成：主要用於聚氣與擊退敵方蓄力，實際氣血傷害統一於整題完成時結算
     const diminish = 1 / Math.sqrt(Math.max(1, charIndexInWord + 1));
     const base = (4 + atk * 0.24) * diminish;
-    const beastBonus = item.id === 'beast_dog' ? (item.charBonusDmg || 5) : (item.charBonusDmg || 0) * diminish;
-    const preDef = (base + beastBonus) * comboMult * gradeScale;
+    const preDef = base * comboMult * gradeScale;
     const totalDamage = Math.max(1, Math.round(preDef * (1 - effectiveDef)));
     const knockbackAtb = 18 + (bracer?.knockbackBonus || 0) + (item.id === 'beast_dog' ? 4 : 0);
     return {
@@ -700,9 +741,9 @@ export function calculateAttackDamage({
       breakdown: {
         base: Math.round(base),
         weaponBonus: Math.round(atk * 0.24 * diminish),
-        comboBonus: Math.round((preDef - (base + beastBonus) * gradeScale)),
+        comboBonus: Math.round((preDef - base * gradeScale)),
         schoolBonus: 0,
-        beastBonus: Math.round(beastBonus),
+        beastBonus: 0,
         defenseReduced: Math.max(0, Math.round(preDef - totalDamage)),
         final: totalDamage
       }
@@ -710,11 +751,11 @@ export function calculateAttackDamage({
   }
 
   if (mode === 'ult' || mode === 'ultimate') {
-    const ultMult = item.style === 'saber' ? 1.35 : item.id === 'beast_wolf' ? 1.40 : 1.18;
+    const ultMult = (item.style === 'saber' || item.id === 'beast_wolf') ? 1.28 : 1.18;
     const base = (42 + atk * 1.95) * ultMult * gradeScale;
     const totalDamage = Math.max(15, Math.round(base * (1 - effectiveDef * 0.5)));
-    const knockbackAtb = item.style === 'spear' || item.id === 'beast_eagle' ? 65 : 100;
-    const isMultiHit = item.id === 'beast_wolf' || item.style === 'sword';
+    const knockbackAtb = item.style === 'spear' || item.id === 'beast_eagle' || item.id === 'beast_sky_wolf' ? 65 : 100;
+    const isMultiHit = item.id === 'beast_wolf' || item.id === 'beast_sky_wolf' || item.style === 'sword';
     return {
       finalDamage: totalDamage,
       totalDamage,
@@ -746,15 +787,17 @@ export function calculateAttackDamage({
   }
 
   // mode === 'word'（完成整個單字／詞語／成語／長句，統一結算總傷害）
+  // 確保同階層武器與靈獸具備完全對稱的基礎傷害底數（移除早期額外疊加的 charBonusTotal）
   const rawLen = Math.max(1, Array.from(String(resolvedText || '')).length);
   const effectiveChars = resolvedEn ? Math.max(1, rawLen / 3.5) : rawLen;
   // 開根號飽和長度曲線（上限 2.50x）
   const lengthMultiplier = Math.min(2.50, 1.0 + 0.45 * Math.sqrt(Math.max(0, effectiveChars - 1)));
-  const charBonusTotal = (item.charBonusDmg || 0) * Math.min(4, effectiveChars);
-  const baseWord = (18 + atk * 0.85 + charBonusTotal) * lengthMultiplier;
+  const baseWord = (18 + atk * 0.85) * lengthMultiplier;
 
-  // 刀系詞語爆發加成
-  const schoolMult = effectiveChars >= 2 && item.wordBurstMult ? item.wordBurstMult : 1.0;
+  // 流派係數：刀系詞語爆發 1.28x；毒蟾直擊佔 0.82x（另 0.18x 由毒傷補齊，使總傷與同階破甲槍一致）
+  const schoolMult = item.id === 'beast_toad'
+    ? (item.wordBurstMult || 0.82)
+    : (effectiveChars >= 2 && item.wordBurstMult ? item.wordBurstMult : 1.0);
   // 看破破綻（敵人蓄力 >=75% 危急瞬間完成整題 -> 1.35x）與行雲流水（多字詞零失誤 -> 1.15x）
   const parryMult = isParryBreak ? 1.35 : 1.0;
   const perfectMult = isPerfectWord && rawLen >= 2 ? 1.15 : 1.0;
@@ -762,19 +805,22 @@ export function calculateAttackDamage({
   const withCombo = preCombo * comboMult * gradeScale;
   const primaryDamage = Math.max(1, Math.round(withCombo * (1 - effectiveDef)));
 
-  // 蒼狼多段連爪加成（滿 10 連擊或 4 字以上題目）
+  // 四階蒼狼多段連爪加成（滿 10 連擊或 4 字以上題目追加 +28% 二連爪，與四階赤炎寶刀 +28% 詞語爆發精準對齊）
   let isMultiHit = false;
   let multiHitDamage = 0;
   if (item.id === 'beast_wolf' && ((combo >= (item.multiHitComboStep || 10)) || effectiveChars >= (item.multiHitWordLen || 4))) {
     isMultiHit = true;
-    multiHitDamage = Math.max(1, Math.round(primaryDamage * (item.multiHitRatio || 0.45)));
+    multiHitDamage = Math.max(1, Math.round(primaryDamage * (item.multiHitRatio || 0.28)));
   }
 
-  // 毒蟾持續毒傷結算（對 Boss 單跳上限 35 點）
+  // 三階毒蟾持續毒傷結算（82% 直擊 + 18% 碧玉毒傷 = 100% 同階武器總傷害，對 Boss 單跳上限 35 點）
   let poisonDamage = 0;
   const activePoisonTurns = item.id === 'beast_toad' ? Math.max(enemyPoisonTurns, item.poisonTurns || 3) : (enemyPoisoned ? Math.max(1, enemyPoisonTurns) : enemyPoisonTurns);
   if (activePoisonTurns > 0) {
-    const rawPoison = Math.round(enemyMaxHp * (item.poisonMaxHpRatio || 0.045));
+    const fullEquivalent = Math.round(baseWord * parryMult * perfectMult * comboMult * gradeScale * (1 - effectiveDef));
+    const rawPoison = item.poisonDirectShare
+      ? Math.max(2, fullEquivalent - primaryDamage)
+      : Math.round(enemyMaxHp * (item.poisonMaxHpRatio || 0.03));
     const cap = stage?.kind === 'boss' ? (item.bossPoisonCap || CONFIG.bossPoisonCap || 35) : 999;
     poisonDamage = Math.max(2, Math.min(cap, rawPoison));
   }

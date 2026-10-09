@@ -545,7 +545,7 @@ export class CanvasBattleScene {
 
     if (this.heroConfig?.id === 'mu') {
       this.beastLungeOffset = 26;
-      const beastId = this.beastConfig?.id || this.weaponConfig?.id || 'beast_dog';
+      const beastId = this.beastConfig?.spriteKey || this.beastConfig?.id || this.weaponConfig?.spriteKey || this.weaponConfig?.id || 'beast_dog';
       this.beastFxKey = beastId === 'beast_eagle' ? 'fx_beast_dive' : beastId === 'beast_toad' ? 'fx_status_poison' : 'fx_beast_claw';
       this.beastFxTimer = 260;
     }
@@ -577,7 +577,7 @@ export class CanvasBattleScene {
       // 馴獸師原地指揮，靈獸向前撲擊演出（避免角色與靈獸同時奔跑遮擋題目框）
       this.heroOffsetX = 18;
       this.beastLungeOffset = Math.min(180, (this.enemyBaseX - this.heroBaseX) * 0.42);
-      const beastId = this.beastConfig?.id || this.weaponConfig?.id || 'beast_dog';
+      const beastId = this.beastConfig?.spriteKey || this.beastConfig?.id || this.weaponConfig?.spriteKey || this.weaponConfig?.id || 'beast_dog';
       this.beastFxKey = beastId === 'beast_eagle' ? 'fx_beast_dive' : beastId === 'beast_toad' ? 'fx_status_poison' : 'fx_beast_claw';
       this.beastFxTimer = 420;
     } else {

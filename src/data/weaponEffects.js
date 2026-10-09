@@ -8,13 +8,16 @@ const WEAPON_EFFECTS = {
 };
 
 export function getWeaponEffectProfile(weapon) {
-  const base = WEAPON_EFFECTS[weapon?.tier] || WEAPON_EFFECTS[1];
+  const effectTier = weapon?.tier || (weapon?.rank ? Math.min(3, Math.ceil(weapon.rank / 2)) : 1);
+  const base = WEAPON_EFFECTS[effectTier] || WEAPON_EFFECTS[1];
   const style = weapon?.style || base.style || 'sword';
   const beastEffectLabels = {
     beast_dog: '靈撲',
     beast_eagle: '鷹擊',
     beast_toad: '毒霧',
-    beast_wolf: '狼爪'
+    beast_wolf: '狼爪',
+    beast_flame_dog: '焰撲',
+    beast_sky_wolf: '天狼爪'
   };
   const effectName =
     beastEffectLabels[weapon?.id] ||
@@ -29,7 +32,7 @@ export function getWeaponEffectProfile(weapon) {
     ...base,
     name: weapon?.effectName || base.name,
     style,
-    beastId: style === 'beast' ? weapon?.id : null,
+    beastId: style === 'beast' ? (weapon?.spriteKey || weapon?.id) : null,
     effectName,
     color: weapon?.slashColor ?? 0xe9ecef
   };
