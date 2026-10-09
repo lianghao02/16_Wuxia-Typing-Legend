@@ -750,8 +750,9 @@ export class AudioEngine {
   }
 
   /**
-   * 13. 情境國風背景音樂 (BGM)
+   * 13. 情境國風背景音樂 (BGM) — 緊湊武俠節奏版
    * 支援五種情境：'title' (江湖首頁) | 'battle' (一般戰鬥) | 'boss' (Boss 戰) | 'inn' (客棧) | 'story' (劇情與通關)
+   * 包含：主旋律撥弦（古箏／琵琶）、低音根音律動（Bassline）與武俠戰鼓節拍（Percussion）
    */
   startBgm(theme = this.currentBgmTheme || 'title') {
     this.currentBgmTheme = theme || 'title';
@@ -762,59 +763,133 @@ export class AudioEngine {
 
     const themes = {
       title: {
-        stepMs: 1650,
-        wave: 'sine',
-        gain: 0.048,
-        notes: [329.63, 392.00, 440.00, 523.25, 587.33, 440.00, 392.00, 329.63]
-      },
-      battle: {
-        stepMs: 720,
-        wave: 'triangle',
-        gain: 0.042,
-        notes: [261.63, 329.63, 392.00, 440.00, 392.00, 523.25, 440.00, 392.00]
-      },
-      boss: {
-        stepMs: 480,
+        stepMs: 320,
         wave: 'triangle',
         gain: 0.052,
-        notes: [196.00, 220.00, 261.63, 293.66, 329.63, 293.66, 220.00, 196.00]
+        bassGain: 0.036,
+        drumGain: 0.025,
+        notes: [
+          329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 587.33, 523.25,
+          440.00, 523.25, 659.25, 783.99, 659.25, 587.33, 440.00, 392.00
+        ],
+        bass: [130.81, 164.81, 196.00, 146.83]
+      },
+      battle: {
+        stepMs: 220,
+        wave: 'triangle',
+        gain: 0.058,
+        bassGain: 0.048,
+        drumGain: 0.065,
+        notes: [
+          329.63, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 440.00,
+          523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00
+        ],
+        bass: [110.00, 110.00, 130.81, 146.83, 110.00, 130.81, 146.83, 164.81]
+      },
+      boss: {
+        stepMs: 170,
+        wave: 'sawtooth',
+        gain: 0.054,
+        bassGain: 0.056,
+        drumGain: 0.082,
+        notes: [
+          220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 440.00,
+          392.00, 440.00, 523.25, 587.33, 523.25, 440.00, 329.63, 293.66
+        ],
+        bass: [110.00, 110.00, 130.81, 110.00, 146.83, 130.81, 164.81, 146.83]
       },
       inn: {
-        stepMs: 1200,
+        stepMs: 280,
         wave: 'sine',
-        gain: 0.045,
-        notes: [392.00, 440.00, 523.25, 659.25, 587.33, 523.25, 440.00, 392.00]
+        gain: 0.052,
+        bassGain: 0.035,
+        drumGain: 0.022,
+        notes: [
+          392.00, 440.00, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00,
+          523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00, 392.00
+        ],
+        bass: [130.81, 164.81, 196.00, 164.81]
       },
       story: {
-        stepMs: 1450,
-        wave: 'sine',
-        gain: 0.046,
-        notes: [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00]
+        stepMs: 340,
+        wave: 'triangle',
+        gain: 0.050,
+        bassGain: 0.034,
+        drumGain: 0.018,
+        notes: [
+          523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33,
+          523.25, 659.25, 587.33, 523.25, 440.00, 523.25, 440.00, 392.00
+        ],
+        bass: [130.81, 146.83, 164.81, 130.81]
       }
     };
 
     let currentStep = 0;
     const playNext = () => {
       if (!this.bgmRunning || this.muted || !this.bgmEnabled || !this.ctx) return;
-      const cfg = themes[this.currentBgmTheme] || themes.title;
-      const freq = cfg.notes[currentStep % cfg.notes.length];
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      const themeName = this.currentBgmTheme;
+      const cfg = themes[themeName] || themes.title;
+      const stepIdx = currentStep % cfg.notes.length;
+      const freq = cfg.notes[stepIdx];
       currentStep++;
 
       const now = this.ctx.currentTime;
+      const stepSec = cfg.stepMs / 1000;
+      const noteDur = Math.max(0.14, stepSec * 0.88);
+
+      // 1. 主旋律撥弦音（古箏／琵琶清脆起音）
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
-      const noteDur = Math.max(0.35, (cfg.stepMs / 1000) * 0.92);
-
       osc.type = cfg.wave;
       osc.frequency.setValueAtTime(freq, now);
-      gain.gain.setValueAtTime(cfg.gain * this.volume, now);
+      if (themeName === 'battle' || themeName === 'boss') {
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.006, now + 0.03);
+      }
+      const peakGain = Math.max(0.002, cfg.gain * this.volume);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(peakGain, now + 0.008);
       gain.gain.exponentialRampToValueAtTime(0.001, now + noteDur);
-
       osc.connect(gain);
       gain.connect(this.ctx.destination);
-
       osc.start(now);
-      osc.stop(now + noteDur + 0.04);
+      osc.stop(now + noteDur + 0.02);
+
+      // 2. 低音根音律動（Bass Pulse：戰鬥每 2 拍推進，非戰鬥每 4 拍支撐）
+      const isCombatTheme = themeName === 'battle' || themeName === 'boss';
+      const bassInterval = isCombatTheme ? 2 : 4;
+      if (cfg.bass && stepIdx % bassInterval === 0) {
+        const bassFreq = cfg.bass[Math.floor(stepIdx / bassInterval) % cfg.bass.length];
+        const bOsc = this.ctx.createOscillator();
+        const bGain = this.ctx.createGain();
+        const bassDur = Math.max(0.18, stepSec * (bassInterval * 0.82));
+        bOsc.type = isCombatTheme ? 'triangle' : 'sine';
+        bOsc.frequency.setValueAtTime(bassFreq, now);
+        bGain.gain.setValueAtTime(Math.max(0.002, (cfg.bassGain || 0.04) * this.volume), now);
+        bGain.gain.exponentialRampToValueAtTime(0.001, now + bassDur);
+        bOsc.connect(bGain);
+        bGain.connect(this.ctx.destination);
+        bOsc.start(now);
+        bOsc.stop(now + bassDur + 0.02);
+      }
+
+      // 3. 武俠戰鼓與節拍點（戰鬥與首領戰強拍重鼓、弱拍清脆鼓邊）
+      if (cfg.drumGain && (stepIdx % 4 === 0 || (themeName === 'boss' && stepIdx % 2 === 0))) {
+        const drum = this.ctx.createOscillator();
+        const dGain = this.ctx.createGain();
+        const isHeavyBeat = stepIdx % 4 === 0;
+        drum.type = 'sine';
+        drum.frequency.setValueAtTime(isHeavyBeat ? 135 : 195, now);
+        drum.frequency.exponentialRampToValueAtTime(isHeavyBeat ? 42 : 75, now + 0.11);
+        dGain.gain.setValueAtTime(Math.max(0.002, cfg.drumGain * (isHeavyBeat ? 1 : 0.65) * this.volume), now);
+        dGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        drum.connect(dGain);
+        dGain.connect(this.ctx.destination);
+        drum.start(now);
+        drum.stop(now + 0.13);
+      }
 
       this.bgmTimer = setTimeout(playNext, cfg.stepMs);
     };

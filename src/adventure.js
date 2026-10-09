@@ -889,6 +889,7 @@ function keyboard() {
   $('keys').innerHTML=KEYBOARD_ROWS.map(row=>`<div class="key-row">${row.map(k=>`<div class="key ${k.finger.startsWith('右')?'right':''} ${k.isTone?'tone':''} ${['KeyF','KeyJ'].includes(k.code)?'home-key':''} ${k.code==='Space'?'space':''}" data-code="${k.code}"><small>${escape(k.en)}</small><span class="zy">${escape(k.code==='Space'?'一聲／空白鍵':k.zy)}</span><span class="en">${escape(k.code==='Space'?'空白鍵':k.en)}</span></div>`).join('')}</div>`).join('');
 }
 document.addEventListener('click',event=>{
+  audio.init(); if(audio.bgmEnabled&&!audio.muted&&!audio.bgmRunning)audio.startBgm(audio.currentBgmTheme);
   if(!windowFocused){windowFocused=true;engine.setPaused(document.hidden||view!=='battle');lastTick=performance.now();}
   const button=event.target.closest('button'); if(!button)return;
   if(button.dataset.speak){
@@ -1010,6 +1011,7 @@ function toggleKeyboard(){save.keyboard=!save.keyboard;persist();render();}
 $('hide-keyboard').onclick=toggleKeyboard; $('show-keyboard').onclick=toggleKeyboard;
 $('panel').addEventListener('cancel',event=>{event.preventDefault();if(view==='shop'&&resumeView==='battle'){audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}else home();});
 document.addEventListener('keydown',event=>{
+  audio.init(); if(audio.bgmEnabled&&!audio.muted&&!audio.bgmRunning)audio.startBgm(audio.currentBgmTheme);
   if(!windowFocused){windowFocused=true;engine.setPaused(document.hidden||view!=='battle');lastTick=performance.now();}
   if(event.repeat)return;
   if(['INPUT','SELECT','TEXTAREA'].includes(event.target.tagName))return;
