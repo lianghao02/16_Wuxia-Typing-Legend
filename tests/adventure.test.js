@@ -408,3 +408,26 @@ test('v2.1.0 教育部離線字典例詞與成語入庫、英文 300 題擴充�
     assert.ok(!tail60.has(w.text), '進入第二輪循環時應優先排除第一輪末尾 60 道近期題目');
   }
 });
+
+test('全部 30 關統一採用 RPG 氣血制，且多字詞須整題打完才扣減敵人血量、單字完成壓制敵方蓄力', async () => {
+  const { calculateAttackDamage, ADVENTURE_WEAPONS } = await import('../src/engine/AdventureEngine.js');
+  const adventureCode = readFileSync(new URL('../src/adventure.js', import.meta.url), 'utf8');
+
+  // 1. 全部 30 關皆為 RPG 氣血戰鬥制 (isCombat === true)，不再混用固定 10 題進度條
+  assert.equal(ADVENTURE_STAGES.length, 30);
+  for (const s of ADVENTURE_STAGES) {
+    assert.equal(s.isCombat, true, `關卡 ${s.id} (${s.name}) 應啟用 RPG 氣血制`);
+    assert.ok(s.enemy.maxHp >= 150, `關卡 ${s.id} (${s.name}) 應具備 RPG 氣血上限`);
+  }
+
+  // 2. charComplete 不提前呼叫 applyPlayerAttack('char') 扣減敵人血量或中途結束戰鬥
+  assert.ok(!adventureCode.includes("applyPlayerAttack('char'"), '單字完成不應提前扣減敵方氣血');
+  assert.ok(adventureCode.includes("applyPlayerAttack('word'"), '整題完成才統一結算敵方氣血傷害');
+
+  // 3. 單字完成具備至少 18% 蓄力擊退量，整題完成具備 40%+ 蓄力擊退量，防止四字詞打到一半被敵人滿氣偷打
+  const charCheck = calculateAttackDamage({ actionType: 'char', loadout: ADVENTURE_WEAPONS[0] });
+  const wordCheck = calculateAttackDamage({ actionType: 'word', wordObj: { text: '行俠仗義' }, loadout: ADVENTURE_WEAPONS[0] });
+  assert.ok(charCheck.atbBreak >= 18);
+  assert.ok(wordCheck.atbBreak >= 40);
+});
+

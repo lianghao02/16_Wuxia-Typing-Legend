@@ -154,28 +154,28 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 
 ## 驗證結果 (Validation)
 ### 已執行測試與結果
-- `npm test`：**61／61 通過**（既有 53 項含 `v2.1.0` RPG／題庫循環防重 ＋ 新增 8 項 `tests/battleAnimation.test.js`）。`git diff --check` 通過。
+- `npm test`：**62／62 通過**（既有 53 項含 `v2.1.0` RPG／題庫循環防重 ＋ 8 項 `tests/battleAnimation.test.js` ＋ 1 項全 30 關統一 RPG 氣血制與整題結算／單字壓制蓄力測試）。`git diff --check` 通過。
 - `python scripts/validate_animation_assets.py`（Python 3.13.5 + Pillow 11.2.1）：`checkedFiles: 117`、`fileValidationPassed: true`、`errors: []`、`missingRequiredFrames: []`、`unapprovedFrames: []`、`phaseAApproved: true`。
 - 預覽頁實測（Playwright 瀏覽器）：
   - `assets/animations/preview.html`：19 組動作組別與 Canvas（`360×480`）正常載入，JS Runtime Error 0。
   - `assets/animations/battle-preview.html`：執行「驗證全部 76 姿態」回報 `通過：正式 Canvas 已繪製全部 19 組、76 張姿態；未發現漏圖。`；執行「快速 50 次攻擊」與「減少動態（蒼狼組）」均正常運作，JS Runtime Error 0。
-- 正式遊戲 `adventure.html` 實測（Playwright 瀏覽器）：
-  - 雲清川英文第一關 10 題完整輸入並觸發結算（`第一道劍光 · 任務完成`）。
-  - 客棧購買並裝備 `qingfeng_sword`（青鋒劍），切換蘇映雪與 5 年級，完成中文短句（`小鳥在枝頭唱歌`、`誠實說出想法`、`勇敢面對困難`、`耐心等待花開`）與單字、觸發 `Alt+1` 大招與 `Tab` 鍵盤收合（`kbHiddenAfterTab: true`）。
-  - 切換馴獸師林牧風（`mu`）與追風靈犬（`beast_dog`）、3 年級，完成第一關 10 題並觸發結算，驗證後已還原測試 `localStorage`，JS Runtime Error 0。
+- 正式遊戲 `adventure.html` 實測與全關卡氣血／四字詞結算修正：
+  - 全部 30 關統一改為 RPG 氣血對決制（`isCombat: true`），移除前 3 關固定答滿 10 題的舊規則。
+  - 四字詞與長句改為「整題完成（`wordComplete`）才一次出招扣除敵人血量」，單字完成（`charComplete`）改為聚氣並擊退敵方蓄力（`18%+`）與短暫緩衝，消除四字詞打到第 2、3 字提前扣敵人血量或被敵人滿氣偷打的問題。
 ### 尚未驗證項目
 沒有逐關人工遊玩全部三十關；全章／年級流程由既有測試覆蓋。
 ### 已知風險 (Known Risks)
 四張離散姿態是方案 B 的有限格數動畫，不是骨架動畫；後續新增素材仍需實際檢視後才可標記核准。不要將早期候選誤接入正式索引。
 
 ## Git 狀態
-- Commit：依使用者指示更新 `README.md` 與 `CHANGELOG.md` 後提交 `v2.1.0` 並推送至 `origin/master`。
+- Commit：已提交並推送至 `origin/master`。
 - Push：是（`origin/master`）。
 - Working Tree：Clean。
 - Branch：master。
 
 ## 下一步建議動作 (Next Recommended Action)
-`v2.1.0` 已提交並推送至 `origin/master`，GitHub Pages 將自動部署最新 `v2.1.0` 版本。
+重新整理瀏覽器頁面即可體驗全部 30 關統一 RPG 扣血制與整題完成出招機制。
 
 ## 發布狀態 (Release Status)
 `v2.1.0` 已正式提交並推送至 `origin/master`。
+

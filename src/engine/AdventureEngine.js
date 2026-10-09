@@ -517,13 +517,13 @@ export function calculateAttackDamage({
   const comboMult = Number((1 + Math.min(comboCap, Math.max(0, combo) * comboRate)).toFixed(3));
 
   if (mode === 'char') {
-    // 單字輕擊：長句內後續字元採平方根遞減，防止長句單字傷害無限累加
+    // 單字完成：主要用於聚氣與擊退敵方蓄力，實際氣血傷害統一於整題完成時結算
     const diminish = 1 / Math.sqrt(Math.max(1, charIndexInWord + 1));
     const base = (4 + atk * 0.24) * diminish;
     const beastBonus = item.id === 'beast_dog' ? (item.charBonusDmg || 5) : (item.charBonusDmg || 0) * diminish;
     const preDef = (base + beastBonus) * comboMult * gradeScale;
     const totalDamage = Math.max(1, Math.round(preDef * (1 - effectiveDef)));
-    const knockbackAtb = (bracer?.knockbackBonus || 0) + (item.id === 'beast_dog' ? 3 : 0);
+    const knockbackAtb = 18 + (bracer?.knockbackBonus || 0) + (item.id === 'beast_dog' ? 4 : 0);
     return {
       finalDamage: totalDamage,
       totalDamage,
@@ -589,12 +589,13 @@ export function calculateAttackDamage({
     };
   }
 
-  // mode === 'word'（完成整個單字／詞語／成語／長句）
+  // mode === 'word'（完成整個單字／詞語／成語／長句，統一結算總傷害）
   const rawLen = Math.max(1, Array.from(String(resolvedText || '')).length);
   const effectiveChars = resolvedEn ? Math.max(1, rawLen / 3.5) : rawLen;
   // 開根號飽和長度曲線（上限 2.50x）
   const lengthMultiplier = Math.min(2.50, 1.0 + 0.45 * Math.sqrt(Math.max(0, effectiveChars - 1)));
-  const baseWord = (14 + atk * 0.72) * lengthMultiplier;
+  const charBonusTotal = (item.charBonusDmg || 0) * Math.min(4, effectiveChars);
+  const baseWord = (18 + atk * 0.85 + charBonusTotal) * lengthMultiplier;
 
   // 刀系詞語爆發加成
   const schoolMult = effectiveChars >= 2 && item.wordBurstMult ? item.wordBurstMult : 1.0;
@@ -620,7 +621,7 @@ export function calculateAttackDamage({
   }
 
   const totalDamage = primaryDamage + multiHitDamage + poisonDamage;
-  const knockbackAtb = CONFIG.knockbackAtb + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0) * 2;
+  const knockbackAtb = CONFIG.knockbackAtb + 15 + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0) * 2;
   const lenFixed = Number(lengthMultiplier.toFixed(2));
 
   return {

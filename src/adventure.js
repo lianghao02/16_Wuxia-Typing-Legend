@@ -287,12 +287,10 @@ function begin(resume = true, replayId = null) {
   const hazard = stageHazard(stage);
   const hazardTip = hazard ? `<br>${hazard.icon} 本關對手招式帶有「<strong>${hazard.label}</strong>」，若受擊染上狀態，<strong>連續打對 2 個字</strong>即可運功化解！` : '';
   const chapterIntro = session.cursor===0 && !session.typing && stage.id%5===0 ? CHAPTERS[stage.chapter].intro : '';
-  const victoryTip = stage.isCombat
-    ? `正面交手（對手氣血 ${session.enemyHp}／${session.enemyMaxHp}）：正確輸入、連擊、${save.hero==='mu'?'靈獸戰技':'兵器流派'}與絕招皆可削減對手氣血，歸零即獲勝！`
-    : `任務修行：完成 ${stage.targetWords || 10} 道題目即可過關；新題目有短暫準備時間。`;
+  const victoryTip = `氣血對決（對手氣血 ${session.enemyHp}／${session.enemyMaxHp}）：每完整打完一道題目，即可依字數、連擊、${save.hero==='mu'?'靈獸戰技':'兵器流派'}施展招式削減對手氣血，歸零即獲勝！`;
   modal(`<span class="eyebrow">第 ${stage.chapter+1} 章 · ${stage.chapterName}</span><h2>${stage.name}</h2>
     ${chapterIntro?`<p>${escape(chapterIntro)}</p>`:''}<p class="story">${stage.intro}</p>
-    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':stage.kind==='duel'?'江湖交手：完成題目可造成招式傷害並打斷對手蓄力。':'完成題目可重置對手蓄力；境界越高，對手出招越快。'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
+    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'打完每個單字可壓制對手蓄力，整題打完即出招造成傷害；境界越高，對手出招越快。'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
     <button class="primary" data-action="start">${session.cursor||session.typing?'接續交手':'踏入江湖'} · Enter</button>`, 'intro');
 }
 function start() {
@@ -308,20 +306,14 @@ function render() {
   $('stage-name').textContent = `${stage.chapterName} · ${stage.name}`;
   const isReviewWord = Boolean(engine.currentWord?.isReview);
   const reviewTag = isReviewWord ? ' · 🔁錯題複習' : '';
-  if (stage.isCombat) {
-    const enemyPct = Math.max(0, Math.min(100, Math.round((session.enemyHp / (session.enemyMaxHp || 100)) * 100)));
-    const doneDots = Math.min(10, Math.max(0, Math.floor((100 - enemyPct) / 10)));
-    $('progress').textContent = `${save.grade==='english'?'英文':save.grade+' 年級'} · ${REALMS[session.realm||profile.realm]} · 已出招 ${session.cursor} 題${reviewTag}`;
-    $('route').innerHTML = Array.from({length:10},(_,i)=>`<i class="${i<doneDots?'done':''}"></i>`).join('');
-  } else {
-    const target = stage.targetWords || 10;
-    $('progress').textContent = `${save.grade==='english'?'英文':save.grade+' 年級'} · ${REALMS[session.realm||profile.realm]} · 第 ${Math.min(target, session.cursor+1)}／${target} 題${reviewTag}`;
-    $('route').innerHTML = Array.from({length:target},(_,i)=>`<i class="${i<session.cursor?'done':''}"></i>`).join('');
-  }
+  const enemyPct = Math.max(0, Math.min(100, Math.round((session.enemyHp / (session.enemyMaxHp || 100)) * 100)));
+  const doneDots = Math.min(10, Math.max(0, Math.floor((100 - enemyPct) / 10)));
+  $('progress').textContent = `${save.grade==='english'?'英文':save.grade+' 年級'} · ${REALMS[session.realm||profile.realm]} · 已出招 ${session.cursor} 題 · 對手剩餘 ${enemyPct}% 氣血${reviewTag}`;
+  $('route').innerHTML = Array.from({length:10},(_,i)=>`<i class="${i<doneDots?'done':''}"></i>`).join('');
   const bossPhase = stage.kind === 'boss' ? bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0) : null;
   const phaseLabel = stage.kind === 'boss'
     ? `首領切磋 · ${bossPhase.name}階段`
-    : {training:'練功 · 完成十次出招',journey:'旅程 · 前進十段路',event:'委託 · 補回十段記憶',duel:'交手 · 擊敗眼前對手'}[stage.kind];
+    : {training:'練功切磋 · 擊破機關靶',journey:'江湖歷練 · 擊退攔路對手',event:'俠義委託 · 化解眼前危機',duel:'正面交手 · 擊敗眼前對手'}[stage.kind];
   $('phase').innerHTML=`<span>${escape(phaseLabel)}${isReviewWord?' <strong class="review-badge">🔁 錯題複習</strong>':''}</span><span class="speak-hint">🔊 點題目聽發音</span>`;
   const english=engine.mode==='english';
   $('keyboard').classList.toggle('english-keys',english);
@@ -382,18 +374,12 @@ function render() {
   const hazardBadge = hazard ? ` · ${hazard.icon}${hazard.label}` : '';
   const isDanger = session.atb > 75;
   scene.setEnemyDangerAlert(isDanger);
-  const baseEnemyName = stage.kind==='journey'?'旅途進度':stage.kind==='event'?'委託進度':stage.name;
+  const baseEnemyName = stage.name;
   $('enemy-name').textContent = isDanger ? `⚡即將出招！${baseEnemyName}` : baseEnemyName;
-  if (stage.isCombat) {
-    const maxHp = session.enemyMaxHp || stage.enemy?.maxHp || 100;
-    const poisonTag = session.enemyPoisonTurns > 0 ? ` · ☠️中毒(${session.enemyPoisonTurns})` : '';
-    $('enemy-hp').value = Math.max(0, Math.min(100, Math.round((session.enemyHp / maxHp) * 100)));
-    $('enemy-detail').textContent = `氣血 ${session.enemyHp}／${maxHp}${poisonTag} · ${stage.kind==='boss'?bossPhase.name:'正面交手'}${hazardBadge}`;
-  } else {
-    const target = stage.targetWords || 10;
-    $('enemy-hp').value = Math.max(0, 100 - Math.round((session.cursor / target) * 100));
-    $('enemy-detail').textContent = `${session.cursor}／${target} 已完成 · 以字為劍${hazardBadge}`;
-  }
+  const maxHp = session.enemyMaxHp || stage.enemy?.maxHp || 100;
+  const poisonTag = session.enemyPoisonTurns > 0 ? ` · ☠️中毒(${session.enemyPoisonTurns})` : '';
+  $('enemy-hp').value = Math.max(0, Math.min(100, Math.round((session.enemyHp / maxHp) * 100)));
+  $('enemy-detail').textContent = `氣血 ${session.enemyHp}／${maxHp}${poisonTag} · ${stage.kind==='boss'?bossPhase.name:(stage.enemy?.title||'正面交手')}${hazardBadge}`;
   $('atb').value=session.atb;
   $('atb').hidden=false;
   $('ultimate').disabled=session.qi<5;
@@ -628,12 +614,12 @@ engine.on('keyHit',()=>{
   audio.playKeyHit(engine.combo);scene.playMicroGather(engine.combo,engine.getComboTier());
 });
 engine.on('charComplete',event=>{
-  const atk = applyPlayerAttack('char', { charObj: event.charObj, combo: event.combo });
-  audio.playWeaponAttack(atk.loadout.style === 'beast' ? atk.loadout.id : atk.loadout.style, false);
-  scene.playCharSlash({charText:event.charObj.char,damage:atk.finalDamage,isCrit:atk.isCrit,comboTier:event.comboTier});
-  const bracer = getBracer();
-  if (bracer.knockbackBonus) {
-    session.atb = Math.max(0, session.atb - bracer.knockbackBonus);
+  const loadout = getLoadout(), bracer = getBracer();
+  if (!event.isLastChar) {
+    const charAtbBreak = 18 + (bracer.knockbackBonus || 0) + (loadout.id === 'beast_dog' ? 4 : 0);
+    session.atb = Math.max(0, session.atb - charAtbBreak);
+    readUntil = Math.max(readUntil, performance.now() + 260);
+    scene.playMicroGather(event.combo, event.comboTier);
   }
   // 若處於中毒／灼傷／結冰狀態，連續打對 2 個字即可運功逼毒／滅火／破冰！
   if (session.status) {
@@ -655,7 +641,6 @@ engine.on('charComplete',event=>{
         notify('⚡ 連打 2 字真氣破冰而出！寒霜震碎，擊退對手蓄力！');
       }
     }
-    render(); rememberSession();
   }
   if(event.combo>=5&&event.combo%5===0){
     audio.playComboMilestone(event.combo);
@@ -670,12 +655,8 @@ engine.on('charComplete',event=>{
       session.qi=Math.min(5,session.qi+1);session.atb=Math.max(0,session.atb-15);
       notify('🌪️ 連續 5 字・清風劍氣！（內力＋1・擊退對手蓄力）');
     }
-    render();rememberSession();
   }
-  if (stage?.isCombat && session.enemyHp <= 0) {
-    session.cursor++;
-    finish();
-  }
+  render(); rememberSession();
 });
 engine.on('miss',event=>{
   const now=performance.now();
@@ -724,25 +705,22 @@ engine.on('wordComplete',event=>{
   if(loadout.healPerWord) session.hp=Math.min(100,session.hp+loadout.healPerWord);
   session.atb=Math.max(0,session.atb-(CONFIG.knockbackAtb+(loadout.knockbackBonus||0)+(bracer.knockbackBonus||0)*2));
   const atk = applyPlayerAttack('word', { wordObj: event.word, combo: engine.combo });
+  session.atb = Math.min(20, session.atb);
   audio.playWeaponAttack(loadout.style === 'beast' ? loadout.id : loadout.style, true);
   audio.playWordComplete(engine.getComboTier());
   audio.speakText?.(event.word.text,engine.mode==='english'?'en-US':'zh-TW',{manual:false});
   scene.playWordFinisher({wordText:event.word.text,damage:atk.finalDamage,isCrit:atk.isCrit||atk.multiHitCount>1,isParryBreak:stage.kind==='boss',comboTier:engine.getComboTier()});
   recordQuestionHistory(profile, event.word.text, save.grade === 'english');
-  if (stage.isCombat ? session.enemyHp <= 0 : session.cursor >= (stage.targetWords || 10)) {
+  if (session.enemyHp <= 0) {
     finish();
     return;
   }
   ensureSessionQueue();
-  engine.loadWord(session.queue[session.cursor]); session.typing=null; readUntil=performance.now()+450;
+  engine.loadWord(session.queue[session.cursor]); session.typing=null; readUntil=performance.now()+550;
   engine.active=true; render(); rememberSession();
   if(!(event.combo>=5&&event.combo%5===0)){
-    if (stage.isCombat) {
-      const phaseName = stage.kind === 'boss' ? `${bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0).name} · ` : '';
-      notify(`${phaseName}造成 ${atk.finalDamage} 傷害（對手剩餘 ${session.enemyHp} 氣血）`);
-    } else {
-      notify(stage.kind==='journey'?`前進第 ${session.cursor} 段路`:`${session.cursor}／${stage.targetWords||10} · 出招成功`);
-    }
+    const phaseName = stage.kind === 'boss' ? `${bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0).name} · ` : '';
+    notify(`${phaseName}造成 ${atk.finalDamage} 傷害（對手剩餘 ${session.enemyHp} 氣血）`);
   }
 });
 for(const event of ['nextChar','nextSymbol']) engine.on(event,()=>{render();rememberSession();});
@@ -840,7 +818,7 @@ function tick(now){
     const isDanger=session.atb>75;
     scene.setEnemyDangerAlert(isDanger);
     if(isDanger!==wasDanger){
-      const baseEnemyName=stage.kind==='journey'?'旅途進度':stage.kind==='event'?'委託進度':stage.name;
+      const baseEnemyName=stage.name;
       $('enemy-name').textContent=isDanger?`⚡即將出招！${baseEnemyName}`:baseEnemyName;
     }
     // 中毒與灼傷持續微幅耗損氣血（保底 15 點不致死）
