@@ -466,3 +466,40 @@ export function parseCustomVocabularyInput(rawString) {
   if (errors.length) throw new Error([...new Set(errors)].join('\n'));
   return results;
 }
+
+/**
+ * 《文印江湖》容錯式聯絡簿詞庫解析工具：
+ * 逐詞核對教育部國語小字典讀音，支援「春風」、「小橋(ㄒㄧㄠˇ ㄑㄧㄠˊ)」、「樂=ㄌㄜˋ」與「apple=蘋果」，
+ * 並將需要補音的破音字或未知字歸入 skipped 提示而不中斷其他有效詞彙。
+ */
+export function parseAdventureCustomWords(rawString) {
+  if (!rawString || !String(rawString).trim()) return { words: [], skipped: [] };
+  const tokens = String(rawString)
+    .split(/[,，、\n\r;；]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const words = [];
+  const skipped = [];
+  for (const token of tokens) {
+    try {
+      const enEq = token.match(/^([a-zA-Z\s'-]+)=(.+)$/);
+      if (enEq) {
+        words.push({
+          text: enEq[1].trim().toLowerCase(),
+          meaning: enEq[2].trim() || '自訂英文單字',
+          mode: 'english'
+        });
+        continue;
+      }
+      const zhEq = token.match(/^([\u4e00-\u9fa5]+)=(.+)$/);
+      const normalized = zhEq ? `${zhEq[1]}(${zhEq[2].trim()})` : token;
+      const parsed = parseCustomVocabularyInput(normalized);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        words.push(...parsed);
+      }
+    } catch (err) {
+      skipped.push(`${token}（${String(err.message || '').split('\n')[0]}）`);
+    }
+  }
+  return { words, skipped };
+}

@@ -101,3 +101,36 @@ export function getGradeDictionaryExampleWords(allowedCharSet, focusCharSet, gra
   const pickedWords = words.slice(0, Math.max(0, maxCount - pickedIdioms.length));
   return [...pickedWords, ...pickedIdioms];
 }
+
+/**
+ * 取得單字、2～4 字詞語或成語的教學語境提示（優先顯示具體釋義與教育部字典同字延伸例詞）
+ */
+export function getWordUsageHint(word) {
+  if (!word || !word.text) return '';
+  if (word.mode === 'english') return word.meaning || '';
+  const chars = Array.from(word.text);
+  const readings = Array.isArray(word.bopomofo) ? word.bopomofo : [];
+  if (chars.length === 1) {
+    const usage = getDictionaryUsage(chars[0], readings[0] || '');
+    if (usage.length) return `例詞：${usage.slice(0, 5).join('、')}`;
+    return word.meaning || '';
+  }
+  const hasCustomMeaning = word.meaning && !word.meaning.startsWith('教育部國語小字典');
+  const related = [];
+  chars.forEach((ch, idx) => {
+    const rd = readings[idx];
+    if (!rd) return;
+    const list = getDictionaryUsage(ch, rd).filter(u => u !== word.text && u.length >= 2);
+    for (const item of list) {
+      if (!related.includes(item) && related.length < 4) related.push(item);
+    }
+  });
+  if (hasCustomMeaning && related.length) {
+    return `${word.meaning}（延伸詞：${related.slice(0, 3).join('、')}）`;
+  }
+  if (hasCustomMeaning) return word.meaning;
+  if (related.length) {
+    return `字詞延伸：${related.join('、')}`;
+  }
+  return word.meaning || '';
+}

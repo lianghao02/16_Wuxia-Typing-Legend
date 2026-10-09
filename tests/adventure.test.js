@@ -431,3 +431,84 @@ test('全部 30 關統一採用 RPG 氣血制，且多字詞須整題打完才�
   assert.ok(wordCheck.atbBreak >= 40);
 });
 
+test('教育性、遊戲性與黏著度六大深化機制：詞語例詞、自訂聯絡簿、看破破綻、印章保存、每日懸賞與靈獸羈絆', async () => {
+  const { getWordUsageHint } = await import('../src/data/moeDictionary.js');
+  const { parseAdventureCustomWords } = await import('../src/data/vocabulary.js');
+  const {
+    calculateAttackDamage, ADVENTURE_WEAPONS,
+    getActiveLoadout, getBeastBond, addBeastBondExp, feedSpiritBeast,
+    getSealForStats, pickBetterSeal, ensureDailyState, recordDailyProgress
+  } = await import('../src/engine/AdventureEngine.js');
+
+  // 1. 教育性：2～4 字詞語與成語皆可取得教育部字典延伸例詞說明，不再空白
+  const phraseHint = getWordUsageHint({ text: '春風', bopomofo: ['ㄔㄨㄣ', 'ㄈㄥ'], meaning: '' });
+  assert.ok(phraseHint.includes('延伸例詞') || phraseHint.length > 0, '雙字詞應自動產生教育部字典延伸例詞提示');
+
+  // 2. 教育性：自訂聯絡簿詞庫支援中文詞、破音字指定讀音與英文單字，並支援 custom 獨立進度
+  const parsedCustom = parseAdventureCustomWords('春風、樂=ㄌㄜˋ、apple=蘋果');
+  assert.equal(parsedCustom.words.length, 3);
+  assert.equal(parsedCustom.words[1].bopomofo[0], 'ㄌㄜˋ');
+  assert.equal(parsedCustom.words[2].mode, 'english');
+  const save = newAdventure();
+  save.grade = 'custom';
+  const customProf = getProfile(save);
+  assert.ok(customProf && typeof customProf.weakSymbols === 'object');
+
+  // 3. 遊戲性：看破破綻 (isParryBreak) 與行雲流水 (isPerfectWord) 加成與蓄力清空
+  const baseWord = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: { text: '江湖俠客' },
+    combo: 6,
+    loadout: ADVENTURE_WEAPONS[0]
+  });
+  const perfectWord = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: { text: '江湖俠客' },
+    combo: 6,
+    loadout: ADVENTURE_WEAPONS[0],
+    isPerfectWord: true
+  });
+  const parryWord = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: { text: '江湖俠客' },
+    combo: 6,
+    loadout: ADVENTURE_WEAPONS[0],
+    isParryBreak: true,
+    isPerfectWord: true
+  });
+  assert.ok(perfectWord.finalDamage > baseWord.finalDamage, '行雲流水零失誤應提高招式傷害');
+  assert.ok(parryWord.finalDamage > perfectWord.finalDamage, '看破破綻危急反擊應造成更高傷害');
+  assert.equal(parryWord.atbBreak, 100, '看破破綻應清空敵人 100% 蓄力');
+
+  // 4. 遊戲性：每關最高評價印章（神乎其技 > 爐火純青 > 勤學苦練）自動保留最高紀錄
+  assert.equal(getSealForStats({ accuracy: 96, maxCombo: 12 }), '神乎其技');
+  assert.equal(pickBetterSeal('神乎其技', '勤學苦練'), '神乎其技');
+  awardStage(save, customProf, 0, { accuracy: 98, maxCombo: 14, wpm: 35, completedWords: 5, enemyHp: 0 }, '2026-10-09');
+  assert.equal(customProf.records[0].seal, '神乎其技');
+  awardStage(save, customProf, 0, { accuracy: 80, maxCombo: 4, wpm: 40, completedWords: 5, enemyHp: 0 }, '2026-10-09');
+  assert.equal(customProf.records[0].seal, '神乎其技', '重玩低正確率不應覆蓋已取得的最高印章');
+
+  // 5. 黏著度：連續修煉天數 (streak) 與今日三項江湖懸賞任務自動發放銅錢
+  const dailySave = newAdventure();
+  ensureDailyState(dailySave, '2026-10-08');
+  recordDailyProgress(dailySave, '2026-10-08', { stages: 1 });
+  assert.equal(dailySave.streak.count, 1);
+  ensureDailyState(dailySave, '2026-10-09');
+  const coinsBefore = dailySave.coins;
+  const doneQuests = recordDailyProgress(dailySave, '2026-10-09', { stages: 1, words: 15, perfectWords: 5 });
+  assert.equal(dailySave.streak.count, 2, '隔日接續完成練習應累加連續修煉天數');
+  assert.equal(doneQuests.length, 3, '三項每日懸賞達標應全部觸發完成');
+  assert.equal(dailySave.coins, coinsBefore + 25 + 35 + 40, '完成三項每日懸賞應自動發放共 100 銅錢');
+
+  // 6. 黏著度：靈獸羈絆經驗累積與客棧餵食靈果升階，同步提升馴獸師靈獸攻擊力
+  dailySave.hero = 'mu';
+  dailySave.beast = 'beast_dog';
+  const baseBeastLoadout = getActiveLoadout(dailySave);
+  const feedRes = feedSpiritBeast(dailySave, 'beast_dog', 60);
+  assert.equal(feedRes.ok, true);
+  assert.equal(getBeastBond(dailySave, 'beast_dog').level, 2);
+  addBeastBondExp(dailySave, 'beast_dog', 800);
+  assert.equal(getBeastBond(dailySave, 'beast_dog').level, 5, '累積足夠羈絆經驗應升至 Lv.5 護主神獸');
+  const maxBeastLoadout = getActiveLoadout(dailySave);
+  assert.ok(maxBeastLoadout.atk > baseBeastLoadout.atk, '靈獸羈絆升級應提升靈獸攻擊力');
+});

@@ -4,20 +4,23 @@ import { battleLayout, FIGHTER_VISIBLE_WIDTH } from './engine/battleLayout.js';
 import { AudioEngine } from './engine/AudioEngine.js';
 import { CanvasBattleScene } from './scenes/CanvasBattleScene.js';
 import { HEROES } from './data/enemies.js';
-import { KEYBOARD_ROWS } from './data/daqianLayout.js';
+import { KEYBOARD_ROWS, BOPOMOFO_TO_KEY_INFO, EN_TO_KEY_INFO } from './data/daqianLayout.js';
 import { getGradeMixedWords } from './data/textbooks.js';
 import { ENGLISH_PRACTICE_BANKS } from './data/practice.js';
+import { parseAdventureCustomWords } from './data/vocabulary.js';
 import { buildGradeQuestionQueue, buildAdaptiveQuestionBatch, recordQuestionHistory } from './data/gradeQuestionMix.js';
-import { getDictionaryUsage } from './data/moeDictionary.js';
+import { getDictionaryUsage, getWordUsageHint, getCharacterReadings } from './data/moeDictionary.js';
 import { ADVENTURE_STAGES, CHAPTERS, REALMS } from './data/adventureWorld.js';
 import {
   ADVENTURE_KEY, CONFIG, ADVENTURE_WEAPONS, SPIRIT_BEASTS, ADVENTURE_BRACERS, ADVENTURE_ARMORS, ADVENTURE_POTIONS,
+  DAILY_QUEST_DEFS, getBeastBond, addBeastBondExp, feedSpiritBeast, getSealForStats, ensureDailyState, recordDailyProgress,
   newAdventure, migrateAdventureSave, getProfile, getActiveLoadout, phaseFor, bossPhaseForHp, advanceBossPhase,
   calculateAttackDamage, stageHazard, attackDuration, awardStage, buyGear, buyPotion, favorFresh
 } from './engine/AdventureEngine.js';
 
 const $ = id => document.getElementById(id);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const gradeLabel = (g = save?.grade) => g === 'english' ? '英文' : g === 'custom' ? '自訂聯絡簿' : `${g} 年級`;
 let save, firstVisit = false, storageFailed = false;
 try {
   const raw = localStorage.getItem(ADVENTURE_KEY);
@@ -31,7 +34,7 @@ const getBeast = () => SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BE
 const getLoadout = () => getActiveLoadout(save);
 const getBracer = () => ADVENTURE_BRACERS.find(b => b.id === save.bracer) || ADVENTURE_BRACERS[0];
 const getArmor = () => ADVENTURE_ARMORS.find(a => a.id === save.armor) || ADVENTURE_ARMORS[0];
-let profile = getProfile(save), stage, session, view = 'home', misses = 0, frozenUntil = 0, shopTab = 'weapon';
+let profile = getProfile(save), stage, session, view = 'home', misses = 0, wordMisses = 0, frozenUntil = 0, shopTab = 'weapon';
 let readUntil = 0, noticeTimer, lastTick = performance.now(), resumeView = 'home', statusDotAcc = 0;
 let windowFocused = true, lastMissAt = 0, lastMissCharIndex = -1, lastRetainedCombo = 0, wrongKeyCode = '', wrongKeyTimer = null;
 const engine = new TypingEngine();
@@ -204,39 +207,93 @@ function closePanel() {
 }
 function datestring() { const now = new Date(); return `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`; }
 function home() {
+  ensureDailyState(save, datestring());
+  persist();
   const loadout = getLoadout(), b = getBracer(), a = getArmor();
+  const weakCount = Object.keys(profile.weak || {}).length;
+  const dq = save.dailyQuests || { progress: {}, claimed: {} };
+  const streakCount = typeof save.streak === 'object' ? (save.streak?.count || 0) : (Number(save.streak) || 0);
+  const dailyHtml = `<div class="daily-bar">
+    <span class="streak-chip">🔥 連續修煉 <strong>${streakCount}</strong> 天</span>
+    <div class="quest-list">${DAILY_QUEST_DEFS.map(q => {
+      const cur = Math.min(q.target, dq.progress?.[q.field] || 0);
+      const done = Boolean(dq.claimed?.[q.id]);
+      return `<span class="quest-chip ${done ? 'done' : ''}" title="${escape(q.desc)}">${done ? '✅' : '📜'} ${escape(q.title)} ${cur}／${q.target} <small>+${q.reward}銅錢</small></span>`;
+    }).join('')}</div>
+  </div>`;
   audio.switchBgm('title');
   modal(`<span class="eyebrow">武俠打字傳 · 文印江湖</span><h1>以字為劍，找回江湖的記憶</h1>
     <p>六枚文印散落各地，書信失去了文字。與雲清川、蘇映雪、林牧風一起穿越六處江湖，讓朋友們重新讀懂彼此的故事。</p>
+    ${dailyHtml}
     <div class="chapter-list">${CHAPTERS.map((c,i)=>`<div class="${profile.records[i*5+4]?'earned':''}">${profile.records[i*5+4]?'✦':'◇'} ${c.name}<br>${profile.records[i*5+4]?c.seal+'文印已尋回':`第 ${i*5+1}～${i*5+5} 關`}</div>`).join('')}</div>
-    <p class="muted">${save.grade==='english'?'英文':save.grade+' 年級'} · ${REALMS[profile.realm]} · 已完成 ${Object.keys(profile.records).length}／30 關<br>同行：${(HEROES[save.hero]||HEROES.yun).name}｜${loadout.name.split('・')[1]||loadout.name}｜${b.name}｜${a.name} · 空白鍵完成一聲，Tab 開關鍵盤，Alt＋1 施放${loadout.ultName||'守護絕招'}。</p>
-    <div class="actions"><button class="primary" data-action="continue">${profile.stage===30?'重遊江湖':profile.session?'繼續上次冒險':'繼續冒險'} · Enter</button><button data-action="shop">客棧</button><button data-action="settings">設定</button></div>
+    <p class="muted">${gradeLabel(save.grade)} · ${REALMS[profile.realm]} · 已完成 ${Object.keys(profile.records).length}／30 關<br>同行：${(HEROES[save.hero]||HEROES.yun).name}｜${loadout.name.split('・')[1]||loadout.name}${save.hero==='mu'&&loadout.bondTitle?`（羈絆 Lv.${loadout.bondLevel}・${loadout.bondTitle}）`:''}｜${b.name}｜${a.name} · 空白鍵完成一聲，Tab 開關鍵盤，Alt＋1 施放${loadout.ultName||'守護絕招'}。</p>
+    <div class="actions">
+      <button class="primary" data-action="continue">${profile.stage===30?'重遊江湖':profile.session?'繼續上次冒險':'繼續冒險'} · Enter</button>
+      <button data-action="footprints">🗺️ 選關（${Object.keys(profile.records).length}／30）</button>
+      <button data-action="weak-dojo">📖 錯題墨寶閣${weakCount?`（${weakCount}）`:''}</button>
+      <button data-action="custom-words">📜 聯絡簿自訂</button>
+      <button data-action="shop">🏮 客棧</button>
+      <button data-action="settings">⚙️ 設定</button>
+    </div>
     <p class="muted">${storageFailed?'目前無法儲存進度。':'冒險進度自動儲存在此瀏覽器。'} <a href="./classic.html">原版修煉入口</a></p>`, 'home');
   $('battle').hidden = true; $('journey-hud').hidden = true; $('controls').hidden = true;
 }
-function makeQueue(sessionUsed = [], count = 10) {
+function getBasePool() {
+  if (save.grade === 'english') return ENGLISH_PRACTICE_BANKS[profile.realm];
+  if (save.grade === 'custom') {
+    const parsed = parseAdventureCustomWords(save.customRaw || '');
+    if (parsed.words.length > 0) return parsed.words;
+  }
+  return getGradeMixedWords(Number(save.grade) || 3);
+}
+function makeQueue(sessionUsed = [], count = 10, forceWeakDrill = false) {
   const isEn = save.grade === 'english';
-  const pool = isEn ? ENGLISH_PRACTICE_BANKS[profile.realm] : getGradeMixedWords(Number(save.grade));
-  return buildAdaptiveQuestionBatch(pool, save.grade, profile.realm, {
+  const pool = getBasePool();
+  const isDrill = forceWeakDrill || Boolean(session?.isWeakDrill);
+  if (isDrill) {
+    const weakEntries = Object.entries(profile.weak || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]);
+    const weakTexts = weakEntries.map(([t]) => t);
+    const matched = [];
+    for (const text of weakTexts) {
+      const found = pool.find(w => w.text === text) || parseAdventureCustomWords(text).words[0];
+      if (found) matched.push({ ...found, isReview: true });
+    }
+    if (matched.length > 0) {
+      const result = [];
+      for (let i = 0; i < count; i++) {
+        result.push({ ...matched[i % matched.length], isReview: true });
+      }
+      return result;
+    }
+  }
+  const effectiveGrade = save.grade === 'custom' ? '3' : save.grade;
+  const batch = buildAdaptiveQuestionBatch(pool, effectiveGrade, profile.realm, {
     sessionUsed,
     recentList: isEn ? (profile.recentEn || []) : (profile.recentZh || profile.recent || []),
     practicedMap: profile.practiced || {},
     weakMap: profile.weak || {},
     count
   });
+  if (save.grade === 'custom' && pool.length > 0 && batch.length < count) {
+    while (batch.length < count) {
+      batch.push({ ...pool[batch.length % pool.length] });
+    }
+  }
+  return batch;
 }
 function ensureSessionQueue() {
   if (!session || !stage?.isCombat || session.enemyHp <= 0) return;
   if (session.queue.length - session.cursor < 4) {
     const used = session.queue.map(w => w.text);
-    const extra = makeQueue(used, 8);
+    const extra = makeQueue(used, 8, session.isWeakDrill);
     session.queue.push(...extra);
   }
 }
-function begin(resume = true, replayId = null) {
+function begin(resume = true, replayId = null, weakDrill = false) {
   const savedSession = profile.session;
   const savedStage = savedSession && Number.isInteger(savedSession.stageId) ? ADVENTURE_STAGES[savedSession.stageId] : null;
   const valid = Boolean(
+    !weakDrill &&
     savedStage &&
     Array.isArray(savedSession.queue) &&
     savedSession.queue.length > savedSession.cursor &&
@@ -244,11 +301,12 @@ function begin(resume = true, replayId = null) {
   );
   const targetStageId = resume && valid ? savedSession.stageId : (replayId ?? Math.min(profile.stage, 29));
   stage = ADVENTURE_STAGES[targetStageId] || ADVENTURE_STAGES[0];
-  const maxHp = stage.enemy?.maxHp || 100;
+  const maxHp = weakDrill ? 95 : (stage.enemy?.maxHp || 100);
   session = resume && valid ? savedSession : {
     stageId: stage.id,
     realm: profile.realm,
-    queue: makeQueue([], 10),
+    isWeakDrill: Boolean(weakDrill),
+    queue: makeQueue([], 10, weakDrill),
     cursor: 0,
     hp: 100,
     enemyMaxHp: maxHp,
@@ -275,6 +333,7 @@ function begin(resume = true, replayId = null) {
   session.mistakeNotes ||= [];
   ensureSessionQueue();
   setupScene(); engine.resetStats();
+  wordMisses = 0;
   engine.loadWord(session.queue[session.cursor]);
   if (session.typing) engine.restoreProgress(session.typing);
   if (session.cursor > 0 && engine.completedWords < session.cursor) {
@@ -286,11 +345,11 @@ function begin(resume = true, replayId = null) {
   const loadout = getLoadout();
   const hazard = stageHazard(stage);
   const hazardTip = hazard ? `<br>${hazard.icon} 本關對手招式帶有「<strong>${hazard.label}</strong>」，若受擊染上狀態，<strong>連續打對 2 個字</strong>即可運功化解！` : '';
-  const chapterIntro = session.cursor===0 && !session.typing && stage.id%5===0 ? CHAPTERS[stage.chapter].intro : '';
+  const chapterIntro = !session.isWeakDrill && session.cursor===0 && !session.typing && stage.id%5===0 ? CHAPTERS[stage.chapter].intro : '';
   const victoryTip = `氣血對決（對手氣血 ${session.enemyHp}／${session.enemyMaxHp}）：每完整打完一道題目，即可依字數、連擊、${save.hero==='mu'?'靈獸戰技':'兵器流派'}施展招式削減對手氣血，歸零即獲勝！`;
-  modal(`<span class="eyebrow">第 ${stage.chapter+1} 章 · ${stage.chapterName}</span><h2>${stage.name}</h2>
-    ${chapterIntro?`<p>${escape(chapterIntro)}</p>`:''}<p class="story">${stage.intro}</p>
-    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'打完每個單字可壓制對手蓄力，整題打完即出招造成傷害；境界越高，對手出招越快。'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
+  modal(`<span class="eyebrow">${session.isWeakDrill ? '📖 錯題墨寶閣 · 掃除特訓' : `第 ${stage.chapter+1} 章 · ${stage.chapterName}`}</span><h2>${session.isWeakDrill ? `${stage.name}（錯題掃除戰）` : stage.name}</h2>
+    ${chapterIntro?`<p>${escape(chapterIntro)}</p>`:''}<p class="story">${session.isWeakDrill ? '集中演練近期曾按錯的字詞與注音，擊破對手即可消去錯題紀錄並獲贈勤學特訓賞金 ＋35 銅錢！' : stage.intro}</p>
+    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'打完每個單字可壓制對手蓄力，整題打完即出招造成傷害；在對手「⚡即將出招」瞬間完成整題可觸發【看破破綻】反擊！'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
     <button class="primary" data-action="start">${session.cursor||session.typing?'接續交手':'踏入江湖'} · Enter</button>`, 'intro');
 }
 function start() {
@@ -303,12 +362,12 @@ function start() {
 }
 function render() {
   if (!stage || !session) return;
-  $('stage-name').textContent = `${stage.chapterName} · ${stage.name}`;
+  $('stage-name').textContent = `${stage.chapterName} · ${stage.name}${session.isWeakDrill ? '（錯題特訓）' : ''}`;
   const isReviewWord = Boolean(engine.currentWord?.isReview);
   const reviewTag = isReviewWord ? ' · 🔁錯題複習' : '';
   const enemyPct = Math.max(0, Math.min(100, Math.round((session.enemyHp / (session.enemyMaxHp || 100)) * 100)));
   const doneDots = Math.min(10, Math.max(0, Math.floor((100 - enemyPct) / 10)));
-  $('progress').textContent = `${save.grade==='english'?'英文':save.grade+' 年級'} · ${REALMS[session.realm||profile.realm]} · 已出招 ${session.cursor} 題 · 對手剩餘 ${enemyPct}% 氣血${reviewTag}`;
+  $('progress').textContent = `${gradeLabel(save.grade)} · ${REALMS[session.realm||profile.realm]} · 已出招 ${session.cursor} 題 · 對手剩餘 ${enemyPct}% 氣血${reviewTag}`;
   $('route').innerHTML = Array.from({length:10},(_,i)=>`<i class="${i<doneDots?'done':''}"></i>`).join('');
   const bossPhase = stage.kind === 'boss' ? bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0) : null;
   const phaseLabel = stage.kind === 'boss'
@@ -343,8 +402,7 @@ function render() {
     $('characters').innerHTML=engine.characters.slice(left,right).map((ch,i)=>`<div class="char ${ch.completed?'done':''} ${left+i===engine.charIndex?'current':''}"><div class="sounds">${sounds(ch,left+i===engine.charIndex)}</div><strong>${escape(ch.char===' '?'␣':ch.char)}</strong></div>`).join('');
   }
   const word=engine.currentWord;
-  const usage=!english&&word.text.length===1?getDictionaryUsage(word.text,word.bopomofo[0]):null;
-  $('usage').textContent=usage?.length?`例詞：${usage.join('、')}`:word.meaning || '';
+  $('usage').textContent=english?(word.meaning||''):(getWordUsageHint(word)||'');
   const info=engine.getExpectedKeyInfo();
   $('next-key').classList.toggle('help',misses>=2);
   const symbol=engine.getExpectedSymbol();
@@ -402,7 +460,9 @@ function applyPlayerAttack(actionType, extra = {}) {
     stage,
     enemyHp: session.enemyHp,
     enemyMaxHp: session.enemyMaxHp,
-    enemyPoisoned: session.enemyPoisonTurns > 0
+    enemyPoisoned: session.enemyPoisonTurns > 0,
+    isParryBreak: Boolean(extra.isParryBreak),
+    isPerfectWord: Boolean(extra.isPerfectWord)
   });
   let totalDmg = dmgResult.finalDamage;
   if (actionType === 'word' && (dmgResult.applyPoison || session.enemyPoisonTurns > 0)) {
@@ -434,6 +494,7 @@ function finish() {
   pause();
   scene.playEnemyDefeat();
   const mistakeNotes = session?.mistakeNotes ? [...session.mistakeNotes] : [];
+  const wasWeakDrill = Boolean(session?.isWeakDrill);
   if (session) {
     session.status = null;
     session.statusCureNeed = 0;
@@ -449,7 +510,9 @@ function finish() {
     enemyHp: stage?.isCombat ? 0 : undefined,
     realm: session?.realm || profile.realm
   };
-  const reward=awardStage(save,profile,stage.id,stats,datestring());
+  const today = datestring();
+  const reward=awardStage(save,profile,stage.id,stats,today);
+  const newlyQuests = recordDailyProgress(save, today, { stages: 1 });
   const answered = session.queue.slice(0, Math.max(1, session.cursor)).map(w => w.text);
   const isEn = save.grade === 'english';
   for (const text of answered) recordQuestionHistory(profile, text, isEn);
@@ -468,7 +531,20 @@ function finish() {
       lootHtml = `<div class="bonus-loot">🎁 江湖奇遇賞金：丹藥已滿，額外獲贈【奇遇紅包 ＋25 銅錢】！</div>`;
     }
   }
-  const sealGrade = stats.accuracy >= 95 && stats.maxCombo >= 10 ? '神乎其技' : stats.accuracy >= 85 ? '爐火純青' : '勤學苦練';
+  if (wasWeakDrill) {
+    for (const text of new Set(answered)) {
+      if (profile.weak?.[text]) {
+        profile.weak[text] -= 2;
+        if (profile.weak[text] <= 0) delete profile.weak[text];
+      }
+    }
+    save.coins += 35;
+    lootHtml += `<div class="bonus-loot">🎓 錯題掃除特訓圓滿：已掃除本輪演練錯字，額外獲贈【勤學特訓賞金 ＋35 銅錢】！</div>`;
+  }
+  if (newlyQuests.length > 0) {
+    lootHtml += `<div class="bonus-loot">📅 達成今日江湖懸賞：${newlyQuests.map(q => `【${escape(q.title)} ＋${q.reward} 銅錢】`).join('、')}！</div>`;
+  }
+  const sealGrade = getSealForStats(stats);
   const notesHtml = mistakeNotes.length
     ? `<div class="mistake-notes"><strong>📖 本關練功小錦囊（點擊可聽發音）：</strong><div class="mistake-list">${mistakeNotes.map(n => `<button type="button" class="mistake-chip" data-speak="${escape(n.char)}" data-lang="${escape(n.lang || 'zh-TW')}">${escape(n.char)} <small>${escape(n.reading)}</small> 🔊</button>`).join('')}</div></div>`
     : '';
@@ -485,13 +561,13 @@ function finish() {
   const seal=stage.id%5===4?`<p>✦ 尋回「${CHAPTERS[stage.chapter].seal}」文印</p><p>${CHAPTERS[stage.chapter].end}</p>`:'';
   persist();
   view='result';
-  modal(`<span class="eyebrow">${reward.ending?'六印重聚 · 主線完結':'江湖捷報'}</span>
-    <div class="result-head"><h2>${stage.name} · 任務完成</h2><span class="result-seal">${sealGrade}</span></div>
+  modal(`<span class="eyebrow">${reward.ending?'六印重聚 · 主線完結':wasWeakDrill?'錯題墨寶閣 · 掃除捷報':'江湖捷報'}</span>
+    <div class="result-head"><h2>${stage.name} · ${wasWeakDrill?'特訓完成':'任務完成'}</h2><span class="result-seal">${sealGrade}</span></div>
     <p class="story">${stage.outro}</p>${seal}${lootHtml}${notesHtml}
     <div class="stats"><span>實際完成 ${stats.completedWords} 題</span><span>${stats.completedChars} 字</span><span>正確率 ${stats.accuracy}%</span></div>
     <p>銅錢 ＋${reward.reward}${reward.dailyBonus?' · 今日首次冒險 ＋20':''} · 最長連擊 ${stats.maxCombo} · 現有銅錢 ${save.coins}</p>
-    <p class="muted">${profile.stage===30?'你已完成整段故事。可以重遊已完成的關卡，或在設定選擇更高境界。':`下一站：${ADVENTURE_STAGES[profile.stage].name}`}</p>
-    <div class="actions"><button class="primary" data-action="continue">${profile.stage===30?'查看江湖足跡':'繼續冒險'} · Enter</button><button class="${affordableGear?'shop-glow':''}" data-action="shop">${escape(shopBtnLabel)}</button><button data-action="home">休息一下</button></div>`, 'result');
+    <p class="muted">${profile.stage===30?'你已完成整段故事。可以隨時點選「選關」重遊任一關卡，或在設定選擇更高境界。':`下一站：${ADVENTURE_STAGES[profile.stage].name}`}</p>
+    <div class="actions"><button class="primary" data-action="continue">${profile.stage===30?'查看江湖足跡':'繼續冒險'} · Enter</button><button class="${affordableGear?'shop-glow':''}" data-action="shop">${escape(shopBtnLabel)}</button><button data-action="footprints">🗺️ 選關</button><button data-action="home">休息一下</button></div>`, 'result');
 }
 function shop(tab = shopTab) {
   shopTab = tab;
@@ -508,7 +584,13 @@ function shop(tab = shopTab) {
       listHtml = SPIRIT_BEASTS.map(item => {
         const owned = (save.ownedBeasts || []).includes(item.id);
         const active = save.beast === item.id;
-        return `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="beast" data-buy-id="${item.id}" ${active?'disabled':''}>${active?'已隨行':owned?'出戰':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢結契`}</button></div>`;
+        const bond = getBeastBond(save, item.id);
+        const bondPct = Math.round((bond.mult - 1) * 100);
+        const bondInfo = `<small class="bond-tag">🐾 羈絆 Lv.${bond.level}・${bond.title}${bond.nextExp ? `（經驗 ${bond.exp}／${bond.nextExp}）` : '（滿階）'}${bondPct > 0 ? ` · 戰技傷害 +${bondPct}%` : ''}</small>`;
+        const feedBtn = owned && bond.level < 5
+          ? `<button type="button" data-feed-beast="${item.id}" ${save.coins < 60 ? 'disabled' : ''}>${save.coins < 60 ? '靈果 60 銅錢' : '🍖 餵食靈果 (60)'}</button>`
+          : '';
+        return `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p>${bondInfo}</div><div class="item-actions"><button data-buy-slot="beast" data-buy-id="${item.id}" ${active?'disabled':''}>${active?'已隨行':owned?'出戰':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢結契`}</button>${feedBtn}</div></div>`;
       }).join('');
     } else {
       listHtml = ADVENTURE_WEAPONS.map(item => `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="weapon" data-buy-id="${item.id}" ${save.weapon===item.id?'disabled':''}>${save.weapon===item.id?'已裝備':save.owned.includes(item.id)?'裝備':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢購買`}</button></div>`).join('');
@@ -524,9 +606,9 @@ function shop(tab = shopTab) {
     }).join('');
   }
   modal(`<h2>古驛客棧 · 銅錢 ${save.coins}</h2>
-    <div class="gear-summary">目前穿戴：${isTamer?'🐾':'⚔️'} ${loadout.name.split('・')[1]||loadout.name} ｜ 🧤 ${b.name} ｜ 🛡️ ${a.name} ｜ 🧪 回春丹×${healCnt}・清心散×${antiCnt}</div>
+    <div class="gear-summary">目前穿戴：${isTamer?'🐾':'⚔️'} ${loadout.name.split('・')[1]||loadout.name}${isTamer&&loadout.bondTitle?`（Lv.${loadout.bondLevel} ${loadout.bondTitle}）`:''} ｜ 🧤 ${b.name} ｜ 🛡️ ${a.name} ｜ 🧪 回春丹×${healCnt}・清心散×${antiCnt}</div>
     <div class="shop-tabs">
-      <button class="${shopTab==='weapon'?'active':''}" data-shop-tab="weapon">${isTamer?'🐾 靈獸（馴獸同伴）':'⚔️ 兵器（劍／刀／槍）'}</button>
+      <button class="${shopTab==='weapon'?'active':''}" data-shop-tab="weapon">${isTamer?'🐾 靈獸（馴獸與餵養）':'⚔️ 兵器（劍／刀／槍）'}</button>
       <button class="${shopTab==='bracer'?'active':''}" data-shop-tab="bracer">🧤 護腕（打字輔助）</button>
       <button class="${shopTab==='armor'?'active':''}" data-shop-tab="armor">🛡️ 防具（毒火冰抗性）</button>
       <button class="${shopTab==='potion'?'active':''}" data-shop-tab="potion">🧪 隨身丹藥</button>
@@ -537,20 +619,71 @@ function shop(tab = shopTab) {
 function settings() {
   resumeView=view==='battle'?'battle':'home';
   const audioCfg = save.audioSettings || { bgm: save.bgm !== false, sfx: save.sfx !== false, speech: save.speech !== false, muted: Boolean(save.muted) };
-  modal(`<h2>設定</h2><label>練習內容 <select id="grade-select">${['1','2','3','4','5','6','english'].map(g=>`<option value="${g}" ${save.grade===g?'selected':''}>${g==='english'?'英文':g+' 年級'}</option>`).join('')}</select></label>
+  modal(`<h2>設定</h2><label>練習內容 <select id="grade-select">${['1','2','3','4','5','6','english','custom'].map(g=>`<option value="${g}" ${save.grade===g?'selected':''}>${gradeLabel(g)}</option>`).join('')}</select></label>
     <label>同行少俠 <select id="hero-select"><option value="yun" ${save.hero==='yun'?'selected':''}>雲清川（劍・刀・槍）</option><option value="su" ${save.hero==='su'?'selected':''}>蘇映雪（劍・刀・槍）</option><option value="mu" ${save.hero==='mu'?'selected':''}>林牧風（馴獸師・靈獸同伴）</option></select></label>
     <label>挑戰境界 <select id="realm-select">${Object.entries(REALMS).map(([key,name])=>`<option value="${key}" ${profile.realm===key?'selected':''}>${name}</option>`).join('')}</select></label>
-    <p class="muted">年級與英文各自保存冒險進度。挑戰境界會立即改變對手強度與出招節奏（初出茅廬較慢、名震江湖適中、一代宗師最快）；進行中的關卡保留原佇列。</p>
+    <p class="muted">年級、英文與自訂聯絡簿各自保存冒險進度。挑戰境界會立即改變對手強度與出招節奏（初出茅廬較慢、名震江湖適中、一代宗師最快）。</p>
     <label><input id="keyboard-select" type="checkbox" ${save.keyboard?'checked':''}> 顯示指法鍵盤（Tab）</label>
     <label><input id="bgm-select" type="checkbox" ${audioCfg.bgm!==false?'checked':''}> 開啟情境背景音樂（BGM）</label>
     <label><input id="sound-select" type="checkbox" ${audioCfg.sfx!==false?'checked':''}> 開啟戰鬥音效（刀劍／靈獸）</label>
     <label><input id="speech-select" type="checkbox" ${audioCfg.speech!==false?'checked':''}> 自動朗讀字詞（長句改手動點擊題目重聽）</label>
     <label><input id="mute-select" type="checkbox" ${audioCfg.muted?'checked':''}> 總靜音</label>
     <details><summary>題庫與資料來源</summary><p>沿用六個年級常用字、自編詞句、原創散文與國小程度英文。出版社分類範例尚待核對，並非出版社完整教材。中文字音使用教育部國語小字典。</p><p><a href="https://dict.mini.moe.edu.tw/" target="_blank" rel="noopener">教育部國語小字典</a> · CC BY-ND 3.0 TW</p></details>
-    <button class="primary" data-action="save-settings">儲存並返回</button>`, 'settings');
+    <div class="actions"><button class="primary" data-action="save-settings">儲存並返回</button><button type="button" data-action="custom-words">📜 編輯自訂聯絡簿詞庫</button></div>`, 'settings');
 }
 function footprints() {
-  modal(`<h2>江湖足跡</h2><p>六枚文印已尋回。選擇已完成的故事重遊；每次都會依防重與動態機制重新安排題目。</p><div class="chapter-list">${ADVENTURE_STAGES.map(s=>`<button data-replay="${s.id}">${s.id+1}. ${s.name}</button>`).join('')}</div><button data-action="home">返回首頁</button>`, 'footprints');
+  const maxUnlocked = Math.min(29, profile.stage || 0);
+  modal(`<h2>🗺️ 江湖足跡 · 自由選關</h2><p>隨時選擇已解鎖的關卡重遊切磋，挑戰「神乎其技」最高評價印章（正確率 ≥95% 且連擊 ≥10）。</p><div class="chapter-list">${ADVENTURE_STAGES.map(s => {
+    const rec = profile.records?.[s.id];
+    const unlocked = s.id <= maxUnlocked || Boolean(rec);
+    const seal = rec ? (rec.seal || getSealForStats(rec)) : '';
+    const sealBadge = rec ? `<small class="seal-tag ${seal==='神乎其技'?'top':''}">${seal==='神乎其技'?'🏅':seal==='爐火純青'?'✦':'◇'}${seal} (${rec.accuracy}%)</small>` : unlocked ? `<small class="seal-tag">⚔️ 可挑戰</small>` : `<small class="seal-tag">🔒 待解鎖</small>`;
+    return `<button data-replay="${s.id}" ${unlocked ? '' : 'disabled'}><span>${s.id+1}. ${escape(s.name)}</span>${sealBadge}</button>`;
+  }).join('')}</div><div class="actions"><button class="primary" data-action="home">返回首頁</button></div>`, 'footprints');
+}
+function customWordsModal() {
+  const parsed = parseAdventureCustomWords(save.customRaw || '');
+  modal(`<h2>📜 聯絡簿自訂詞庫（爸媽／老師自訂祕笈）</h2>
+    <p class="muted">直接貼上學校聯絡簿生字、成語或英文單字（以換行、空白或逗號分隔）。系統會透過內建教育部國語小字典自動標註標準注音！亦可手動指定破音字讀音（如：<code>樂=ㄌㄜˋ</code> 或 <code>小橋(ㄒㄧㄠˇ ㄑㄧㄠˊ)</code>）與英文翻譯（如：<code>apple=蘋果</code>）。</p>
+    <div class="custom-editor">
+      <textarea id="custom-raw-input" rows="4" placeholder="範例：春風、瀑布、行雲流水、樂=ㄌㄜˋ、apple=蘋果">${escape(save.customRaw || '')}</textarea>
+      <div class="dict-lookup-row">
+        <input id="dict-lookup-input" type="text" maxlength="4" placeholder="單字讀音速查（如：行、樂、載）">
+        <button type="button" data-action="dict-lookup">🔍 查教育部字音</button>
+      </div>
+      <div id="dict-lookup-result" class="muted">目前詞庫已收錄 <strong>${parsed.words.length}</strong> 組有效題目${parsed.skipped.length ? `（需補注音：${escape(parsed.skipped.slice(0, 3).join('；'))}）` : ''}。</div>
+    </div>
+    <div class="actions">
+      <button class="primary" data-action="save-custom-play">⚔️ 儲存並以聯絡簿詞庫出戰</button>
+      <button type="button" data-action="save-custom-only">💾 僅儲存詞庫</button>
+      <button type="button" data-action="home">返回首頁</button>
+    </div>`, 'custom-words');
+}
+function weakDojoModal() {
+  const symEntries = Object.entries(profile.weakSymbols || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 4);
+  const weakEntries = Object.entries(profile.weak || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 12);
+  const symHtml = symEntries.length
+    ? symEntries.map(([sym, cnt]) => {
+        const info = BOPOMOFO_TO_KEY_INFO[sym] || EN_TO_KEY_INFO[String(sym).toLowerCase()];
+        const keyDesc = info ? `按 <kbd>${escape(info.en === 'Space' ? '空白鍵' : info.en)}</kbd>（${escape(info.finger)}）` : '留意鍵位';
+        return `<span class="quest-chip">🎯 符號「<strong>${escape(sym === '␣' ? '一聲空白' : sym)}</strong>」${keyDesc} · 偏斜 ${cnt} 次</span>`;
+      }).join('')
+    : '<span class="muted">✨ 目前指法相當穩健，尚無明顯易錯鍵位紀錄！</span>';
+  const wordsHtml = weakEntries.length
+    ? weakEntries.map(([text, cnt]) => {
+        const isEn = /^[a-zA-Z\s'-]+$/.test(text);
+        return `<button type="button" class="mistake-chip" data-speak="${escape(text)}" data-lang="${isEn ? 'en-US' : 'zh-TW'}">${escape(text)} <small>曾錯 ${cnt} 次</small> 🔊</button>`;
+      }).join('')
+    : '<span class="muted">🎉 太棒了！目前錯題本已全數掃除乾淨！</span>';
+  modal(`<h2>📖 錯題墨寶閣 · 指法診斷與掃除特訓</h2>
+    <p class="muted">自動記錄闖關時曾按錯的注音符號、英文字母與字詞。點擊字詞可聽發音，啟動「錯題掃除特訓」過關即可消去錯字紀錄並獲贈 ＋35 銅錢勤學賞金！</p>
+    <div class="mistake-notes"><strong>🎹 易錯鍵位與指法提醒：</strong><div class="quest-list">${symHtml}</div></div>
+    <div class="mistake-notes"><strong>📝 待掃除錯字名單（點擊可聽發音）：</strong><div class="mistake-list">${wordsHtml}</div></div>
+    <div class="actions">
+      <button class="primary" data-action="start-weak-drill" ${weakEntries.length ? '' : 'disabled'}>⚔️ 啟動錯題掃除特訓（完成 ＋35 銅錢）</button>
+      <button type="button" data-action="clear-weak-log" ${weakEntries.length || symEntries.length ? '' : 'disabled'}>🧹 清空錯題紀錄</button>
+      <button type="button" data-action="home">返回首頁</button>
+    </div>`, 'weak-dojo');
 }
 function useHealPotion(autoTriggered = false) {
   if (!session || (save.potions?.heal_potion || 0) <= 0) return false;
@@ -673,6 +806,12 @@ engine.on('miss',event=>{
     return;
   }
   misses++;
+  wordMisses++;
+  const expectedSym = engine.getExpectedSymbol();
+  if (expectedSym) {
+    profile.weakSymbols ||= {};
+    profile.weakSymbols[expectedSym] = (profile.weakSymbols[expectedSym] || 0) + 1;
+  }
   const curCharObj = engine.characters[engine.charIndex];
   if (curCharObj && session) {
     session.mistakeNotes ||= [];
@@ -700,17 +839,38 @@ engine.on('miss',event=>{
 engine.on('wordComplete',event=>{
   const loadout = getLoadout(), bracer = getBracer();
   engine.active=false; session.cursor++;
-  const qiDelta = Math.max(1, (bracer.qiGain || 1) + (loadout.qiGainMod || 0));
+  const isParryBreak = session.atb >= 75;
+  const isZeroMissWord = wordMisses === 0;
+  const isPerfectWord = isZeroMissWord && Array.from(event.word?.text || '').length >= 2;
+  wordMisses = 0;
+  const qiDelta = Math.max(1, (bracer.qiGain || 1) + (loadout.qiGainMod || 0) + (isParryBreak ? 1 : 0));
   session.qi=Math.min(5,session.qi+qiDelta);
   if(loadout.healPerWord) session.hp=Math.min(100,session.hp+loadout.healPerWord);
-  session.atb=Math.max(0,session.atb-(CONFIG.knockbackAtb+(loadout.knockbackBonus||0)+(bracer.knockbackBonus||0)*2));
-  const atk = applyPlayerAttack('word', { wordObj: event.word, combo: engine.combo });
+  if (isParryBreak) {
+    session.atb = 0;
+    frozenUntil = Math.max(frozenUntil, performance.now() + 2200);
+  } else {
+    session.atb=Math.max(0,session.atb-(CONFIG.knockbackAtb+(loadout.knockbackBonus||0)+(bracer.knockbackBonus||0)*2));
+  }
+  const atk = applyPlayerAttack('word', { wordObj: event.word, combo: engine.combo, isParryBreak, isPerfectWord });
   session.atb = Math.min(20, session.atb);
   audio.playWeaponAttack(loadout.style === 'beast' ? loadout.id : loadout.style, true);
   audio.playWordComplete(engine.getComboTier());
   audio.speakText?.(event.word.text,engine.mode==='english'?'en-US':'zh-TW',{manual:false});
-  scene.playWordFinisher({wordText:event.word.text,damage:atk.finalDamage,isCrit:atk.isCrit||atk.multiHitCount>1,isParryBreak:stage.kind==='boss',comboTier:engine.getComboTier()});
-  recordQuestionHistory(profile, event.word.text, save.grade === 'english');
+  scene.playWordFinisher({wordText:event.word.text,damage:atk.finalDamage,isCrit:atk.isCrit||atk.multiHitCount>1||isParryBreak,isParryBreak:isParryBreak||stage.kind==='boss',comboTier:engine.getComboTier()});
+  if (isParryBreak) {
+    scene.spawnFloatingText(scene.enemyBaseX, scene.enemyBaseY - 175, `⚡ 看破破綻！反擊 -${atk.finalDamage}`, '#ffd166', 22);
+  } else if (isPerfectWord) {
+    scene.spawnFloatingText(scene.heroBaseX, scene.heroBaseY - 155, '✨ 行雲流水 +15%', '#72efdd', 19);
+  }
+  recordQuestionHistory(profile, event.word.text, engine.mode === 'english');
+  recordDailyProgress(save, datestring(), { words: 1, perfectWords: isZeroMissWord ? 1 : 0 });
+  if (save.hero === 'mu') {
+    const bondRes = addBeastBondExp(save, save.beast, 12);
+    if (bondRes.leveledUp) {
+      notify(`🐾 靈獸【${getBeast().name}】與你心意相通，羈絆升至 Lv.${bondRes.level}（${bondRes.title}）！`);
+    }
+  }
   if (session.enemyHp <= 0) {
     finish();
     return;
@@ -720,7 +880,8 @@ engine.on('wordComplete',event=>{
   engine.active=true; render(); rememberSession();
   if(!(event.combo>=5&&event.combo%5===0)){
     const phaseName = stage.kind === 'boss' ? `${bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0).name} · ` : '';
-    notify(`${phaseName}造成 ${atk.finalDamage} 傷害（對手剩餘 ${session.enemyHp} 氣血）`);
+    const bonusLabel = isParryBreak ? '⚡看破破綻反擊！' : isPerfectWord ? '✨行雲流水！' : '';
+    notify(`${bonusLabel}${phaseName}造成 ${atk.finalDamage} 傷害（對手剩餘 ${session.enemyHp} 氣血）`);
   }
 });
 for(const event of ['nextChar','nextSymbol']) engine.on(event,()=>{render();rememberSession();});
@@ -735,6 +896,17 @@ document.addEventListener('click',event=>{
     return;
   }
   if(button.dataset.shopTab){shop(button.dataset.shopTab);return;}
+  if(button.dataset.feedBeast){
+    const res = feedSpiritBeast(save, button.dataset.feedBeast, 60);
+    if (res.ok) {
+      persist(); setupScene();
+      const back = resumeView; shop(shopTab); resumeView = back;
+      notify(`🍖 餵食靈果成功！靈獸羈絆升至 Lv.${res.bond.level}（${res.bond.title}）！`);
+    } else {
+      notify('銅錢不足或靈獸已達最高羈絆等級。');
+    }
+    return;
+  }
   if(button.dataset.buySlot){
     const slot=button.dataset.buySlot,id=button.dataset.buyId;
     const pool=slot==='beast'?SPIRIT_BEASTS:slot==='weapon'?ADVENTURE_WEAPONS:slot==='bracer'?ADVENTURE_BRACERS:ADVENTURE_ARMORS;
@@ -754,6 +926,61 @@ document.addEventListener('click',event=>{
   if(action==='continue'){if(profile.stage===30&&!profile.session)footprints();else begin();}
   if(action==='start')start();
   if(action==='home')home();
+  if(action==='footprints')footprints();
+  if(action==='custom-words')customWordsModal();
+  if(action==='weak-dojo')weakDojoModal();
+  if(action==='dict-lookup'){
+    const q = ($('dict-lookup-input')?.value || '').trim();
+    const out = $('dict-lookup-result');
+    if (!out) return;
+    if (!q) { out.textContent = '請先輸入欲查詢的國字（如：樂、行）。'; return; }
+    const chars = Array.from(q);
+    const lines = chars.map(ch => {
+      const readings = getCharacterReadings(ch);
+      if (!readings.length) return `「${escape(ch)}」：查無字典讀音`;
+      return `「<strong>${escape(ch)}</strong>」→ ` + readings.map(rd => {
+        const ex = getDictionaryUsage(ch, rd);
+        return `<code>${escape(ch)}=${escape(rd)}</code>${ex.length ? `（${escape(ex.slice(0, 3).join('、'))}）` : ''}`;
+      }).join(' ｜ ');
+    });
+    out.innerHTML = lines.join('<br>');
+    return;
+  }
+  if(action==='save-custom-only'||action==='save-custom-play'){
+    const rawVal = ($('custom-raw-input')?.value || '').trim();
+    const parsed = parseAdventureCustomWords(rawVal);
+    if (parsed.words.length === 0) {
+      notify(parsed.skipped.length ? `需補注音：${parsed.skipped[0]}` : '請至少輸入 1 個有效的中文字詞或英文單字！');
+      return;
+    }
+    save.customRaw = rawVal;
+    if (action === 'save-custom-play') {
+      save.grade = 'custom';
+      profile = getProfile(save);
+      profile.session = null;
+      persist();
+      notify(`📜 已載入 ${parsed.words.length} 組自訂聯絡簿詞庫，準備出戰！`);
+      begin(false);
+    } else {
+      if (save.grade === 'custom') profile.session = null;
+      persist();
+      notify(`💾 已儲存 ${parsed.words.length} 組自訂聯絡簿詞庫！`);
+      customWordsModal();
+    }
+    return;
+  }
+  if(action==='start-weak-drill'){
+    begin(false, Math.min(profile.stage || 0, 29), true);
+    return;
+  }
+  if(action==='clear-weak-log'){
+    profile.weak = {};
+    profile.weakSymbols = {};
+    persist();
+    notify('🧹 已清空錯題與易錯鍵位紀錄！');
+    weakDojoModal();
+    return;
+  }
   if(action==='shop')shop(shopTab);
   if(action==='settings')settings();
   if(action==='return'){if(resumeView==='battle'){audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}else home();}

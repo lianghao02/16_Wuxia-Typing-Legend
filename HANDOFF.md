@@ -154,28 +154,29 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 
 ## 驗證結果 (Validation)
 ### 已執行測試與結果
-- `npm test`：**62／62 通過**（既有 53 項含 `v2.1.0` RPG／題庫循環防重 ＋ 8 項 `tests/battleAnimation.test.js` ＋ 1 項全 30 關統一 RPG 氣血制與整題結算／單字壓制蓄力測試）。`git diff --check` 通過。
+- `npm test`：**63／63 通過**（既有 53 項含 `v2.1.0` RPG／題庫循環防重 ＋ 8 項 `tests/battleAnimation.test.js` ＋ 1 項全 30 關統一 RPG 氣血制與整題結算／單字壓制蓄力測試 ＋ 1 項教育性／遊戲性／黏著度六大深化機制整合測試）。`git diff --check` 通過。
 - `python scripts/validate_animation_assets.py`（Python 3.13.5 + Pillow 11.2.1）：`checkedFiles: 117`、`fileValidationPassed: true`、`errors: []`、`missingRequiredFrames: []`、`unapprovedFrames: []`、`phaseAApproved: true`。
 - 預覽頁實測（Playwright 瀏覽器）：
   - `assets/animations/preview.html`：19 組動作組別與 Canvas（`360×480`）正常載入，JS Runtime Error 0。
   - `assets/animations/battle-preview.html`：執行「驗證全部 76 姿態」回報 `通過：正式 Canvas 已繪製全部 19 組、76 張姿態；未發現漏圖。`；執行「快速 50 次攻擊」與「減少動態（蒼狼組）」均正常運作，JS Runtime Error 0。
-- 正式遊戲 `adventure.html` 實測與全關卡氣血／四字詞結算修正：
-  - 全部 30 關統一改為 RPG 氣血對決制（`isCombat: true`），移除前 3 關固定答滿 10 題的舊規則。
-  - 四字詞與長句改為「整題完成（`wordComplete`）才一次出招扣除敵人血量」，單字完成（`charComplete`）改為聚氣並擊退敵方蓄力（`18%+`）與短暫緩衝，消除四字詞打到第 2、3 字提前扣敵人血量或被敵人滿氣偷打的問題。
+- 正式遊戲 `adventure.html` 實測與六大深化機制：
+  - 全部 30 關統一改為 RPG 氣血對決制（`isCombat: true`），四字詞與長句改為「整題完成（`wordComplete`）才一次出招扣除敵人血量」，單字完成（`charComplete`）改為聚氣並擊退敵方蓄力（`18%+`）與短暫緩衝。
+  - **教育性**：接入「📜 聯絡簿自訂詞庫」（`parseAdventureCustomWords` 容錯解析＋教育部字典字音速查＋`custom` 獨立進度）、補齊 2～4 字詞語與成語延伸例詞提示（`getWordUsageHint`）、新增「📖 錯題墨寶閣」（易錯注音／字母鍵位與手指提示＋一鍵「⚔️ 錯題掃除特訓」）。
+  - **遊戲性**：新增「⚡ 看破破綻」（對手蓄力 `>=75%` 危急瞬間完成整題觸發 `1.35x` 傷害、蓄力歸零、定身 2.2 秒與額外 `+1` 內力）、「✨ 行雲流水」（多字詞 `0` 失誤完成觸發 `1.15x` 傷害），以及全破前隨時開放「🗺️ 選關（江湖足跡）」與每關最高印章評價永久保存。
+  - **黏著度**：首頁新增「🔥 連續修煉天數」與「📅 今日三項江湖懸賞任務」（自動發放共 `+100 銅錢`），以及馴獸師「🐾 靈獸羈絆養成（Lv.1～Lv.5，出戰累積經驗或於客棧花 60 銅錢餵食靈果升階，每階靈獸攻擊力 `+8%`）」。
 ### 尚未驗證項目
 沒有逐關人工遊玩全部三十關；全章／年級流程由既有測試覆蓋。
 ### 已知風險 (Known Risks)
 四張離散姿態是方案 B 的有限格數動畫，不是骨架動畫；後續新增素材仍需實際檢視後才可標記核准。不要將早期候選誤接入正式索引。
 
 ## Git 狀態
-- Commit：已提交並推送至 `origin/master`。
-- Push：是（`origin/master`）。
+- Commit：已提交並推送至 `origin/master` 與 `origin/feat/jianghu-adventure`。
+- Push：是（`origin/master`、`origin/feat/jianghu-adventure`）。
 - Working Tree：Clean。
 - Branch：master。
 
 ## 下一步建議動作 (Next Recommended Action)
-重新整理瀏覽器頁面即可體驗全部 30 關統一 RPG 扣血制與整題完成出招機制。
+重新整理瀏覽器頁面即可體驗「教育性、遊戲性、黏著度」六大深化功能。
 
 ## 發布狀態 (Release Status)
-`v2.1.0` 已正式提交並推送至 `origin/master`。
-
+`v2.1.0` 與六大深化功能已正式提交並推送至 GitHub。

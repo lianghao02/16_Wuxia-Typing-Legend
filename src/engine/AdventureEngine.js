@@ -319,6 +319,138 @@ export function stageHazard(stage) {
   return null;
 }
 
+export const DAILY_QUEST_DEFS = [
+  { id: 'q_stage', title: '勤學初試', desc: '今日完成 1 場關卡', field: 'stages', target: 1, reward: 25 },
+  { id: 'q_words', title: '劍氣連綿', desc: '今日累計打完 15 題', field: 'words', target: 15, reward: 35 },
+  { id: 'q_perfect', title: '行雲流水', desc: '今日達成 5 次零失誤破題', field: 'perfects', target: 5, reward: 40 }
+];
+
+export const BEAST_BOND_TITLES = {
+  1: '初識靈伴',
+  2: '同行夥伴',
+  3: '默契靈獸',
+  4: '生死相隨',
+  5: '護主神獸'
+};
+
+export function getBeastBond(save, beastId = save?.beast || 'beast_dog') {
+  const map = save?.beastBonds || {};
+  const entry = map[beastId] || { level: 1, exp: 0 };
+  const level = Math.min(5, Math.max(1, Number(entry.level) || 1));
+  const exp = Math.max(0, Number(entry.exp) || 0);
+  const nextExp = level >= 5 ? 0 : level * 50;
+  const atkBonusRatio = Number(((level - 1) * 0.08).toFixed(2));
+  const mult = Number((1 + atkBonusRatio).toFixed(2));
+  return {
+    beastId,
+    level,
+    exp,
+    nextExp,
+    title: BEAST_BOND_TITLES[level] || '初識靈伴',
+    atkBonusRatio,
+    mult
+  };
+}
+
+export function addBeastBondExp(save, beastId = save?.beast || 'beast_dog', expGain = 12) {
+  if (!save || !beastId) return { leveledUp: false, level: 1, title: BEAST_BOND_TITLES[1] };
+  save.beastBonds ||= {};
+  const cur = getBeastBond(save, beastId);
+  if (cur.level >= 5) {
+    save.beastBonds[beastId] = { level: 5, exp: 0 };
+    return { leveledUp: false, level: 5, title: BEAST_BOND_TITLES[5] };
+  }
+  let level = cur.level;
+  let exp = cur.exp + Math.max(0, Number(expGain) || 0);
+  let leveledUp = false;
+  while (level < 5 && exp >= level * 50) {
+    exp -= level * 50;
+    level++;
+    leveledUp = true;
+  }
+  if (level >= 5) exp = 0;
+  save.beastBonds[beastId] = { level, exp };
+  return { leveledUp, level, exp, title: BEAST_BOND_TITLES[level] };
+}
+
+export function feedSpiritBeast(save, beastId = save?.beast || 'beast_dog', cost = 60) {
+  if (!save || !beastId) return { ok: false };
+  const cur = getBeastBond(save, beastId);
+  if (cur.level >= 5 || (save.coins || 0) < cost) return { ok: false, bond: cur };
+  save.coins -= cost;
+  addBeastBondExp(save, beastId, cur.level * 50);
+  return { ok: true, bond: getBeastBond(save, beastId) };
+}
+
+export function getSealForStats(stats = {}) {
+  const acc = Number(stats.accuracy) ?? 100;
+  const combo = Number(stats.maxCombo) ?? 0;
+  if (acc >= 95 && combo >= 10) return '神乎其技';
+  if (acc >= 85) return '爐火純青';
+  return '勤學苦練';
+}
+
+const SEAL_RANK = { 勤學苦練: 1, 爐火純青: 2, 神乎其技: 3 };
+
+export function pickBetterSeal(prevSeal, nextSeal) {
+  if (!prevSeal) return nextSeal || '勤學苦練';
+  return (SEAL_RANK[nextSeal] || 0) >= (SEAL_RANK[prevSeal] || 0) ? nextSeal : prevSeal;
+}
+
+function isNextCalendarDay(prevDateStr, curDateStr) {
+  if (!prevDateStr || !curDateStr || prevDateStr === curDateStr) return false;
+  const p = prevDateStr.split('-').map(Number);
+  const c = curDateStr.split('-').map(Number);
+  if (p.length !== 3 || c.length !== 3) return false;
+  const d1 = Date.UTC(p[0], p[1] - 1, p[2]);
+  const d2 = Date.UTC(c[0], c[1] - 1, c[2]);
+  return Math.round((d2 - d1) / 86400000) === 1;
+}
+
+export function ensureDailyState(save, dateStr) {
+  save.streak ||= { count: 0, lastDate: '' };
+  save.dailyQuests ||= { date: dateStr || '', progress: { stages: 0, words: 0, perfects: 0 }, claimed: {} };
+  if (dateStr && save.dailyQuests.date !== dateStr) {
+    save.dailyQuests = {
+      date: dateStr,
+      progress: { stages: 0, words: 0, perfects: 0 },
+      claimed: {}
+    };
+  }
+  return save.dailyQuests;
+}
+
+export function recordDailyProgress(save, dateStr, opts = {}) {
+  if (!save) return [];
+  const dq = ensureDailyState(save, dateStr);
+  if (dateStr && save.streak.lastDate !== dateStr) {
+    if (isNextCalendarDay(save.streak.lastDate, dateStr)) {
+      save.streak.count = (save.streak.count || 0) + 1;
+    } else {
+      save.streak.count = 1;
+    }
+    save.streak.lastDate = dateStr;
+  } else if (!save.streak.count) {
+    save.streak.count = 1;
+    save.streak.lastDate = dateStr || 'today';
+  }
+  const sDelta = opts.stagesDelta ?? opts.stages ?? 0;
+  const wDelta = opts.wordsDelta ?? opts.words ?? 0;
+  const pDelta = opts.perfectsDelta ?? opts.perfectWords ?? 0;
+  dq.progress.stages = (dq.progress.stages || 0) + Math.max(0, Number(sDelta) || 0);
+  dq.progress.words = (dq.progress.words || 0) + Math.max(0, Number(wDelta) || 0);
+  dq.progress.perfects = (dq.progress.perfects || 0) + Math.max(0, Number(pDelta) || 0);
+  const newlyClaimed = [];
+  for (const def of DAILY_QUEST_DEFS) {
+    if (!dq.claimed[def.id] && (dq.progress[def.field] || 0) >= def.target) {
+      dq.claimed[def.id] = true;
+      save.coins = (save.coins || 0) + def.reward;
+      newlyClaimed.push(def);
+    }
+  }
+  return newlyClaimed;
+}
+
 export function newAdventure(legacy = {}) {
   const rawHero = legacy.hero || legacy.heroId;
   const hero = ['yun', 'su', 'mu'].includes(rawHero) ? rawHero : 'yun';
@@ -336,9 +468,17 @@ export function newAdventure(legacy = {}) {
     beast: legacy.beast || legacy.equippedBeastId || 'beast_dog',
     owned: [...new Set(['wood_sword', 'linen_armor', ...(legacy.owned || legacy.ownedWeapons || [])])],
     ownedBeasts: [...new Set(['beast_dog', ...(legacy.ownedBeasts || [])])],
+    beastBonds: legacy.beastBonds && typeof legacy.beastBonds === 'object'
+      ? { ...legacy.beastBonds }
+      : { beast_dog: { level: 1, exp: 0 }, beast_eagle: { level: 1, exp: 0 }, beast_toad: { level: 1, exp: 0 }, beast_wolf: { level: 1, exp: 0 } },
     bracer: legacy.bracer || null,
     armor: legacy.armor || 'linen_armor',
     potions: legacy.potions ? { ...legacy.potions } : { heal_potion: 1, antidote_potion: 1 },
+    customRaw: legacy.customRaw || legacy.customVocabularyRaw || '小橋, 流水, 行俠仗義, 自強不息, 見義勇為, 一氣呵成',
+    streak: legacy.streak && typeof legacy.streak === 'object' ? { ...legacy.streak } : { count: 0, lastDate: '' },
+    dailyQuests: legacy.dailyQuests && typeof legacy.dailyQuests === 'object'
+      ? { ...legacy.dailyQuests }
+      : { date: '', progress: { stages: 0, words: 0, perfects: 0 }, claimed: {} },
     keyboard: legacy.keyboard !== false,
     muted,
     speech,
@@ -360,6 +500,10 @@ export function migrateAdventureSave(raw) {
   base.armor ||= 'linen_armor';
   base.beast ||= 'beast_dog';
   base.potions ||= { heal_potion: 1, antidote_potion: 1 };
+  base.customRaw ||= '小橋, 流水, 行俠仗義, 自強不息, 見義勇為, 一氣呵成';
+  base.beastBonds ||= { beast_dog: { level: 1, exp: 0 }, beast_eagle: { level: 1, exp: 0 }, beast_toad: { level: 1, exp: 0 }, beast_wolf: { level: 1, exp: 0 } };
+  base.streak ||= { count: 0, lastDate: '' };
+  base.dailyQuests ||= { date: '', progress: { stages: 0, words: 0, perfects: 0 }, claimed: {} };
   if (base.profiles && typeof base.profiles === 'object') {
     for (const [gradeKey, prof] of Object.entries(base.profiles)) {
       if (!prof || typeof prof !== 'object') continue;
@@ -369,6 +513,7 @@ export function migrateAdventureSave(raw) {
       prof.recentEn ||= gradeKey === 'english' ? [...prof.recent] : [];
       prof.practiced ||= {};
       prof.weak ||= {};
+      prof.weakSymbols ||= {};
       prof.daily ||= {};
     }
   }
@@ -385,6 +530,7 @@ export function getProfile(save) {
     recentEn: [],
     practiced: {},
     weak: {},
+    weakSymbols: {},
     session: null,
     daily: {}
   };
@@ -394,13 +540,21 @@ export function getProfile(save) {
   p.recentEn ||= save.grade === 'english' ? [...p.recent] : [];
   p.practiced ||= {};
   p.weak ||= {};
+  p.weakSymbols ||= {};
   p.daily ||= {};
   return p;
 }
 
 export function getActiveLoadout(save) {
   if (save?.hero === 'mu') {
-    return SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BEASTS[0];
+    const beast = SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BEASTS[0];
+    const bond = getBeastBond(save, beast.id);
+    return {
+      ...beast,
+      atk: Math.round(beast.atk * (1 + bond.atkBonusRatio)),
+      bondLevel: bond.level,
+      bondTitle: bond.title
+    };
   }
   return ADVENTURE_WEAPONS.find(w => w.id === save?.weapon) || ADVENTURE_WEAPONS[0];
 }
@@ -472,7 +626,9 @@ export function calculateAttackDamage({
   enemyHp = 100,
   enemyMaxHp = 100,
   enemyPoisonTurns = 0,
-  enemyPoisoned = false
+  enemyPoisoned = false,
+  isParryBreak = false,
+  isPerfectWord = false
 } = {}) {
   const mode = actionType || triggerType || 'word';
   const resolvedText = wordObj?.text ?? wordText ?? charObj?.char ?? '';
@@ -599,7 +755,10 @@ export function calculateAttackDamage({
 
   // 刀系詞語爆發加成
   const schoolMult = effectiveChars >= 2 && item.wordBurstMult ? item.wordBurstMult : 1.0;
-  const preCombo = baseWord * schoolMult;
+  // 看破破綻（敵人蓄力 >=75% 危急瞬間完成整題 -> 1.35x）與行雲流水（多字詞零失誤 -> 1.15x）
+  const parryMult = isParryBreak ? 1.35 : 1.0;
+  const perfectMult = isPerfectWord && rawLen >= 2 ? 1.15 : 1.0;
+  const preCombo = baseWord * schoolMult * parryMult * perfectMult;
   const withCombo = preCombo * comboMult * gradeScale;
   const primaryDamage = Math.max(1, Math.round(withCombo * (1 - effectiveDef)));
 
@@ -621,7 +780,7 @@ export function calculateAttackDamage({
   }
 
   const totalDamage = primaryDamage + multiHitDamage + poisonDamage;
-  const knockbackAtb = CONFIG.knockbackAtb + 15 + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0) * 2;
+  const knockbackAtb = isParryBreak ? 100 : (CONFIG.knockbackAtb + 15 + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0) * 2);
   const lenFixed = Number(lengthMultiplier.toFixed(2));
 
   return {
@@ -630,11 +789,13 @@ export function calculateAttackDamage({
     primaryDamage,
     atbBreak: knockbackAtb,
     knockbackAtb,
+    isParryBreak: Boolean(isParryBreak),
+    isPerfectWord: Boolean(isPerfectWord && rawLen >= 2),
     applyPoison: item.id === 'beast_toad',
     poisonTriggered: item.id === 'beast_toad',
     poisonTurns: item.id === 'beast_toad' ? (item.poisonTurns || 3) : Math.max(0, activePoisonTurns - 1),
     poisonDamage,
-    isCrit: combo >= 10 || isMultiHit,
+    isCrit: combo >= 10 || isMultiHit || Boolean(isParryBreak),
     isMultiHit,
     multiHitCount: isMultiHit ? 3 : 1,
     multiHitDamage,
@@ -683,22 +844,25 @@ export function awardStage(save, profile, stageId, stats, date) {
   profile.records ||= {};
   profile.daily ||= {};
   const first = !profile.records[stageId];
+  const prevRec = profile.records[stageId] || {};
+  const seal = pickBetterSeal(prevRec.seal, getSealForStats(stats));
   const loadout = getActiveLoadout(save);
   const bonus = loadout ? loadout.bonus : (save.weapon === 'xuantie_sword' ? 1.5 : save.weapon === 'qingfeng_sword' ? 1.25 : 1);
   const reward = Math.round(stage.reward * bonus);
   save.coins += reward;
   profile.records[stageId] = {
-    accuracy: stats.accuracy,
+    accuracy: Math.max(Number(prevRec.accuracy) || 0, Number(stats.accuracy) || 0),
     chars: stats.completedChars,
     words: stats.completedWords,
-    realm: stats.realm || profile.realm
+    realm: stats.realm || profile.realm,
+    seal
   };
   if (first) profile.stage = Math.max(profile.stage, Math.min(ADVENTURE_STAGES.length, stageId + 1));
   profile.session = null;
   const dailyBonus = !profile.daily[date] ? 20 : 0;
   profile.daily[date] = true;
   save.coins += dailyBonus;
-  return { reward, dailyBonus, first, ending: stageId === ADVENTURE_STAGES.length - 1 && profile.stage === ADVENTURE_STAGES.length };
+  return { reward, dailyBonus, first, seal, ending: stageId === ADVENTURE_STAGES.length - 1 && profile.stage === ADVENTURE_STAGES.length };
 }
 
 export function buyWeapon(save, weapon) {
