@@ -70,3 +70,34 @@ export function resolveDictionaryReading(text, authoredReading = null) {
   if (errors.length) throw new Error([...new Set(errors)].join('\n') + '\n格式：詞語(每字一組注音，以空白分隔)。');
   return readings;
 }
+
+/**
+ * 從教育部《國語小字典》離線索引 EXAMPLE_READINGS 中，依該年級可用字集結構化提取
+ * 具備單一明確讀音且逐字通過字典核對之 2～4 字詞語與四字成語。
+ */
+export function getGradeDictionaryExampleWords(allowedCharSet, focusCharSet, gradeLevel, maxCount = 80) {
+  const idioms = [];
+  const words = [];
+  for (const text of Object.keys(EXAMPLE_READINGS)) {
+    const chars = Array.from(text);
+    if (chars.length < 2 || chars.length > 4) continue;
+    if (!chars.every(ch => allowedCharSet.has(ch))) continue;
+    if (gradeLevel > 1 && focusCharSet?.size && !chars.some(ch => focusCharSet.has(ch))) continue;
+    const reading = getDictionaryExampleReading(text);
+    if (!reading || reading.length !== chars.length) continue;
+    if (!chars.every((ch, idx) => isDictionaryReading(ch, reading[idx]))) continue;
+    const item = {
+      text,
+      bopomofo: reading,
+      gradeLevel,
+      sourceKind: 'dictionary-example',
+      meaning: `教育部國語小字典例詞・${chars.length === 4 ? '四字詞語與成語' : '常用詞彙'}練習。`
+    };
+    if (chars.length === 4) idioms.push(item);
+    else words.push(item);
+  }
+  const targetIdioms = gradeLevel >= 3 ? Math.min(idioms.length, Math.floor(maxCount * 0.45)) : Math.min(idioms.length, 10);
+  const pickedIdioms = idioms.slice(0, targetIdioms);
+  const pickedWords = words.slice(0, Math.max(0, maxCount - pickedIdioms.length));
+  return [...pickedWords, ...pickedIdioms];
+}

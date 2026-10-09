@@ -3,7 +3,7 @@
  * 學年度、冊次與正式課名尚未附來源核對，不代表出版社正式同步題庫。
  */
 
-import { COMMON_CHAR_BOPOMOFO_MAP, MOE_MINI_METADATA } from './moeDictionary.js?v=20261007_beta2_final';
+import { COMMON_CHAR_BOPOMOFO_MAP, MOE_MINI_METADATA, getGradeDictionaryExampleWords } from './moeDictionary.js?v=20261007_beta2_final';
 import { getOriginalProseWords } from './originalProse.js?v=20261007_beta2_final';
 import { getGradeVocabulary } from './gradeVocabulary.js?v=20261007_beta2_final';
 
@@ -237,8 +237,47 @@ export const TEXTBOOK_CATALOG = {
   }
 };
 
+const gradeMixedCache = new Map();
+
+// 遊戲自編的漸進範圍，並非出版社或教育部正式年級字表。
+const gradeCommonAdditions = [
+  '家爸媽朋友手足心口人我你他她名字頭耳牙衣帽鞋床門飯米茶杯吃喝坐走玩看書筆紙大小上下左右一二三四五六七八九十天山水火木日月鳥魚花草貓狗',
+  '兄弟姐妹祖孫親兒女老幼姓身臉眼鼻舌背腿指毛襪裙褲袋枕桌椅窗房屋菜粥湯碗盤筷洗睡站跑跳笑哭唱聽說讀寫畫學校班師生課早晚午安禮謝愛幫忙陪抱問答春夏秋冬風雨雪雲星光紅黃綠藍白黑百千',
+  '肩肚皮被牆廚浴匙鍋氣晴陰冷熱暖涼晨夜海河湖溪泉池浪沙石土地林森竹葉根果種苗瓜豆稻雞鴨鵝牛羊馬兔鼠蜂蟻紫亮暗乾濕數量個位元次件本張盒串雙群隊排列年季週秒時刻點歲斤尺寸度',
+  '岩峰谷坡根枝芽蟲蝶虎龍蛇熊鹿蝦蟹貝龜萬億零層套頁圓方角邊線長短寬窄高低細厚薄輕重多滿半全少空前後內外東西南北中遠近旁間頂底首尾先末來去進退出入直斜平正反順逆快慢增減倍總均等',
+  '責任誠信尊敬勤勞勇敢耐心合作觀察探索思考理解表達規則公平珍惜資源環境保護志向理想信念堅定謙虛禮貌溫柔體貼關懷感恩寬容包涵原諒讚美鼓勵支持陪伴傾享互助團榮譽驕傲勇氣智慧知經驗方技巧練習進步成收穫夢希望未來世界平幸福健康安全衛生整潔運動休息睡眠食營均衡閱讀寫繪畫音藝術表演賽獎牌軍掌聲采笑眼淚記憶景旅險戰蹟寶祕密務守護英雄俠客江湖武林門派劍刀槍輕功內力真印書墨竹簡章',
+  '溝通協助判斷選擇比較推論證據實驗研究創意規劃目標反省改善文化歷史社會自然科學宇宙星辰銀河太陽球海洋島嶼山高原盆平沙漠冰川森林草濕生態氣候溫季節颱震嘯潮汐礦物金寶翡翠珊瑚珍珠琥珀琉璃陶瓷絲綢錦緞書水墨丹青詩詞歌賦琴棋畫經典哲學科技術發明造邏輯推理析歸納設驗證統計圖表據網路資訊位人工智慧環境永續約能源循再公民社律義道德修品格胸懷視野局界宗師恆'
+];
+
+export function getGradeCommonWords(gradeLevel) {
+  const characters = new Set(Array.from(gradeCommonAdditions.slice(0, gradeLevel).join('')));
+  return [...characters].filter(character => COMMON_CHAR_BOPOMOFO_MAP[character]).map(character => ({
+    text: character, bopomofo: [COMMON_CHAR_BOPOMOFO_MAP[character]], gradeLevel,
+    sourceKind: 'dictionary-practice', meaning: '教育部國語小字典字音・遊戲自編年級練習。'
+  }));
+}
+
+export function getGradeDictionaryExamples(gradeLevel) {
+  const allowedChars = new Set(Array.from(gradeCommonAdditions.slice(0, gradeLevel).join('')));
+  const focusStart = Math.max(0, gradeLevel - 2);
+  const focusChars = new Set(Array.from(gradeCommonAdditions.slice(focusStart, gradeLevel).join('')));
+  for (let g = 1; g <= gradeLevel; g++) {
+    for (const item of [...getGradeVocabulary(g), ...getOriginalProseWords(g)]) {
+      for (const ch of Array.from(item.text)) {
+        allowedChars.add(ch);
+        if (g >= focusStart + 1) focusChars.add(ch);
+      }
+    }
+  }
+  return getGradeDictionaryExampleWords(allowedChars, focusChars, gradeLevel, 120);
+}
+
 export function getGradeMixedWords(gradeLevel) {
+  if (gradeMixedCache.has(gradeLevel)) {
+    return [...gradeMixedCache.get(gradeLevel)];
+  }
   const words = new Map();
+  const seenTexts = new Set();
   for (const publisherId of ['knsh', 'hanlin', 'nani']) {
     const pub = TEXTBOOK_CATALOG[publisherId];
     for (const grade of pub.grades.filter((item) => item.gradeId.startsWith(`g${gradeLevel}_`))) {
@@ -248,41 +287,42 @@ export function getGradeMixedWords(gradeLevel) {
           const item = words.get(key) || { ...word, gradeLevel, sourceKind: 'practice-example', sourceRefs: [] };
           item.sourceRefs.push({ publisherId, gradeId: grade.gradeId, lessonId: lesson.lessonId });
           words.set(key, item);
+          seenTexts.add(word.text);
         }
       }
     }
   }
   for (const word of getOriginalProseWords(gradeLevel)) {
     const key = JSON.stringify([word.text, word.bopomofo]);
-    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+    if (!words.has(key) && !seenTexts.has(word.text)) {
+      words.set(key, { ...word, sourceRefs: [] });
+      seenTexts.add(word.text);
+    }
   }
   for (const word of getGradeCommonWords(gradeLevel)) {
     const key = JSON.stringify([word.text, word.bopomofo]);
-    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+    if (!words.has(key) && !seenTexts.has(word.text)) {
+      words.set(key, { ...word, sourceRefs: [] });
+      seenTexts.add(word.text);
+    }
   }
   for (const word of getGradeVocabulary(gradeLevel)) {
     const key = JSON.stringify([word.text, word.bopomofo]);
-    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+    if (!words.has(key) && !seenTexts.has(word.text)) {
+      words.set(key, { ...word, sourceRefs: [] });
+      seenTexts.add(word.text);
+    }
   }
-  return [...words.values()];
-}
-
-// 遊戲自編的漸進範圍，並非出版社或教育部正式年級字表。
-const gradeCommonAdditions = [
-  '家爸媽朋友手足心口人我你他她名字頭耳牙衣帽鞋床門飯米茶杯吃喝坐走玩看書筆紙大小上下左右一二三四五六七八九十天山水火木日月鳥魚花草貓狗',
-  '兄弟姐妹祖孫親兒女老幼姓身臉眼鼻舌背腿指毛襪裙褲袋枕桌椅窗房屋菜粥湯碗盤筷洗睡站跑跳笑哭唱聽說讀寫畫學校班師生課早晚午安禮謝愛幫忙陪抱問答春夏秋冬風雨雪雲星光紅黃綠藍白黑百千',
-  '肩肚皮被牆廚浴匙鍋氣晴陰冷熱暖涼晨夜海河湖溪泉池浪沙石土地林森竹葉根果種苗瓜豆稻雞鴨鵝牛羊馬兔鼠蜂蟻紫亮暗乾濕數量個位元次件本張盒串雙群隊排列年季週秒時刻點歲斤尺寸度',
-  '岩峰谷坡根枝芽蟲蝶虎龍蛇熊鹿蝦蟹貝龜萬億零層套頁圓方角邊線長短寬窄高低細厚薄輕重多滿半全少空前後內外東西南北中遠近旁間頂底首尾先末來去進退出入直斜平正反順逆快慢增減倍總均等',
-  '責任誠信尊敬勤勞勇敢耐心合作觀察探索思考理解表達規則公平珍惜資源環境保護',
-  '溝通協助判斷選擇比較推論證據實驗研究創意規劃目標反省改善文化歷史社會自然科學'
-];
-
-export function getGradeCommonWords(gradeLevel) {
-  const characters = new Set(Array.from(gradeCommonAdditions.slice(0, gradeLevel).join('')));
-  return [...characters].filter(character => COMMON_CHAR_BOPOMOFO_MAP[character]).map(character => ({
-    text: character, bopomofo: [COMMON_CHAR_BOPOMOFO_MAP[character]], gradeLevel,
-    sourceKind: 'dictionary-practice', meaning: '教育部國語小字典字音・遊戲自編年級練習。'
-  }));
+  for (const word of getGradeDictionaryExamples(gradeLevel)) {
+    const key = JSON.stringify([word.text, word.bopomofo]);
+    if (!words.has(key) && !seenTexts.has(word.text)) {
+      words.set(key, { ...word, sourceRefs: [] });
+      seenTexts.add(word.text);
+    }
+  }
+  const result = [...words.values()];
+  gradeMixedCache.set(gradeLevel, result);
+  return [...result];
 }
 
 TEXTBOOK_CATALOG.mixed = {

@@ -3,63 +3,72 @@
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：master
-- **Commit SHA**：836bf62（發布前基準；最新提交以 Git 歷史為準）
+- **Commit SHA**：bc48244（v2.1.0 開發前基準；最新提交以 Git 歷史為準）
 - **Skill Version**：v1.0.0
-- **Task Type**：RELEASE / HANDOFF
+- **Task Type**：IMPROVE / HANDOFF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
 
 ## 目前狀態
-可交付並已正式發布 `v2.0.0`（文印江湖六章冒險、刀槍劍三流派與屬性狀態正式版）。已將新版「文印江湖」設為預設首頁 `index.html`（同時保留 `adventure.html` 相容入口，原版 v1.0 移至 `classic.html`），並將 `feat/jianghu-adventure` 合併至 `master` 主分支發布至 GitHub Pages 及 GitHub Release `v2.0.0`。
+已完成 `v2.1.0`「RPG 遊戲深化」全六階段實作、12 張 v5 新國風水墨透明 RGBA 素材生成，以及離線題庫深化（教育部《國語小字典》例詞與成語分年級自動消歧入庫、1～6 年級常用字與短句擴充、英文題庫擴充至 300 題、完整題庫循環防重機制），53／53 單元測試全數通過。
 
 ## 本輪目標
-將 `feat/jianghu-adventure` 新分支升版為正式版 `v2.0.0`，設為預設首頁 `index.html`，合併至 `master` 主分支並建立 GitHub Release，同時連動更新 `13_Project-Hub` 展示卡片與說明專頁。
+依據《武俠打字傳》RPG 遊戲深化修訂計畫（`IMPLEMENTATION_PLAN.md`）與題庫架構診斷建議，在不更換原生 Canvas 2D 架構與不依賴外部即時連網 API 的前提下，完成：
+1. 真實 RPG 血量與可追蹤傷害系統（`calculateAttackDamage`、平方根長度公平曲線、Boss 依 HP 比例三階段與跨階段跳轉保護）。
+2. 動態題數補題與**完整題庫循環防重**（同場禁重、依累計練習次數 `0 -> 1 -> 2` 結晶分層確保全題庫用完一輪前 0 重複、中英獨立近 60 題排除、20% 錯題複習 `isReview` 標記與小題庫自動降級）。
+3. 離線題庫擴充與字典活化：
+   - 從已內建的教育部《國語小字典》離線索引（`moeMiniIndex.js` 24,219 筆例詞）結構化提取符合各年級字集且讀音明確的 2～4 字例詞與四字成語（每學年新增約 116～120 詞）。
+   - 擴充 1～4 年級 5 字以上短句（每學年由 10 句擴充至 22 句）及 5～6 年級常用單字池，使 1～6 年級總題量提升至 224～700 題／年級。
+   - 擴充英文題庫（`src/data/practice.js`）由 90 題提升至 **300 題**（初階 120 單字、中階 100 生活單字、高階 80 短句）。
+4. 劍／刀／槍三流派差異化與新兵器擴充（`iron_spear`、`dragon_saber`）。
+5. 第三角色「馴獸師・林牧風（`mu`）」與四種靈獸（追風靈犬、穿雲靈鷹、碧玉毒蟾、嘯月蒼狼）及客棧「靈獸」專頁切換。
+6. 五大情境 BGM（首頁、一般戰鬥、首領戰、客棧、劇情）、流派／靈獸專屬音效、智慧朗讀優先權（長句不自動硬念、防截斷）與四項獨立音訊設定。
+7. 六章三十關敵人血量防禦平衡、年級傷害補償係數與 `v2.0.0` 存檔無損自動遷移（`migrateAdventureSave`）。
 
 ## 基準與已確認事實 (Baseline & Confirmed Facts)
-- 預設首頁 `index.html` 與相容入口 `adventure.html` 皆指向 `v2.0.0` 文印江湖新版；原版 v1.0 保留於 `classic.html`。
-- 使用現有字音、年級題庫、美術與 Canvas，不新增外部套件。
-- 新存檔 `wuxia_adventure_v1`；舊財產初次單向複製，保留零銅錢，不改寫原版存檔。
+- 渲染層為原生 HTML5 Canvas 2D（`src/scenes/CanvasBattleScene.js`），已修正 `AGENTS.md` 中過時的 Phaser 3 描述。
+- 題庫維持 100% 離線靜態部署架構（零外部 API 依賴），直接活化專案內建之教育部《國語小字典》離線索引。
+- 戰鬥關卡（`duel`、`boss`）以敵人 HP 歸零判定勝利；非戰鬥關卡（`training`、`journey`、`event`）維持完成 10 題判定過關。
+- 舊版 `wuxia_adventure_v1` 存檔透過 `migrateAdventureSave()` 無損保留銅錢、已購裝備與關卡紀錄，並自動補齊初始靈獸 `beast_dog` 與四項音訊設定。
 
 ## 已完成 (Completed)
-- 文印江湖六章三十關、六枚文印、完整引言／結算／結局與足跡重遊。
-- 四大裝備部位（劍／刀／槍三流派兵器、護腕、防具、丹藥）與持刀／持槍全身立繪、刀罡／槍芒特效及專屬絕招。
-- 敵人毒／火／冰三屬性氣場、主角狀態全身染色與連對 2 字運功化解機制。
-- Web Speech 零體積中英發音朗讀、5／10／15 連擊水墨特效、過關朱紅印章、奇遇掉寶與本關練功小錦囊。
-- 跨螢幕響應式版面（小筆電與 125%／150% 縮放零遮擋）與 450ms 跨鍵盤前景出招演出。
-- 將新版設為預設首頁 `index.html`（原版移至 `classic.html`），更新 `package.json`、`CHANGELOG.md`、`README.md`、`docs/ADVENTURE_WORLD.md` 為 `v2.0.0`。
+- 新增 `IMPLEMENTATION_PLAN.md` 完整技術規格與驗收計畫，並同步更新 `AGENTS.md`。
+- 完成 12 張 v5 新國風水墨透明 RGBA 素材（`mu_tamer_idle_v5.png`、四靈獸全身圖、頭像與圖示、爪擊／俯衝特效）。
+- 實作 `AdventureEngine.js`、`gradeQuestionMix.js`、`AudioEngine.js`、`CanvasBattleScene.js`、`adventureWorld.js`、`weaponEffects.js`、`enemies.js` 與 `adventure.js` 全六階段功能。
+- 實作 `moeDictionary.js`（`getGradeDictionaryExampleWords`）、`gradeVocabulary.js`、`textbooks.js`、`practice.js` 與 `gradeQuestionMix.js`（`selectByCycleAndRecency` 完整題庫循環防重）。
+- 新增 `v2.1.0` 單元測試，53／53 測試全數通過。
 
 ## 異動檔案 (Changed Files)
-- `index.html`、`adventure.html`、`classic.html`（原 `index.html` 移轉）、`css/adventure.css`、`src/adventure.js`。
-- `src/data/adventureWorld.js`、`src/data/weaponEffects.js`、`src/engine/AdventureEngine.js`、`src/scenes/CanvasBattleScene.js`、`tests/adventure.test.js`。
-- `package.json`、`README.md`、`CHANGELOG.md`、`HANDOFF.md`、`docs/ADVENTURE_WORLD.md`、`docs/adventure-validation.md`。
+- `AGENTS.md`、`IMPLEMENTATION_PLAN.md`、`HANDOFF.md`、`package.json`。
+- `src/adventure.js`、`src/engine/AdventureEngine.js`、`src/engine/AudioEngine.js`、`src/scenes/CanvasBattleScene.js`。
+- `src/data/adventureWorld.js`、`src/data/enemies.js`、`src/data/gradeQuestionMix.js`、`src/data/moeDictionary.js`、`src/data/gradeVocabulary.js`、`src/data/textbooks.js`、`src/data/practice.js`、`src/data/weaponEffects.js`、`tests/adventure.test.js`。
+- `assets/characters/*_v5.png`（5 張）、`assets/icons/*_v5.png`（5 張）、`assets/effects/*_v5.png`（2 張）。
 
 ## 刻意未修改 (Do Not Do / Deliberately Omitted)
-- 不改動教育部官方字典原始資料與原版（`classic.html`）既有玩法與存檔結構。
+- 不改動教育部官方字典原始資料檔（`moeMiniIndex.js`、`moeMiniRecords.js`）、`TypingEngine.js` 大千注音核心與原版（`classic.html`）玩法。
 
 ## 尚未完成 (Remaining Work)
 - **P1 (阻斷/必須)**：無。
 - **P2 (重要/當次)**：無。
-- **P3 (改善建議/暫緩)**：持續收集實際學童遊玩回饋。
+- **P3 (改善建議/暫緩)**：依玩家要求決定是否提交 Commit 或推送至遠端分支。
 
 ## 驗證結果 (Validation)
 ### 已執行測試與結果
-- `npm test`：50／50 單元測試全數通過（含七題本三境界共 6,300 題逐鍵輸入驗證、11 組視窗尺寸與縮放淨空、四大裝備部位與毒火冰屬性特效驗證）。
-- `git diff --check`：通過（零空白與格式錯誤）。
+- `npm test`：53／53 單元測試全數通過（含既有 50 項測試與新增 `v2.1.0` RPG 傷害曲線、Boss 階段跳轉、毒蟾首領毒傷上限、四層防重動態補題、教育部離線字典例詞入庫、英文 300 題與完整題庫循環防重、馴獸師靈獸結契及 `v2.0.0` 存檔無損遷移測試）。
+- `git diff --check`：通過。
 ### 尚未驗證項目
 真實學童長期學習成效追蹤。
 ### 已知風險 (Known Risks)
 存檔保存在相同瀏覽器與網站來源之 `localStorage`。
 
 ## Git 狀態
-- Commit：已提交 `v2.0.0` 正式版並合併至 `master`。
-- Push：已同步推送 `origin/master`、`origin/feat/jianghu-adventure` 與 Tag `v2.0.0`。
-- Working Tree：Clean。
+- Commit：本輪 `v2.1.0` 變更尚在工作目錄待使用者確認後提交。
 - Branch：master。
 
 ## 下一步建議動作 (Next Recommended Action)
-直接透過正式網址 https://lianghao02.github.io/16_Wuxia-Typing-Legend/ 遊玩 `v2.0.0` 文印江湖正式版。
+確認 `v2.1.0` 實機體驗後，可提交 Commit 並發布至 GitHub Pages。
 
 ## 發布狀態 (Release Status)
-已發布 `v2.0.0` 正式版（GitHub Pages & GitHub Release：`v2.0.0`）。
+`v2.1.0` 已完成開發與完整測試驗證，待提交發布。
 
 ## 最新修復斷點：長句閱讀（2026-10-08）
 - 新版長句改同字級整句、朱紅當前字、獨立目前注音；原版不變。
@@ -101,3 +110,72 @@
   3. **Web Speech 零體積語音朗讀與 5 項監測體驗優化**：整合 `window.speechSynthesis` 中英發音朗讀、題目框 `🔊 點題目聽發音` 標籤、視窗失焦自動暫停、同字 `0.55s` 防連坐、10+ 連字護體降階緩衝、輕聲／一聲清晰標示、虛擬鍵盤按錯鍵紅光閃爍。
   4. **過關結算朱紅印章、奇遇掉寶、本關練功小錦囊與客棧金光提醒**：結算面板新增朱紅印章評價、`🎁 江湖奇遇掉寶`、`📖 本關練功小錦囊`（錯字複習＋點擊聽發音）與可買新裝備客棧金光按鈕；左上角整合隨身丹藥存量 `🧪回春×N(Alt+2)·清心×N`；優化第 4、6 章敵人 `visualType` 使每章 5 關敵人立繪 100% 不重複。
 - 驗證：50／50 單元測試全數通過；Playwright 無頭實測截圖驗證通過。`assets/ART_RULES_V2_HANDOFF.md` 與 `project-scorecard.md` 維持排除不入版控。
+---
+
+# HANDOFF｜方案 B 最新斷點（2026-10-09・Antigravity 接手複驗完成）
+
+## 核心元資料 (Metadata)
+- **Repository**：lianghao02/16_Wuxia-Typing-Legend
+- **Branch**：master
+- **Commit SHA**：6d0a65d2597a432c3b6195d9c1fb54c5f40c22bc（本輪未提交）
+- **Skill Version**：v1.0.0
+- **Task Type**：HANDOFF
+- **Local Path Hint**：16_Wuxia-Typing-Legend
+
+## 目前狀態
+Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 美術姿態與 Canvas 動畫）與前輪 `v2.1.0`（RPG 血量傷害、離線字典例詞與成語入庫、英文 300 題、完整循環防重、馴獸師與四靈獸、四大情境音訊）之聯合複驗，61／61 單元測試、117 張素材驗證與瀏覽器實機遊玩全數通過，可交付。未執行 Commit、Push 或 Release。
+
+## 本輪目標
+依 `assets/animations/INTEGRATION_GUIDE.md` 與共用 `HANDOFF.md` 接手確認現況，繼承已完成之 19 組 76 張透明姿態與 `BattlePoseAnimation`／`CanvasBattleScene`／`adventure.js` 整合成果，在不覆寫前輪 `v2.1.0` 修改、不重畫合格素材的前提下完成完整實測與交接更新。
+
+## 基準與已確認事實 (Baseline & Confirmed Facts)
+- 本機同一工作目錄已完整包含前輪 `v2.1.0` 17 個已追蹤異動、12 張 v5 圖片與方案 B 美術動畫整合（`BattlePoseAnimation.js`、`battleAnimations.js`、`tests/battleAnimation.test.js`、`assets/animations/`、`scripts/*.py`），無版本衝突或遺失。
+- 實際已有馴獸師與四靈獸；雙主角各五組正式外觀。龍刀／鐵槍透過 `animationAliases` 沿用刀／槍外觀。
+- 40 張正式人物、敵人與特效列 A 級保留，原圖 SHA-256 未變；76 張正式姿態全數 `approved: true`。
+
+## 已完成 (Completed)
+- 依使用者要求讀取 `assets/animations/INTEGRATION_GUIDE.md`、`assets/animations/PHASE_A_REVIEW.md`、`assets/animations/PHASE_B_REVIEW.md` 與共用 `HANDOFF.md`，確認同一工作目錄現況。
+- 繼承並複驗 19 組、76 張透明姿態、純視覺時鐘（`BattlePoseAnimation.js`）、優先權、快速輸入最多一筆合併、角色／靈獸同步、敵人受擊與僵直復原、勝利敗退保持、當前組別預載、同身份回退、輪廓保護與減少動態。
+- 完成 `npm test`（61／61）、`python scripts/validate_animation_assets.py`（117 張檢查通過）、`preview.html`、`battle-preview.html`（全部 19 組 76 張姿態掃描、50 次快速攻擊＋大招、減少動態）與 `adventure.html` 正式遊戲實測。
+
+## 異動檔案 (Changed Files)
+- 原有檔：`README.md`、`CHANGELOG.md`、`src/scenes/CanvasBattleScene.js`、`src/adventure.js`、`package.json`、`IMPLEMENTATION_PLAN.md`、`AGENTS.md`、前輪 `v2.1.0` 題庫與引擎模組，以及本 `HANDOFF.md` 最新區段。
+- 新檔：`src/scenes/BattlePoseAnimation.js`、`src/data/battleAnimations.js`、`tests/battleAnimation.test.js`。
+- 美術與工具：`assets/animations/`、`assets/*_v5.png`（12 張）、`scripts/import_animation_sheet.py`、`scripts/render_animation_review.py`、`scripts/validate_animation_assets.py`、`scripts/build_animation_catalog.py`。
+- 素材與驗證細節：`assets/animations/PHASE_A_REVIEW.md`、`assets/animations/PHASE_B_REVIEW.md`、`assets/animations/INTEGRATION_GUIDE.md`。
+
+## 刻意未修改 (Do Not Do / Deliberately Omitted)
+不改 `TypingEngine`、注音判定、RPG 傷害公式、Boss 階段、勝利獎勵、存檔格式、原始正式圖片、無關場景或 UI。不採用早期五張未過關候選，不重畫已驗收合格素材，未執行 `build_animation_catalog.py --approve-reviewed`。
+
+## 尚未完成 (Remaining Work)
+- **P1 (阻斷/必須)**：無。
+- **P2 (重要/當次)**：無。
+- **P3 (改善建議/暫緩)**：翻滾及其他美術翻新不在本輪；前輪 v5 的逐張原始提示詞歷史資料可後續補齊，不偽造來源。
+
+## 驗證結果 (Validation)
+### 已執行測試與結果
+- `npm test`：**61／61 通過**（既有 53 項含 `v2.1.0` RPG／題庫循環防重 ＋ 新增 8 項 `tests/battleAnimation.test.js`）。`git diff --check` 通過。
+- `python scripts/validate_animation_assets.py`（Python 3.13.5 + Pillow 11.2.1）：`checkedFiles: 117`、`fileValidationPassed: true`、`errors: []`、`missingRequiredFrames: []`、`unapprovedFrames: []`、`phaseAApproved: true`。
+- 預覽頁實測（Playwright 瀏覽器）：
+  - `assets/animations/preview.html`：19 組動作組別與 Canvas（`360×480`）正常載入，JS Runtime Error 0。
+  - `assets/animations/battle-preview.html`：執行「驗證全部 76 姿態」回報 `通過：正式 Canvas 已繪製全部 19 組、76 張姿態；未發現漏圖。`；執行「快速 50 次攻擊」與「減少動態（蒼狼組）」均正常運作，JS Runtime Error 0。
+- 正式遊戲 `adventure.html` 實測（Playwright 瀏覽器）：
+  - 雲清川英文第一關 10 題完整輸入並觸發結算（`第一道劍光 · 任務完成`）。
+  - 客棧購買並裝備 `qingfeng_sword`（青鋒劍），切換蘇映雪與 5 年級，完成中文短句（`小鳥在枝頭唱歌`、`誠實說出想法`、`勇敢面對困難`、`耐心等待花開`）與單字、觸發 `Alt+1` 大招與 `Tab` 鍵盤收合（`kbHiddenAfterTab: true`）。
+  - 切換馴獸師林牧風（`mu`）與追風靈犬（`beast_dog`）、3 年級，完成第一關 10 題並觸發結算，驗證後已還原測試 `localStorage`，JS Runtime Error 0。
+### 尚未驗證項目
+沒有逐關人工遊玩全部三十關；全章／年級流程由既有測試覆蓋。
+### 已知風險 (Known Risks)
+四張離散姿態是方案 B 的有限格數動畫，不是骨架動畫；後續新增素材仍需實際檢視後才可標記核准。不要將早期候選誤接入正式索引。
+
+## Git 狀態
+- Commit：依使用者指示更新 `README.md` 與 `CHANGELOG.md` 後提交 `v2.1.0` 並推送至 `origin/master`。
+- Push：是（`origin/master`）。
+- Working Tree：Clean。
+- Branch：master。
+
+## 下一步建議動作 (Next Recommended Action)
+`v2.1.0` 已提交並推送至 `origin/master`，GitHub Pages 將自動部署最新 `v2.1.0` 版本。
+
+## 發布狀態 (Release Status)
+`v2.1.0` 已正式提交並推送至 `origin/master`。

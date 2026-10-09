@@ -10,12 +10,27 @@ const WEAPON_EFFECTS = {
 export function getWeaponEffectProfile(weapon) {
   const base = WEAPON_EFFECTS[weapon?.tier] || WEAPON_EFFECTS[1];
   const style = weapon?.style || base.style || 'sword';
+  const beastEffectLabels = {
+    beast_dog: '靈撲',
+    beast_eagle: '鷹擊',
+    beast_toad: '毒霧',
+    beast_wolf: '狼爪'
+  };
+  const effectName =
+    beastEffectLabels[weapon?.id] ||
+    (style === 'beast'
+      ? '獸擊'
+      : style === 'saber'
+      ? '刀罡'
+      : style === 'spear'
+      ? '槍芒'
+      : '劍氣');
   return {
     ...base,
     name: weapon?.effectName || base.name,
     style,
-    effectName: style === 'saber' ? '刀罡' : style === 'spear' ? '槍芒' : '劍氣',
+    beastId: style === 'beast' ? weapon?.id : null,
+    effectName,
     color: weapon?.slashColor ?? 0xe9ecef
   };
 }
-

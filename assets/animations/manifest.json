@@ -1,0 +1,4635 @@
+{
+  "version": "scheme-b-phase-a",
+  "date": "2026-10-09",
+  "baseline": {
+    "branch": "master",
+    "commit": "6d0a65d2597a432c3b6195d9c1fb54c5f40c22bc",
+    "workingTree": "前輪v2.1.0未提交異動保留"
+  },
+  "phase": "complete",
+  "phaseAApproved": true,
+  "inventory": [
+    {
+      "path": "assets/characters/beast_dog_v5.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        205,
+        521,
+        875,
+        1181
+      ],
+      "sha256": "b983dbfb330b265742b6bd70ebad859ed34489c5b5feb49f7574f849eb1be6eb",
+      "key": "beast_dog",
+      "mode": "RGBA",
+      "alphaBounds": [
+        205,
+        521,
+        875,
+        1181
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.57,
+        "y": 0.819,
+        "scale": 0.72
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/beast_eagle_v5.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        183,
+        414,
+        896,
+        1123
+      ],
+      "sha256": "dc9b85a077dfee31a4c9368cb9da6a12d0d487d927136b4bdad0373bccdf7cd2",
+      "key": "beast_eagle",
+      "mode": "RGBA",
+      "alphaBounds": [
+        183,
+        414,
+        896,
+        1123
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.48,
+        "y": 0.779,
+        "scale": 0.78
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/beast_toad_v5.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        216,
+        615,
+        861,
+        1181
+      ],
+      "sha256": "3aefe34fb16be9797113b738dd824e32d2575db8f185155b0b80da13c0797bd9",
+      "key": "beast_toad",
+      "mode": "RGBA",
+      "alphaBounds": [
+        216,
+        615,
+        864,
+        1181
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.45,
+        "y": 0.819,
+        "scale": 0.68
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/beast_wolf_v5.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        183,
+        495,
+        896,
+        1181
+      ],
+      "sha256": "293fe1685fcbcd7659e86bd7ef13c49905d9144926fd4e4c2b4b630a30dbfea0",
+      "key": "beast_wolf",
+      "mode": "RGBA",
+      "alphaBounds": [
+        183,
+        495,
+        896,
+        1181
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.38,
+        "y": 0.819,
+        "scale": 0.8
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/mu_tamer_idle_v5.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        314,
+        202,
+        766,
+        1181
+      ],
+      "sha256": "fe7f213fa438553823759728291ad3acb75d94f5b76ea7d15eb569f67df250e9",
+      "key": "mu_tamer",
+      "mode": "RGBA",
+      "alphaBounds": [
+        314,
+        202,
+        766,
+        1181
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.51,
+        "y": 0.819,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_flame_saber_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        257,
+        369,
+        974,
+        1179
+      ],
+      "sha256": "fc842aaf43e977573a7f26877c1bb1887f2e2256c0e72a974ad934d5d700a7fd",
+      "key": "su_dragon_saber",
+      "mode": "RGBA",
+      "alphaBounds": [
+        257,
+        369,
+        974,
+        1179
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.818,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_qingfeng_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        264,
+        370,
+        883,
+        1177
+      ],
+      "sha256": "5df1851c54dad7293b057d204db04fb2142f4ea3aab66ec21aa51f7f3f69fba0",
+      "key": "su_qingfeng_sword",
+      "mode": "RGBA",
+      "alphaBounds": [
+        166,
+        293,
+        914,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.817,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_thunder_spear_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        214,
+        319,
+        1028,
+        1177
+      ],
+      "sha256": "06c99e003caa5f6b9b9ca40e600194a8f87824c0a0c15c19d8e17d98531f2d6f",
+      "key": "su_thunder_spear",
+      "mode": "RGBA",
+      "alphaBounds": [
+        214,
+        319,
+        1028,
+        1177
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.817,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_wood_block_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        244,
+        339,
+        870,
+        1174
+      ],
+      "sha256": "cc4ead4234c59a90ad339a14cf023505ea19d4851c9780354980ceccef290cde",
+      "key": "su_wood_block",
+      "mode": "RGBA",
+      "alphaBounds": [
+        208,
+        221,
+        873,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.815,
+        "scale": 0.96
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v4_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_wood_hurt_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        247,
+        368,
+        900,
+        1110
+      ],
+      "sha256": "88ca159c6c6f97e6b01406ad143fbc581052ec36fad58713a2e04580f6067f4e",
+      "key": "su_wood_hurt",
+      "mode": "RGBA",
+      "alphaBounds": [
+        179,
+        221,
+        902,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.771,
+        "scale": 1.06
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v4_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_wood_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        220,
+        333,
+        907,
+        1124
+      ],
+      "sha256": "e93c62fa3a1e28b4386d258d784a5e2e92c565f410a073c4fb4a5880ca61dc83",
+      "key": "su_wood_sword",
+      "mode": "RGBA",
+      "alphaBounds": [
+        172,
+        220,
+        909,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.781,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/su_xuantie_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        217,
+        320,
+        900,
+        1176
+      ],
+      "sha256": "4aa925b2ef7e7d59c2ea4baa26cd2b0fb49228fb42942a3cc7b5d1d683e4b0a3",
+      "key": "su_xuantie_sword",
+      "mode": "RGBA",
+      "alphaBounds": [
+        178,
+        226,
+        904,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.817,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_flame_saber_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        295,
+        293,
+        958,
+        1181
+      ],
+      "sha256": "c486254647506147149c7a7c99288b4469f3400ebbd6f806f80e0ff69d1aedfd",
+      "key": "yun_dragon_saber",
+      "mode": "RGBA",
+      "alphaBounds": [
+        295,
+        293,
+        958,
+        1181
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.819,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_qingfeng_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        296,
+        294,
+        908,
+        1181
+      ],
+      "sha256": "9b024fd2483ff7b00672c639b1a9ed7b1c83e31f262d14f6bfd02bd91cad8471",
+      "key": "yun_qingfeng_sword",
+      "mode": "RGBA",
+      "alphaBounds": [
+        169,
+        220,
+        913,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.82,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_thunder_spear_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        120,
+        329,
+        1039,
+        1202
+      ],
+      "sha256": "454780598a8c729a47fbebe1efdb6552553f8e3372fa0791fe2b9affa120d9fd",
+      "key": "yun_thunder_spear",
+      "mode": "RGBA",
+      "alphaBounds": [
+        120,
+        329,
+        1039,
+        1202
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.834,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_wood_block_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        322,
+        396,
+        889,
+        1210
+      ],
+      "sha256": "4215e2ed71ee5bdc26f9180632fbc60392e96b5568755349a6651c700f251d05",
+      "key": "yun_wood_block",
+      "mode": "RGBA",
+      "alphaBounds": [
+        166,
+        276,
+        914,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.84,
+        "scale": 1.05
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v4_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_wood_hurt_v4.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        278,
+        334,
+        901,
+        1118
+      ],
+      "sha256": "14377cc2c4901a26195d94955fe5026fd4dd2fbb3aa37b044bfb952ff1e39b40",
+      "key": "yun_wood_hurt",
+      "mode": "RGBA",
+      "alphaBounds": [
+        177,
+        221,
+        902,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.776,
+        "scale": 1.08
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v4_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_wood_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        262,
+        288,
+        852,
+        1143
+      ],
+      "sha256": "c662803295896b1ece8e8a79b6a8aea11b51aacddbe7da30919740ae5d3ac947",
+      "key": "yun_wood_sword",
+      "mode": "RGBA",
+      "alphaBounds": [
+        183,
+        220,
+        897,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.794,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/characters/yun_xuantie_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        234,
+        330,
+        853,
+        1201
+      ],
+      "sha256": "5d0e8c33a9a3386cc5a701cd2cd3ffa3e21e799b6114c3a694b5c99f740033d1",
+      "key": "yun_xuantie_sword",
+      "mode": "RGBA",
+      "alphaBounds": [
+        166,
+        262,
+        914,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.834,
+        "scale": 1.0
+      },
+      "facing": "right",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/arena_champion_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        226,
+        310,
+        894,
+        1140
+      ],
+      "sha256": "06d1948861bbd3d7b366038fcb30cb62c0923838e8108acb79c13b96bfe785ea",
+      "key": "enemy_arena",
+      "mode": "RGBA",
+      "alphaBounds": [
+        183,
+        220,
+        898,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.792,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/bandit_axes_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        190,
+        362,
+        888,
+        1096
+      ],
+      "sha256": "dcf84914b1aaf863250ef65e52a2a2e9b464c17386f116b9f2892d02db18f9d5",
+      "key": "enemy_bandit_axes",
+      "mode": "RGBA",
+      "alphaBounds": [
+        175,
+        220,
+        906,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.761,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/bandit_saber_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        184,
+        368,
+        896,
+        1105
+      ],
+      "sha256": "62f6794b16d9eace82395f9232097fa986abef65a9a44d470bed8d4c3bdc2a75",
+      "key": "enemy_bandit_saber",
+      "mode": "RGBA",
+      "alphaBounds": [
+        180,
+        220,
+        900,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.767,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/bandit_scout_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        194,
+        306,
+        838,
+        1158
+      ],
+      "sha256": "a439ade3e9f84cb9748311194ff6dc6361fe5462bc79d1bcc362a2d4f3386540",
+      "key": "enemy_bandit_scout",
+      "mode": "RGBA",
+      "alphaBounds": [
+        192,
+        220,
+        841,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.804,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/blackwind_boss_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        280,
+        255,
+        887,
+        1159
+      ],
+      "sha256": "75f2386b1e2a7f6877caff55f865209d062bc116430222ba4b81d62639f499fb",
+      "key": "enemy_boss",
+      "mode": "RGBA",
+      "alphaBounds": [
+        168,
+        220,
+        909,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.805,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/earth_puppet_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        234,
+        320,
+        871,
+        1138
+      ],
+      "sha256": "d223e9eba7ab43d4076f6c44ca69f1b0695ab7590edb0c2b6398396d5e354e78",
+      "key": "enemy_puppet",
+      "mode": "RGBA",
+      "alphaBounds": [
+        189,
+        220,
+        908,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.79,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/left_protector_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        175,
+        392,
+        903,
+        1094
+      ],
+      "sha256": "85ad631546fb0edc126f1196c390742e95888b6f11b08ee4268c3402dec053d0",
+      "key": "enemy_protector",
+      "mode": "RGBA",
+      "alphaBounds": [
+        172,
+        220,
+        909,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.76,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/straw_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        302,
+        319,
+        846,
+        1168
+      ],
+      "sha256": "0ec8c2145f3d64c739cea77ea91da59d93a2abaa4eed6405c8f06da446c9091f",
+      "key": "enemy_straw",
+      "mode": "RGBA",
+      "alphaBounds": [
+        166,
+        241,
+        914,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.5,
+        "y": 0.811,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/wood_dummy_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        405,
+        315,
+        785,
+        1116
+      ],
+      "sha256": "a6cfea8328831ac3334694f5323420e6d255490c7b0b4ba062641086692b18b4",
+      "key": "enemy_wood",
+      "mode": "RGBA",
+      "alphaBounds": [
+        193,
+        220,
+        804,
+        1209
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.52,
+        "y": 0.775,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/enemies/wudang_novice_idle_v3.png",
+      "size": [
+        1080,
+        1440
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        346,
+        267,
+        856,
+        1166
+      ],
+      "sha256": "463e9a8e83ebd917cc5c3b83c3f15710c1917dcdc3858743e966d9d6de2e7d17",
+      "key": "enemy_wudang",
+      "mode": "RGBA",
+      "alphaBounds": [
+        166,
+        223,
+        866,
+        1220
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": {
+        "x": 0.52,
+        "y": 0.81,
+        "scale": 1.0
+      },
+      "facing": "left",
+      "provenance": {
+        "record": "assets/guofeng_v3_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/beast_claw_v5.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        83,
+        87,
+        429,
+        427
+      ],
+      "sha256": "7fc5f88f193897a46321b4a0ad88904190ad49740e3d69da1a41c5ecec776b01",
+      "key": "fx_beast_claw",
+      "mode": "RGBA",
+      "alphaBounds": [
+        82,
+        84,
+        430,
+        428
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/beast_dive_v5.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        82,
+        86,
+        430,
+        425
+      ],
+      "sha256": "5b3bd75d8c6833d23e9db8ef61f881adcb2465ece1c2eea5b2c7751735c7a5c9",
+      "key": "fx_beast_dive",
+      "mode": "RGBA",
+      "alphaBounds": [
+        82,
+        86,
+        430,
+        425
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "HANDOFF.md、IMPLEMENTATION_PLAN.md",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/combo_10_thunder_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        50,
+        53,
+        462,
+        462
+      ],
+      "sha256": "3b796006a079f7db6f51e51e4443335c7733a0c1b82e24c184bb7732b4a01397",
+      "key": "fx_combo_10",
+      "mode": "RGBA",
+      "alphaBounds": [
+        40,
+        43,
+        472,
+        473
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/combo_15_dragon_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        33,
+        35,
+        483,
+        475
+      ],
+      "sha256": "1a2d012b346913988751ef15f0a28cd6629c636d903bb1ea9980cf7715a93372",
+      "key": "fx_combo_15",
+      "mode": "RGBA",
+      "alphaBounds": [
+        13,
+        16,
+        501,
+        501
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/combo_5_breeze_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        92,
+        75,
+        429,
+        422
+      ],
+      "sha256": "c0a7772fdab3ebe1aa4b8646c41c890e792199a3eeb827d5f0527dfc87472432",
+      "key": "fx_combo_5",
+      "mode": "RGBA",
+      "alphaBounds": [
+        92,
+        71,
+        435,
+        431
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/humanoid_hit_flash_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        108,
+        95,
+        422,
+        398
+      ],
+      "sha256": "c5f57b7534696ed6b3e61020c134a544cdf4ffe4ba92b067a44818733c765862",
+      "key": "fx_humanoid_hit",
+      "mode": "RGBA",
+      "alphaBounds": [
+        98,
+        87,
+        429,
+        425
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "assets/guofeng_v4_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/miss_stagger_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        65,
+        86,
+        457,
+        428
+      ],
+      "sha256": "879307a13e09de0b7a6571a5e900d0d56d22bc803f313911a00425e67007b34f",
+      "key": "fx_miss_stagger",
+      "mode": "RGBA",
+      "alphaBounds": [
+        54,
+        76,
+        458,
+        438
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/status_burn_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        37,
+        5,
+        474,
+        495
+      ],
+      "sha256": "8b6a4f69ecc6188fb255b1f5d0462ac9a5217ebf6bae8c97aba7945d693c8a22",
+      "key": "fx_status_burn",
+      "mode": "RGBA",
+      "alphaBounds": [
+        30,
+        1,
+        483,
+        501
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/status_freeze_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        46,
+        29,
+        465,
+        484
+      ],
+      "sha256": "6d2486287d63827d5f9e42bae1ae09671b7efca34455f11acd3e3fcdc86826eb",
+      "key": "fx_status_freeze",
+      "mode": "RGBA",
+      "alphaBounds": [
+        45,
+        29,
+        466,
+        485
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/status_poison_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        78,
+        36,
+        437,
+        481
+      ],
+      "sha256": "2fbefb154fddd782f0c70bbf99cbd204fa32c8e20f407090b73e03fd50e0768b",
+      "key": "fx_status_poison",
+      "mode": "RGBA",
+      "alphaBounds": [
+        74,
+        31,
+        439,
+        482
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "既有 Repository 與素材文件",
+        "generationTool": "Antigravity／AI（既有工作記錄）",
+        "promptRecorded": false
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    },
+    {
+      "path": "assets/effects/training_debris_v4.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": [
+        0,
+        255
+      ],
+      "visibleBounds": [
+        97,
+        98,
+        417,
+        398
+      ],
+      "sha256": "1c1536f7ddfb428aa7377fc5695b5a1293e1c2c839614395aa1b65b8a1e5cbec",
+      "key": "fx_training_debris",
+      "mode": "RGBA",
+      "alphaBounds": [
+        93,
+        84,
+        427,
+        427
+      ],
+      "grade": "A",
+      "action": "保留原始檔案",
+      "inspection": "已實際檢視比較圖；輪廓、配色與主體結構未見明顯不符，未因審美偏好重製。",
+      "anchor": null,
+      "facing": null,
+      "provenance": {
+        "record": "assets/guofeng_v4_sources.json",
+        "generationTool": "image_gen（既有素材文件記錄）",
+        "promptRecorded": true
+      },
+      "usage": "專案擁有人本輪授權保留／修改既有素材；公開再利用限制依 NOTICE.md，不宣告新增通用授權。"
+    }
+  ],
+  "groups": [
+    {
+      "id": "yun_wood_sword",
+      "characterId": "yun",
+      "weaponId": "wood_sword",
+      "aliases": [],
+      "reference": "assets/characters/yun_wood_idle_v3.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            832,
+            776
+          ],
+          "visibleBounds": [
+            128,
+            192,
+            661,
+            683
+          ],
+          "alphaBounds": [
+            126,
+            189,
+            664,
+            687
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46033653846153844,
+            "y": 0.8801546391752577,
+            "scale": 0.790309
+          },
+          "path": "assets/animations/poses/yun_wood_sword/windup_v1.png",
+          "sha256": "2e75da723191a26b002b91b0d04220ac40e8ddff133ed48cd9cb26336d996aa1",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_wood_sword_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            832,
+            776
+          ],
+          "visibleBounds": [
+            103,
+            176,
+            729,
+            683
+          ],
+          "alphaBounds": [
+            100,
+            170,
+            732,
+            686
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46033653846153844,
+            "y": 0.8801546391752577,
+            "scale": 0.790309
+          },
+          "path": "assets/animations/poses/yun_wood_sword/attack_v1.png",
+          "sha256": "7a1e05c8bbff53186b9caa8969041fea61f4d4d68901c231c9c935b061fec681",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_wood_sword_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            832,
+            776
+          ],
+          "visibleBounds": [
+            104,
+            127,
+            711,
+            683
+          ],
+          "alphaBounds": [
+            101,
+            123,
+            715,
+            686
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46033653846153844,
+            "y": 0.8801546391752577,
+            "scale": 0.790309
+          },
+          "path": "assets/animations/poses/yun_wood_sword/impact_v1.png",
+          "sha256": "d962e9a62c110d12d6a69f4918373a7bedfabc2e627294eb68e019e3655dff66",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_wood_sword_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            832,
+            776
+          ],
+          "visibleBounds": [
+            134,
+            100,
+            633,
+            683
+          ],
+          "alphaBounds": [
+            131,
+            95,
+            636,
+            685
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46033653846153844,
+            "y": 0.8801546391752577,
+            "scale": 0.790309
+          },
+          "path": "assets/animations/poses/yun_wood_sword/recover_v1.png",
+          "sha256": "21684493eb48792e33b18069f869525511c4e4b047f780a68e1010b84ed2dedf",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_wood_sword_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "yun_qingfeng_sword",
+      "characterId": "yun",
+      "weaponId": "qingfeng_sword",
+      "aliases": [],
+      "reference": "assets/characters/yun_qingfeng_idle_v3.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            1000,
+            787
+          ],
+          "visibleBounds": [
+            197,
+            225,
+            752,
+            693
+          ],
+          "alphaBounds": [
+            192,
+            222,
+            755,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.511,
+            "y": 0.8805590851334181,
+            "scale": 0.821644
+          },
+          "path": "assets/animations/poses/yun_qingfeng_sword/windup_v1.png",
+          "sha256": "ce97ff0369b281f3061f569c8af28301e60f547279724e07ebd76b2dab8d2542",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_qingfeng_sword_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            1000,
+            787
+          ],
+          "visibleBounds": [
+            247,
+            204,
+            876,
+            693
+          ],
+          "alphaBounds": [
+            244,
+            199,
+            880,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.511,
+            "y": 0.8805590851334181,
+            "scale": 0.821644
+          },
+          "path": "assets/animations/poses/yun_qingfeng_sword/attack_v1.png",
+          "sha256": "e167d9d172d2b7f1f47e65725bd7f87ed9909eb20203908c3550a8389c2b6dd7",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_qingfeng_sword_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            1000,
+            787
+          ],
+          "visibleBounds": [
+            123,
+            193,
+            876,
+            693
+          ],
+          "alphaBounds": [
+            120,
+            189,
+            880,
+            697
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.511,
+            "y": 0.8805590851334181,
+            "scale": 0.821644
+          },
+          "path": "assets/animations/poses/yun_qingfeng_sword/impact_v1.png",
+          "sha256": "70153f46afe363dc89de305c9a81121d14488255f8de1437fa356d456d1dea8f",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_qingfeng_sword_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            1000,
+            787
+          ],
+          "visibleBounds": [
+            296,
+            103,
+            738,
+            693
+          ],
+          "alphaBounds": [
+            291,
+            100,
+            742,
+            698
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.511,
+            "y": 0.8805590851334181,
+            "scale": 0.821644
+          },
+          "path": "assets/animations/poses/yun_qingfeng_sword/recover_v1.png",
+          "sha256": "67d10850a476e1618a7c6a15d623a2ef36aa5d96dabfe00fa91c8094720ad8fc",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_qingfeng_sword_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "yun_xuantie_sword",
+      "characterId": "yun",
+      "weaponId": "xuantie_sword",
+      "aliases": [],
+      "reference": "assets/characters/yun_xuantie_idle_v3.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            972,
+            755
+          ],
+          "visibleBounds": [
+            202,
+            95,
+            722,
+            664
+          ],
+          "alphaBounds": [
+            198,
+            92,
+            725,
+            666
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5102880658436214,
+            "y": 0.8794701986754967,
+            "scale": 0.837927
+          },
+          "path": "assets/animations/poses/yun_xuantie_sword/windup_v1.png",
+          "sha256": "ec2b252cd6903cc24fb827f56488af6caa38fde252c15cacb28141e6f2faad37",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_xuantie_sword_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            972,
+            755
+          ],
+          "visibleBounds": [
+            204,
+            199,
+            852,
+            664
+          ],
+          "alphaBounds": [
+            200,
+            195,
+            856,
+            667
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5102880658436214,
+            "y": 0.8794701986754967,
+            "scale": 0.837927
+          },
+          "path": "assets/animations/poses/yun_xuantie_sword/attack_v1.png",
+          "sha256": "4e43868891a1f9a7bbdc3438a08449589df9a6009d18e445b3bb2dbe94e2b328",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_xuantie_sword_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            972,
+            755
+          ],
+          "visibleBounds": [
+            121,
+            127,
+            843,
+            664
+          ],
+          "alphaBounds": [
+            117,
+            124,
+            847,
+            667
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5102880658436214,
+            "y": 0.8794701986754967,
+            "scale": 0.837927
+          },
+          "path": "assets/animations/poses/yun_xuantie_sword/impact_v1.png",
+          "sha256": "7e3878236f6cf814f149747aeeda5ec83d894c9b18c9a4a15fa82b3c2fee76f5",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_xuantie_sword_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            972,
+            755
+          ],
+          "visibleBounds": [
+            196,
+            119,
+            765,
+            664
+          ],
+          "alphaBounds": [
+            192,
+            116,
+            769,
+            667
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5102880658436214,
+            "y": 0.8794701986754967,
+            "scale": 0.837927
+          },
+          "path": "assets/animations/poses/yun_xuantie_sword/recover_v1.png",
+          "sha256": "23fdd52bce8978893adb9976a2903cd4f6ef8393cfbbb07c3e2aa88c942fe398",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_xuantie_sword_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "yun_flame_saber",
+      "characterId": "yun",
+      "weaponId": "flame_saber",
+      "aliases": [
+        "dragon_saber"
+      ],
+      "reference": "assets/characters/yun_flame_saber_v4.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            936,
+            761
+          ],
+          "visibleBounds": [
+            135,
+            117,
+            690,
+            670
+          ],
+          "alphaBounds": [
+            133,
+            114,
+            692,
+            675
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48824786324786323,
+            "y": 0.8804204993429697,
+            "scale": 0.823304
+          },
+          "path": "assets/animations/poses/yun_flame_saber/windup_v1.png",
+          "sha256": "80d64ed8bed872162cf65ff3ae031c25c23fd5db49d5bd757e25595bae25d183",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_flame_saber_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            936,
+            761
+          ],
+          "visibleBounds": [
+            201,
+            200,
+            820,
+            670
+          ],
+          "alphaBounds": [
+            199,
+            197,
+            823,
+            673
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48824786324786323,
+            "y": 0.8804204993429697,
+            "scale": 0.823304
+          },
+          "path": "assets/animations/poses/yun_flame_saber/attack_v1.png",
+          "sha256": "ac354df28e65b603ba6785aff24e7a93a997e2224335c3f2b8597b778f1fc64a",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_flame_saber_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            936,
+            761
+          ],
+          "visibleBounds": [
+            116,
+            138,
+            793,
+            670
+          ],
+          "alphaBounds": [
+            112,
+            133,
+            796,
+            675
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48824786324786323,
+            "y": 0.8804204993429697,
+            "scale": 0.823304
+          },
+          "path": "assets/animations/poses/yun_flame_saber/impact_v1.png",
+          "sha256": "eaf5bd46d5095c9406be83375d15c059b21246fd679d97c03246b40e530158f8",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_flame_saber_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            936,
+            761
+          ],
+          "visibleBounds": [
+            255,
+            100,
+            735,
+            670
+          ],
+          "alphaBounds": [
+            250,
+            96,
+            738,
+            674
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48824786324786323,
+            "y": 0.8804204993429697,
+            "scale": 0.823304
+          },
+          "path": "assets/animations/poses/yun_flame_saber/recover_v1.png",
+          "sha256": "d373009f48f3c5aa7f86d67e6814f787355621e7ca419bbc1631b8b06e7136eb",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_flame_saber_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "yun_thunder_spear",
+      "characterId": "yun",
+      "weaponId": "thunder_spear",
+      "aliases": [
+        "iron_spear"
+      ],
+      "reference": "assets/characters/yun_thunder_spear_v4.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            1023,
+            632
+          ],
+          "visibleBounds": [
+            163,
+            82,
+            641,
+            556
+          ],
+          "alphaBounds": [
+            160,
+            79,
+            645,
+            559
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4281524926686217,
+            "y": 0.879746835443038,
+            "scale": 0.853341
+          },
+          "path": "assets/animations/poses/yun_thunder_spear/windup_v1.png",
+          "sha256": "f6ab2eb98e7bb020d1d868ccc9edbbb8010f80389c643cfaab7f23019ec81ccf",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_thunder_spear_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            1023,
+            632
+          ],
+          "visibleBounds": [
+            219,
+            191,
+            806,
+            556
+          ],
+          "alphaBounds": [
+            215,
+            187,
+            809,
+            558
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4281524926686217,
+            "y": 0.879746835443038,
+            "scale": 0.853341
+          },
+          "path": "assets/animations/poses/yun_thunder_spear/attack_v1.png",
+          "sha256": "ffb36b2a39429c919ac309bad451a8cbcf5c007697109829f1c40008aea88074",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_thunder_spear_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            1023,
+            632
+          ],
+          "visibleBounds": [
+            178,
+            218,
+            898,
+            556
+          ],
+          "alphaBounds": [
+            175,
+            213,
+            901,
+            559
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4281524926686217,
+            "y": 0.879746835443038,
+            "scale": 0.853341
+          },
+          "path": "assets/animations/poses/yun_thunder_spear/impact_v1.png",
+          "sha256": "ef8e891bf7cb28da592407f92d6d498c8804fa109acf27c1396f8915670dcb64",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_thunder_spear_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            1023,
+            632
+          ],
+          "visibleBounds": [
+            126,
+            107,
+            595,
+            556
+          ],
+          "alphaBounds": [
+            123,
+            103,
+            598,
+            558
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4281524926686217,
+            "y": 0.879746835443038,
+            "scale": 0.853341
+          },
+          "path": "assets/animations/poses/yun_thunder_spear/recover_v1.png",
+          "sha256": "eced935f73df3d75ec78ff66e62157ee69a1f6684f945ae21dfcbaa0a250923b",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/yun_thunder_spear_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "su_wood_sword",
+      "characterId": "su",
+      "weaponId": "wood_sword",
+      "aliases": [],
+      "reference": "assets/characters/su_wood_idle_v3.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            905,
+            714
+          ],
+          "visibleBounds": [
+            112,
+            126,
+            637,
+            628
+          ],
+          "alphaBounds": [
+            109,
+            121,
+            640,
+            631
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46519337016574586,
+            "y": 0.8795518207282913,
+            "scale": 0.731724
+          },
+          "path": "assets/animations/poses/su_wood_sword/windup_v1.png",
+          "sha256": "3d2e14b718acac015aa7f125710c04178e896c32c4f19eccaf7c518dd5853b6e",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_wood_sword_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            905,
+            714
+          ],
+          "visibleBounds": [
+            154,
+            139,
+            753,
+            628
+          ],
+          "alphaBounds": [
+            151,
+            136,
+            756,
+            630
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46519337016574586,
+            "y": 0.8795518207282913,
+            "scale": 0.731724
+          },
+          "path": "assets/animations/poses/su_wood_sword/attack_v1.png",
+          "sha256": "2b19d408494660c46ab00b408be035597c41216e3c3e9efcbd05f8e9515e46ad",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_wood_sword_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            905,
+            714
+          ],
+          "visibleBounds": [
+            125,
+            117,
+            794,
+            628
+          ],
+          "alphaBounds": [
+            122,
+            114,
+            797,
+            630
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46519337016574586,
+            "y": 0.8795518207282913,
+            "scale": 0.731724
+          },
+          "path": "assets/animations/poses/su_wood_sword/impact_v1.png",
+          "sha256": "a218c502a9d0d696b68f711199a9e823d12776988f11c33badbf9b418e091170",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_wood_sword_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            905,
+            714
+          ],
+          "visibleBounds": [
+            138,
+            92,
+            592,
+            628
+          ],
+          "alphaBounds": [
+            134,
+            89,
+            595,
+            632
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.46519337016574586,
+            "y": 0.8795518207282913,
+            "scale": 0.731724
+          },
+          "path": "assets/animations/poses/su_wood_sword/recover_v1.png",
+          "sha256": "88ece419ded76f5fc93ae46c5886dc9a17c18736df500f04a37207d3ec480648",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_wood_sword_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "su_qingfeng_sword",
+      "characterId": "su",
+      "weaponId": "qingfeng_sword",
+      "aliases": [],
+      "reference": "assets/characters/su_qingfeng_idle_v3.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            910,
+            736
+          ],
+          "visibleBounds": [
+            124,
+            148,
+            723,
+            648
+          ],
+          "alphaBounds": [
+            121,
+            145,
+            725,
+            650
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5087912087912088,
+            "y": 0.8804347826086957,
+            "scale": 0.749939
+          },
+          "path": "assets/animations/poses/su_qingfeng_sword/windup_v1.png",
+          "sha256": "54a904a23a9729f0f8d29d2ea3eece6c7240240c3926c933b708c77d8b9f39b2",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_qingfeng_sword_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            910,
+            736
+          ],
+          "visibleBounds": [
+            224,
+            168,
+            797,
+            648
+          ],
+          "alphaBounds": [
+            222,
+            164,
+            800,
+            651
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5087912087912088,
+            "y": 0.8804347826086957,
+            "scale": 0.749939
+          },
+          "path": "assets/animations/poses/su_qingfeng_sword/attack_v1.png",
+          "sha256": "b63e3361859b012cee625cce6d920807addfdb1842d1a62b66ed7e42d12c7c44",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_qingfeng_sword_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            910,
+            736
+          ],
+          "visibleBounds": [
+            112,
+            173,
+            783,
+            648
+          ],
+          "alphaBounds": [
+            109,
+            170,
+            788,
+            651
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5087912087912088,
+            "y": 0.8804347826086957,
+            "scale": 0.749939
+          },
+          "path": "assets/animations/poses/su_qingfeng_sword/impact_v1.png",
+          "sha256": "f4a39ca271452e96ed2646e81dcef781ff3fc88a7c56e3e46c4289a9ae927a0f",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_qingfeng_sword_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            910,
+            736
+          ],
+          "visibleBounds": [
+            223,
+            98,
+            744,
+            648
+          ],
+          "alphaBounds": [
+            218,
+            94,
+            747,
+            653
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5087912087912088,
+            "y": 0.8804347826086957,
+            "scale": 0.749939
+          },
+          "path": "assets/animations/poses/su_qingfeng_sword/recover_v1.png",
+          "sha256": "2a228c7b4d89b4ae7a07b68de809192e360c84f1d4f7a3aaa3f455c556a02a85",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_qingfeng_sword_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "su_xuantie_sword",
+      "characterId": "su",
+      "weaponId": "xuantie_sword",
+      "aliases": [],
+      "reference": "assets/characters/su_xuantie_idle_v3.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            882,
+            642
+          ],
+          "visibleBounds": [
+            180,
+            101,
+            682,
+            565
+          ],
+          "alphaBounds": [
+            177,
+            98,
+            685,
+            568
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5056689342403629,
+            "y": 0.8800623052959502,
+            "scale": 0.793416
+          },
+          "path": "assets/animations/poses/su_xuantie_sword/windup_v1.png",
+          "sha256": "2d6a02b09007b34d50a613de72056a187d33f749593b69c81534cf10d7e49082",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_xuantie_sword_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            882,
+            642
+          ],
+          "visibleBounds": [
+            172,
+            141,
+            774,
+            565
+          ],
+          "alphaBounds": [
+            168,
+            137,
+            777,
+            569
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5056689342403629,
+            "y": 0.8800623052959502,
+            "scale": 0.793416
+          },
+          "path": "assets/animations/poses/su_xuantie_sword/attack_v1.png",
+          "sha256": "b501df1ddb58568e5fa1dc0b1af993285a74c6e10afb3aa572becbb31be39c68",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_xuantie_sword_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            882,
+            642
+          ],
+          "visibleBounds": [
+            109,
+            111,
+            731,
+            565
+          ],
+          "alphaBounds": [
+            106,
+            108,
+            734,
+            568
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5056689342403629,
+            "y": 0.8800623052959502,
+            "scale": 0.793416
+          },
+          "path": "assets/animations/poses/su_xuantie_sword/impact_v1.png",
+          "sha256": "bf9d398c15b1bfde946d02dbb4ec3ec85b89869549412833397b10d4c3250e50",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_xuantie_sword_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            882,
+            642
+          ],
+          "visibleBounds": [
+            179,
+            84,
+            728,
+            565
+          ],
+          "alphaBounds": [
+            175,
+            80,
+            731,
+            568
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5056689342403629,
+            "y": 0.8800623052959502,
+            "scale": 0.793416
+          },
+          "path": "assets/animations/poses/su_xuantie_sword/recover_v1.png",
+          "sha256": "15f46a4f0fc1c651f96d4495f43a158e4a1d0600954cc73e62d2c40f18471947",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_xuantie_sword_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "su_flame_saber",
+      "characterId": "su",
+      "weaponId": "flame_saber",
+      "aliases": [
+        "dragon_saber"
+      ],
+      "reference": "assets/characters/su_flame_saber_v4.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            1084,
+            791
+          ],
+          "visibleBounds": [
+            272,
+            116,
+            809,
+            696
+          ],
+          "alphaBounds": [
+            268,
+            113,
+            812,
+            699
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.533210332103321,
+            "y": 0.8798988621997471,
+            "scale": 0.747794
+          },
+          "path": "assets/animations/poses/su_flame_saber/windup_v1.png",
+          "sha256": "ffcf6d1c038b57e75201af0725c16e96c9d7adbb7b8e2c18719534c01de1de78",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_flame_saber_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            1084,
+            791
+          ],
+          "visibleBounds": [
+            324,
+            224,
+            951,
+            696
+          ],
+          "alphaBounds": [
+            320,
+            221,
+            954,
+            700
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.533210332103321,
+            "y": 0.8798988621997471,
+            "scale": 0.747794
+          },
+          "path": "assets/animations/poses/su_flame_saber/attack_v1.png",
+          "sha256": "7e2403d3b84813eed2122702004792ee6ddb7cbc31380d9aad4c4abf6d6fa468",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_flame_saber_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            1084,
+            791
+          ],
+          "visibleBounds": [
+            133,
+            131,
+            843,
+            696
+          ],
+          "alphaBounds": [
+            130,
+            128,
+            847,
+            699
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.533210332103321,
+            "y": 0.8798988621997471,
+            "scale": 0.747794
+          },
+          "path": "assets/animations/poses/su_flame_saber/impact_v1.png",
+          "sha256": "01a068966b9b3dde36a59948808435a35c068282c34f7f4c3d982518e17c18d9",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_flame_saber_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            1084,
+            791
+          ],
+          "visibleBounds": [
+            325,
+            101,
+            869,
+            696
+          ],
+          "alphaBounds": [
+            322,
+            98,
+            872,
+            699
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.533210332103321,
+            "y": 0.8798988621997471,
+            "scale": 0.747794
+          },
+          "path": "assets/animations/poses/su_flame_saber/recover_v1.png",
+          "sha256": "2e2e7441a8e593bb3bc82efafebab58ce59231b5407c33949428e5148a788113",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_flame_saber_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "su_thunder_spear",
+      "characterId": "su",
+      "weaponId": "thunder_spear",
+      "aliases": [
+        "iron_spear"
+      ],
+      "reference": "assets/characters/su_thunder_spear_v4.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            934,
+            666
+          ],
+          "visibleBounds": [
+            199,
+            87,
+            690,
+            586
+          ],
+          "alphaBounds": [
+            195,
+            83,
+            693,
+            589
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5171306209850107,
+            "y": 0.8798798798798799,
+            "scale": 0.887752
+          },
+          "path": "assets/animations/poses/su_thunder_spear/windup_v1.png",
+          "sha256": "9baaec78928a2f47cf614749c983f0dc7eecd156bbb85fb6de7835dd9c265f67",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_thunder_spear_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            934,
+            666
+          ],
+          "visibleBounds": [
+            215,
+            193,
+            791,
+            586
+          ],
+          "alphaBounds": [
+            212,
+            190,
+            795,
+            589
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5171306209850107,
+            "y": 0.8798798798798799,
+            "scale": 0.887752
+          },
+          "path": "assets/animations/poses/su_thunder_spear/attack_v1.png",
+          "sha256": "a0216e6b1a4f479bbf35eb7b11b4da32590b5529d256895f36795116cf91eb35",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_thunder_spear_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            934,
+            666
+          ],
+          "visibleBounds": [
+            115,
+            186,
+            819,
+            586
+          ],
+          "alphaBounds": [
+            112,
+            181,
+            822,
+            589
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5171306209850107,
+            "y": 0.8798798798798799,
+            "scale": 0.887752
+          },
+          "path": "assets/animations/poses/su_thunder_spear/impact_v1.png",
+          "sha256": "9b91cbf84160a8d7cabb80b5aed004e369ee0de719aef1076a444942e39466cc",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_thunder_spear_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            934,
+            666
+          ],
+          "visibleBounds": [
+            229,
+            139,
+            743,
+            586
+          ],
+          "alphaBounds": [
+            226,
+            136,
+            747,
+            591
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5171306209850107,
+            "y": 0.8798798798798799,
+            "scale": 0.887752
+          },
+          "path": "assets/animations/poses/su_thunder_spear/recover_v1.png",
+          "sha256": "697a8175c11e2077b65203ea4eaa14fd6d5d0f9db134489b6dfa7e4cf752ee0e",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/su_thunder_spear_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "mu_tamer",
+      "characterId": "mu",
+      "reference": "assets/characters/mu_tamer_idle_v5.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            808,
+            822
+          ],
+          "visibleBounds": [
+            141,
+            140,
+            570,
+            723
+          ],
+          "alphaBounds": [
+            138,
+            136,
+            573,
+            726
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4405940594059406,
+            "y": 0.8795620437956204,
+            "scale": 0.905747
+          },
+          "path": "assets/animations/poses/mu_tamer/windup_v1.png",
+          "sha256": "9593f9783b3033e31c5032f6fa76c61666cabaf604ec0ff0ae5fede56dec844e",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/mu_tamer_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            808,
+            822
+          ],
+          "visibleBounds": [
+            99,
+            184,
+            708,
+            723
+          ],
+          "alphaBounds": [
+            96,
+            180,
+            710,
+            726
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4405940594059406,
+            "y": 0.8795620437956204,
+            "scale": 0.905747
+          },
+          "path": "assets/animations/poses/mu_tamer/attack_v1.png",
+          "sha256": "bccada7e4e538f3f3c0673101f7c18f46e918e281b6872da5c28af4230c9c61c",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/mu_tamer_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            808,
+            822
+          ],
+          "visibleBounds": [
+            123,
+            133,
+            593,
+            723
+          ],
+          "alphaBounds": [
+            120,
+            130,
+            597,
+            726
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4405940594059406,
+            "y": 0.8795620437956204,
+            "scale": 0.905747
+          },
+          "path": "assets/animations/poses/mu_tamer/impact_v1.png",
+          "sha256": "e567ce7429c6b2bb7b4c76dcfaa8b118496f42f3f513815976cf6744d6247ac2",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/mu_tamer_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            808,
+            822
+          ],
+          "visibleBounds": [
+            201,
+            106,
+            533,
+            723
+          ],
+          "alphaBounds": [
+            198,
+            102,
+            536,
+            727
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4405940594059406,
+            "y": 0.8795620437956204,
+            "scale": 0.905747
+          },
+          "path": "assets/animations/poses/mu_tamer/recover_v1.png",
+          "sha256": "ef25107fea7339f23f6355947df1926bb615935ce1a9448f59c9914d7f932867",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/mu_tamer_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "beast_dog",
+      "beastId": "beast_dog",
+      "reference": "assets/characters/beast_dog_v5.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            857,
+            596
+          ],
+          "visibleBounds": [
+            137,
+            114,
+            677,
+            524
+          ],
+          "alphaBounds": [
+            132,
+            110,
+            680,
+            527
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.49008168028004667,
+            "y": 0.8791946308724832,
+            "scale": 0.44
+          },
+          "path": "assets/animations/poses/beast_dog/windup_v1.png",
+          "sha256": "a48faf82af382ca85852aa697955e682cadcb767cb1eb62cc4e56664fe5e6b2e",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_dog_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            857,
+            596
+          ],
+          "visibleBounds": [
+            151,
+            138,
+            751,
+            524
+          ],
+          "alphaBounds": [
+            148,
+            134,
+            754,
+            527
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.49008168028004667,
+            "y": 0.8791946308724832,
+            "scale": 0.44
+          },
+          "path": "assets/animations/poses/beast_dog/attack_v1.png",
+          "sha256": "3c7555a97aca2d80c26bd54f26876f88e0537c2eca46e682d410c49d557f93bb",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_dog_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            857,
+            596
+          ],
+          "visibleBounds": [
+            104,
+            118,
+            735,
+            524
+          ],
+          "alphaBounds": [
+            102,
+            115,
+            738,
+            527
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.49008168028004667,
+            "y": 0.8791946308724832,
+            "scale": 0.44
+          },
+          "path": "assets/animations/poses/beast_dog/impact_v1.png",
+          "sha256": "ac829d9717e4be69f4f87a6414d2824af15bbb27e8d0e51a314e35920d066c2b",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_dog_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            857,
+            596
+          ],
+          "visibleBounds": [
+            161,
+            77,
+            679,
+            524
+          ],
+          "alphaBounds": [
+            158,
+            74,
+            682,
+            527
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.49008168028004667,
+            "y": 0.8791946308724832,
+            "scale": 0.44
+          },
+          "path": "assets/animations/poses/beast_dog/recover_v1.png",
+          "sha256": "29c2e8490ea0013f9b589b7118cd11b9d5fb4923679aca6a1cc3732db1230fc1",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_dog_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "beast_eagle",
+      "beastId": "beast_eagle",
+      "reference": "assets/characters/beast_eagle_v5.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            971,
+            808
+          ],
+          "visibleBounds": [
+            214,
+            104,
+            733,
+            711
+          ],
+          "alphaBounds": [
+            210,
+            100,
+            736,
+            714
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.505664263645726,
+            "y": 0.879950495049505,
+            "scale": 0.559109
+          },
+          "path": "assets/animations/poses/beast_eagle/windup_v1.png",
+          "sha256": "98bbd27bff9a16883746c2b0f7b39913ca8aad9ac6f5e0f00231413f045dfd66",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_eagle_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            971,
+            808
+          ],
+          "visibleBounds": [
+            119,
+            428,
+            678,
+            711
+          ],
+          "alphaBounds": [
+            116,
+            424,
+            681,
+            714
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.505664263645726,
+            "y": 0.879950495049505,
+            "scale": 0.559109
+          },
+          "path": "assets/animations/poses/beast_eagle/attack_v1.png",
+          "sha256": "8ec1790f04ee871c8e1f942d34e2170b6a775799b95136fb4277616cec3dbde1",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_eagle_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            971,
+            808
+          ],
+          "visibleBounds": [
+            239,
+            203,
+            852,
+            711
+          ],
+          "alphaBounds": [
+            236,
+            200,
+            855,
+            715
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.505664263645726,
+            "y": 0.879950495049505,
+            "scale": 0.559109
+          },
+          "path": "assets/animations/poses/beast_eagle/impact_v1.png",
+          "sha256": "dc0d2296ad0c8e5f6eb558d92090f313fe3f1c0878466e7d759dba4a2f483c2d",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_eagle_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            971,
+            808
+          ],
+          "visibleBounds": [
+            238,
+            156,
+            791,
+            711
+          ],
+          "alphaBounds": [
+            235,
+            153,
+            794,
+            714
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.505664263645726,
+            "y": 0.879950495049505,
+            "scale": 0.559109
+          },
+          "path": "assets/animations/poses/beast_eagle/recover_v1.png",
+          "sha256": "af9752f69c976ffd9eccc0b0ee94a7d4bbeb578f5eb291292059a842560b6202",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_eagle_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "beast_toad",
+      "beastId": "beast_toad",
+      "reference": "assets/characters/beast_toad_v5.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            857,
+            525
+          ],
+          "visibleBounds": [
+            160,
+            77,
+            642,
+            462
+          ],
+          "alphaBounds": [
+            157,
+            74,
+            645,
+            465
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48424737456242706,
+            "y": 0.88,
+            "scale": 0.382346
+          },
+          "path": "assets/animations/poses/beast_toad/windup_v1.png",
+          "sha256": "744d9159d2823ac09454ff89c524afe66068e86fd24b5f841064e16f6a753b9c",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_toad_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            857,
+            525
+          ],
+          "visibleBounds": [
+            132,
+            75,
+            745,
+            462
+          ],
+          "alphaBounds": [
+            128,
+            72,
+            748,
+            465
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48424737456242706,
+            "y": 0.88,
+            "scale": 0.382346
+          },
+          "path": "assets/animations/poses/beast_toad/attack_v1.png",
+          "sha256": "2ce28139501320221cde8f0adc931721bb9b3579876736318c688bf51260a1ee",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_toad_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            857,
+            525
+          ],
+          "visibleBounds": [
+            105,
+            69,
+            750,
+            462
+          ],
+          "alphaBounds": [
+            102,
+            66,
+            753,
+            465
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48424737456242706,
+            "y": 0.88,
+            "scale": 0.382346
+          },
+          "path": "assets/animations/poses/beast_toad/impact_v1.png",
+          "sha256": "f82a7680c47908bbe18ecc3e905fe3e313d493a4c14b707d81d234b2bd9a7b53",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_toad_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            857,
+            525
+          ],
+          "visibleBounds": [
+            139,
+            95,
+            661,
+            462
+          ],
+          "alphaBounds": [
+            136,
+            92,
+            664,
+            465
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.48424737456242706,
+            "y": 0.88,
+            "scale": 0.382346
+          },
+          "path": "assets/animations/poses/beast_toad/recover_v1.png",
+          "sha256": "f9852c711be3ef88498ad9ab31c13592135af825f4fc0bc36fc8346c7b87404e",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_toad_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "beast_wolf",
+      "beastId": "beast_wolf",
+      "reference": "assets/characters/beast_wolf_v5.png",
+      "required": [
+        "windup",
+        "attack",
+        "impact"
+      ],
+      "optional": [
+        "recover"
+      ],
+      "frames": {
+        "windup": {
+          "size": [
+            956,
+            657
+          ],
+          "visibleBounds": [
+            158,
+            101,
+            681,
+            578
+          ],
+          "alphaBounds": [
+            155,
+            97,
+            685,
+            581
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4445606694560669,
+            "y": 0.8797564687975646,
+            "scale": 0.518406
+          },
+          "path": "assets/animations/poses/beast_wolf/windup_v1.png",
+          "sha256": "2f3c48192708e40e15308c8334e83fb2b37af054a76d1124368597c75765f825",
+          "pose": "windup",
+          "facing": "right",
+          "durationMs": 90,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_wolf_v1.png",
+          "issue": ""
+        },
+        "attack": {
+          "size": [
+            956,
+            657
+          ],
+          "visibleBounds": [
+            293,
+            135,
+            837,
+            578
+          ],
+          "alphaBounds": [
+            288,
+            130,
+            841,
+            581
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4445606694560669,
+            "y": 0.8797564687975646,
+            "scale": 0.518406
+          },
+          "path": "assets/animations/poses/beast_wolf/attack_v1.png",
+          "sha256": "6f245bf821d38af92188982731f9bccb362ecd7da6d9dfabc8a77d0a4236a5c5",
+          "pose": "attack",
+          "facing": "right",
+          "durationMs": 140,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_wolf_v1.png",
+          "issue": ""
+        },
+        "impact": {
+          "size": [
+            956,
+            657
+          ],
+          "visibleBounds": [
+            164,
+            87,
+            682,
+            578
+          ],
+          "alphaBounds": [
+            160,
+            83,
+            685,
+            582
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4445606694560669,
+            "y": 0.8797564687975646,
+            "scale": 0.518406
+          },
+          "path": "assets/animations/poses/beast_wolf/impact_v1.png",
+          "sha256": "f21a9995616c01116b932ecd7d76867a78ea5b1f03cc8cacaec9cfa342353529",
+          "pose": "impact",
+          "facing": "right",
+          "durationMs": 80,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_wolf_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            956,
+            657
+          ],
+          "visibleBounds": [
+            118,
+            95,
+            644,
+            578
+          ],
+          "alphaBounds": [
+            115,
+            90,
+            648,
+            582
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.4445606694560669,
+            "y": 0.8797564687975646,
+            "scale": 0.518406
+          },
+          "path": "assets/animations/poses/beast_wolf/recover_v1.png",
+          "sha256": "95281bc1eed018aa59e8bc71d0885ad7dce3953e38081492411ea410f0424c03",
+          "pose": "recover",
+          "facing": "right",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/beast_wolf_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "enemy_wood_dummy",
+      "enemyId": "wood_dummy",
+      "reference": "assets/enemies/wood_dummy_idle_v3.png",
+      "required": [
+        "hit",
+        "stagger",
+        "defeat"
+      ],
+      "frames": {
+        "hit": {
+          "size": [
+            684,
+            754
+          ],
+          "visibleBounds": [
+            201,
+            98,
+            482,
+            664
+          ],
+          "alphaBounds": [
+            196,
+            95,
+            484,
+            667
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8806366047745358,
+            "scale": 0.751635
+          },
+          "path": "assets/animations/poses/enemy_wood_dummy/hit_v1.png",
+          "sha256": "3c5bb893c00cdbbca71bfe1d4bad9947a655b579206bcaeb067ef401b5364592",
+          "pose": "hit",
+          "facing": "left",
+          "durationMs": 110,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_wood_dummy_v1.png",
+          "issue": ""
+        },
+        "stagger": {
+          "size": [
+            684,
+            754
+          ],
+          "visibleBounds": [
+            189,
+            101,
+            493,
+            664
+          ],
+          "alphaBounds": [
+            186,
+            98,
+            497,
+            667
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8806366047745358,
+            "scale": 0.751635
+          },
+          "path": "assets/animations/poses/enemy_wood_dummy/stagger_v1.png",
+          "sha256": "91695947054e94392f7b06ec208e322719c0d87f5031badf61936134bed9167f",
+          "pose": "stagger",
+          "facing": "left",
+          "durationMs": 180,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_wood_dummy_v1.png",
+          "issue": ""
+        },
+        "defeat": {
+          "size": [
+            684,
+            754
+          ],
+          "visibleBounds": [
+            85,
+            203,
+            599,
+            664
+          ],
+          "alphaBounds": [
+            82,
+            200,
+            602,
+            667
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8806366047745358,
+            "scale": 0.751635
+          },
+          "path": "assets/animations/poses/enemy_wood_dummy/defeat_v1.png",
+          "sha256": "a794fa22ad7f0fca0d0eff7dde41ac5b6f7ea9872e7c29d2969c67b38bcfaf42",
+          "pose": "defeat",
+          "facing": "left",
+          "durationMs": 480,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_wood_dummy_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            684,
+            754
+          ],
+          "visibleBounds": [
+            193,
+            106,
+            492,
+            664
+          ],
+          "alphaBounds": [
+            190,
+            103,
+            495,
+            668
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8806366047745358,
+            "scale": 0.751635
+          },
+          "path": "assets/animations/poses/enemy_wood_dummy/recover_v1.png",
+          "sha256": "26042ee61f58d9b309b886fb980a2ba6fadf5591ccfa1046a7a15fa60df2a46e",
+          "pose": "recover",
+          "facing": "left",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_wood_dummy_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "enemy_bandit_scout",
+      "enemyId": "bandit_scout",
+      "reference": "assets/enemies/bandit_scout_idle_v3.png",
+      "required": [
+        "hit",
+        "stagger",
+        "defeat"
+      ],
+      "frames": {
+        "hit": {
+          "size": [
+            842,
+            791
+          ],
+          "visibleBounds": [
+            125,
+            103,
+            685,
+            696
+          ],
+          "alphaBounds": [
+            122,
+            98,
+            688,
+            699
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5415676959619953,
+            "y": 0.8798988621997471,
+            "scale": 0.819629
+          },
+          "path": "assets/animations/poses/enemy_bandit_scout/hit_v1.png",
+          "sha256": "f7971ffb02b0526194b4d15362205c2dbf2a61e709b3e4a0ad785a2837acd9ea",
+          "pose": "hit",
+          "facing": "left",
+          "durationMs": 110,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_bandit_scout_v1.png",
+          "issue": ""
+        },
+        "stagger": {
+          "size": [
+            842,
+            791
+          ],
+          "visibleBounds": [
+            115,
+            143,
+            676,
+            696
+          ],
+          "alphaBounds": [
+            112,
+            141,
+            679,
+            699
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5415676959619953,
+            "y": 0.8798988621997471,
+            "scale": 0.819629
+          },
+          "path": "assets/animations/poses/enemy_bandit_scout/stagger_v1.png",
+          "sha256": "df08ac67bb289ad6fefcd4977436b9499a0a0f7ee7e2d901e04a368724919bb8",
+          "pose": "stagger",
+          "facing": "left",
+          "durationMs": 180,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_bandit_scout_v1.png",
+          "issue": ""
+        },
+        "defeat": {
+          "size": [
+            842,
+            791
+          ],
+          "visibleBounds": [
+            174,
+            309,
+            739,
+            696
+          ],
+          "alphaBounds": [
+            170,
+            304,
+            742,
+            699
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5415676959619953,
+            "y": 0.8798988621997471,
+            "scale": 0.819629
+          },
+          "path": "assets/animations/poses/enemy_bandit_scout/defeat_v1.png",
+          "sha256": "537a682afb9a3e1d4814160e74d88c154f645a52ea8541363b656a0e6fe6ea26",
+          "pose": "defeat",
+          "facing": "left",
+          "durationMs": 480,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_bandit_scout_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            842,
+            791
+          ],
+          "visibleBounds": [
+            105,
+            125,
+            701,
+            696
+          ],
+          "alphaBounds": [
+            102,
+            122,
+            704,
+            701
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5415676959619953,
+            "y": 0.8798988621997471,
+            "scale": 0.819629
+          },
+          "path": "assets/animations/poses/enemy_bandit_scout/recover_v1.png",
+          "sha256": "b4eab09550f4474a746ec7f74f7e97c85bb77e658f6f84214ec2a5d7250220af",
+          "pose": "recover",
+          "facing": "left",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_bandit_scout_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "enemy_earth_puppet",
+      "enemyId": "earth_puppet",
+      "reference": "assets/enemies/earth_puppet_idle_v3.png",
+      "required": [
+        "hit",
+        "stagger",
+        "defeat"
+      ],
+      "frames": {
+        "hit": {
+          "size": [
+            925,
+            787
+          ],
+          "visibleBounds": [
+            255,
+            121,
+            762,
+            693
+          ],
+          "alphaBounds": [
+            253,
+            118,
+            765,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5664864864864865,
+            "y": 0.8805590851334181,
+            "scale": 0.755168
+          },
+          "path": "assets/animations/poses/enemy_earth_puppet/hit_v1.png",
+          "sha256": "9bef3720ba59d5b4b54e5d9f918c370b01192df809c7af0f5f89396decf7ae83",
+          "pose": "hit",
+          "facing": "left",
+          "durationMs": 110,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_earth_puppet_v1.png",
+          "issue": ""
+        },
+        "stagger": {
+          "size": [
+            925,
+            787
+          ],
+          "visibleBounds": [
+            113,
+            145,
+            680,
+            693
+          ],
+          "alphaBounds": [
+            110,
+            142,
+            683,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5664864864864865,
+            "y": 0.8805590851334181,
+            "scale": 0.755168
+          },
+          "path": "assets/animations/poses/enemy_earth_puppet/stagger_v1.png",
+          "sha256": "0be3f28eebeeab9e2969dee0a53bc2aa96d733386aa63b7aedcc3695ea6c3b44",
+          "pose": "stagger",
+          "facing": "left",
+          "durationMs": 180,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_earth_puppet_v1.png",
+          "issue": ""
+        },
+        "defeat": {
+          "size": [
+            925,
+            787
+          ],
+          "visibleBounds": [
+            238,
+            265,
+            811,
+            693
+          ],
+          "alphaBounds": [
+            236,
+            260,
+            814,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5664864864864865,
+            "y": 0.8805590851334181,
+            "scale": 0.755168
+          },
+          "path": "assets/animations/poses/enemy_earth_puppet/defeat_v1.png",
+          "sha256": "baa3983a295383050bad263587c52705ec40745f575c2c01e454f3b6d2c24e62",
+          "pose": "defeat",
+          "facing": "left",
+          "durationMs": 480,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_earth_puppet_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            925,
+            787
+          ],
+          "visibleBounds": [
+            213,
+            101,
+            774,
+            693
+          ],
+          "alphaBounds": [
+            210,
+            98,
+            779,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5664864864864865,
+            "y": 0.8805590851334181,
+            "scale": 0.755168
+          },
+          "path": "assets/animations/poses/enemy_earth_puppet/recover_v1.png",
+          "sha256": "e362a507238a7590a8e466836336c8f8cbf7100c0bbfc471e93913dc490a8187",
+          "pose": "recover",
+          "facing": "left",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_earth_puppet_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    },
+    {
+      "id": "enemy_blackwind_boss",
+      "enemyId": "blackwind_boss",
+      "reference": "assets/enemies/blackwind_boss_idle_v3.png",
+      "required": [
+        "hit",
+        "stagger",
+        "defeat"
+      ],
+      "frames": {
+        "hit": {
+          "size": [
+            914,
+            788
+          ],
+          "visibleBounds": [
+            171,
+            162,
+            780,
+            693
+          ],
+          "alphaBounds": [
+            169,
+            159,
+            783,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8794416243654822,
+            "scale": 0.834214
+          },
+          "path": "assets/animations/poses/enemy_blackwind_boss/hit_v1.png",
+          "sha256": "2959813aa54159bbcec7625ef620f0b8291781597804fe1825144ff35327d092",
+          "pose": "hit",
+          "facing": "left",
+          "durationMs": 110,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_blackwind_boss_v1.png",
+          "issue": ""
+        },
+        "stagger": {
+          "size": [
+            914,
+            788
+          ],
+          "visibleBounds": [
+            160,
+            175,
+            753,
+            693
+          ],
+          "alphaBounds": [
+            158,
+            171,
+            757,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8794416243654822,
+            "scale": 0.834214
+          },
+          "path": "assets/animations/poses/enemy_blackwind_boss/stagger_v1.png",
+          "sha256": "1f99f4cc815b16826897b48fb3b4f0d2421ed7ad41df917cbb6672ae08adcae8",
+          "pose": "stagger",
+          "facing": "left",
+          "durationMs": 180,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_blackwind_boss_v1.png",
+          "issue": ""
+        },
+        "defeat": {
+          "size": [
+            914,
+            788
+          ],
+          "visibleBounds": [
+            113,
+            268,
+            801,
+            693
+          ],
+          "alphaBounds": [
+            110,
+            264,
+            805,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8794416243654822,
+            "scale": 0.834214
+          },
+          "path": "assets/animations/poses/enemy_blackwind_boss/defeat_v1.png",
+          "sha256": "81b6cbcad454632d45c1d0900b983b30e0dc68b5e4a84d524c94a66b8dd1ead9",
+          "pose": "defeat",
+          "facing": "left",
+          "durationMs": 480,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_blackwind_boss_v1.png",
+          "issue": ""
+        },
+        "recover": {
+          "size": [
+            914,
+            788
+          ],
+          "visibleBounds": [
+            229,
+            100,
+            712,
+            693
+          ],
+          "alphaBounds": [
+            226,
+            97,
+            715,
+            696
+          ],
+          "alpha": [
+            0,
+            255
+          ],
+          "anchor": {
+            "x": 0.5,
+            "y": 0.8794416243654822,
+            "scale": 0.834214
+          },
+          "path": "assets/animations/poses/enemy_blackwind_boss/recover_v1.png",
+          "sha256": "b330991fde57a70d65348932952d59c796c42b47961d96ae80e4146b1f7c90f4",
+          "pose": "recover",
+          "facing": "left",
+          "durationMs": 150,
+          "approved": true,
+          "sheet": "assets/animations/sheets/enemy_blackwind_boss_v1.png",
+          "issue": ""
+        }
+      },
+      "status": "Phase A 通過：外觀、四姿態、透明邊緣與接地比較已檢查",
+      "reviewNote": "四格為不同真實姿態；對照正式角色外觀檢查，正式待機原圖保留。"
+    }
+  ],
+  "policy": "既有正式角色外觀優先；A級保留；只修正具體問題；生成不等於驗收；未通過Phase A不接入正式動畫。",
+  "generationStopped": false,
+  "stopReason": "",
+  "archivedCandidates": [
+    {
+      "path": "assets/animations/candidates/yun/wood_sword/windup_candidate_v1.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "visibleBounds": [
+        55,
+        260,
+        968,
+        1280
+      ],
+      "sha256": "f6e99357f81a6bc3dce479b0eec9512d2f22b00d1fd104c9e8a67a539d0a11ec",
+      "approved": false,
+      "reason": "前一版預備姿態；保留供比較，未接入遊戲。"
+    }
+  ],
+  "generationCallCount": 7,
+  "savedCandidateCount": 5,
+  "phaseBApproved": true,
+  "validationReport": "assets/animations/PHASE_B_REVIEW.md"
+}

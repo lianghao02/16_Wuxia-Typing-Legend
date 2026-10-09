@@ -1,0 +1,42 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-09",
+  "records": [
+    {
+      "pose": "windup",
+      "generatedSourceFile": "exec-661cc593-f353-4fda-a409-d2fe57b9b6f9.png",
+      "path": "assets/animations/candidates/yun/wood_sword/windup_candidate_v1.png",
+      "reference": "第一版生成的預備姿態（exec-70217d75-ec21-4517-8505-cc8f60f3a7e2.png）；身份基準仍為 assets/characters/yun_wood_idle_v3.png",
+      "prompt": "精確編修輸入圖。只保留完整的人物與木劍，徹底移除人物周圍所有黑色、灰色、棕色、白色光暈、暈染、光照背景與地面陰影，背景必須是乾淨的真正全透明 alpha=0。不要僅把黑色換成白色，也不要畫棋盤格。保留同一位雲清川少年的臉型、服裝、髮帶、腰帶、木劍、雙手与預備姿態，不增加細節不改設計。將人物等比例縮小置中，所有實體輪廓包括劍尖、髮帶、鞋底與衣擺，距離四邊至少15%畫布留白。維持1024×1536直式畫布。只改背景與構圖留白，角色全身材質與肢體保持原樣。這是需在Canvas遊戲中疊加於多種場景的透明PNG精靈，任何模糊背景或光暈都不合格。",
+      "approved": false,
+      "reason": "候選動作具有差異，但臉型及頭身比例偏成熟；仍待身份校正與逐組驗收。"
+    },
+    {
+      "pose": "attack",
+      "generatedSourceFile": "exec-f1c72099-d220-498e-8d9a-becff27d4242.png",
+      "path": "assets/animations/candidates/yun/wood_sword/attack_candidate_v1.png",
+      "reference": "assets/characters/yun_wood_idle_v3.png",
+      "prompt": "用途：identity-preserve，Canvas 2D 遊戲單張透明精靈。圖片1是雲清川木劍正式待機立繪，圖片2是同角色預備姿態。身份與服裝以圖片1為準，動作延續圖片2。嚴格維持同一少年臉型、黑色高馬尾米白髮帶、灰白交領短袖布衣、深灰褲、麻繩腰帶、布纏腕、布靴與相同桃木短劍。主角朝右、完整全身，保持原頭身比例與水墨淡彩線條。不可換臉、衣服、配色或增加配件。單一角色、單把木劍、自然人體關節與握劍手指。真正透明背景 RGBA，不要背景底圖、地面陰影、光暈、文字或劍氣。直式1024×1536，完整劍尖髮帶衣擺鞋底距離四邊15%留白。attack攻擊姿態：從蓄勢前踏，右腿向右跨弓步，右肩與腰向前轉，右手持木劍向右前方斜斬，劍刃仍在身前中段，左手向左後方平衡。不是待機或持劍擺拍，要清楚見到前踏斬擊。",
+      "approved": false,
+      "reason": "候選動作具有差異，但臉型及頭身比例偏成熟；仍待身份校正與逐組驗收。"
+    },
+    {
+      "pose": "impact",
+      "generatedSourceFile": "exec-98d3c78c-4608-407f-8c56-87d5a84c2ef1.png",
+      "path": "assets/animations/candidates/yun/wood_sword/impact_candidate_v1.png",
+      "reference": "assets/characters/yun_wood_idle_v3.png",
+      "prompt": "用途：identity-preserve，Canvas 2D 遊戲單張透明精靈。圖片1是雲清川木劍正式待機立繪，圖片2是同角色預備姿態。身份與服裝以圖片1為準，動作延續圖片2。嚴格維持同一少年臉型、黑色高馬尾米白髮帶、灰白交領短袖布衣、深灰褲、麻繩腰帶、布纏腕、布靴與相同桃木短劍。主角朝右、完整全身，保持原頭身比例與水墨淡彩線條。不可換臉、衣服、配色或增加配件。單一角色、單把木劍、自然人體關節與握劍手指。真正透明背景 RGBA，不要背景底圖、地面陰影、光暈、文字或劍氣。直式1024×1536，完整劍尖髮帶衣擺鞋底距離四邊15%留白。impact命中姿態：沿斜斬完成右向揮劍，重心在右前腿，肩腰已完成旋轉，右手持木劍向右下方完整延伸至揮斬終點，左手後引，衣擺與髮帶受慣性向左飄，與攻擊中段明顯不同。",
+      "approved": false,
+      "reason": "候選動作具有差異，但臉型及頭身比例偏成熟；仍待身份校正與逐組驗收。"
+    },
+    {
+      "pose": "recover",
+      "generatedSourceFile": "exec-54ba4f7d-a258-49cd-8fc9-df3064efc6d0.png",
+      "path": "assets/animations/candidates/yun/wood_sword/recover_candidate_v1.png",
+      "reference": "assets/characters/yun_wood_idle_v3.png",
+      "prompt": "用途：identity-preserve，Canvas 2D 遊戲單張透明精靈。圖片1是雲清川木劍正式待機立繪，圖片2是同角色預備姿態。身份與服裝以圖片1為準，動作延續圖片2。嚴格維持同一少年臉型、黑色高馬尾米白髮帶、灰白交領短袖布衣、深灰褲、麻繩腰帶、布纏腕、布靴與相同桃木短劍。主角朝右、完整全身，保持原頭身比例與水墨淡彩線條。不可換臉、衣服、配色或增加配件。單一角色、單把木劍、自然人體關節與握劍手指。真正透明背景 RGBA，不要背景底圖、地面陰影、光暈、文字或劍氣。直式1024×1536，完整劍尖髮帶衣擺鞋底距離四邊15%留白。recover收招姿態：完成揮斬後將右手木劍收回腰側，身體回轉至直立但膝仍微屈，前腳收回一小步，左手自然在胸前平衡，衣擺與髮帶逐漸下垂。保持視線朝右，尚未完全回到待機，與預備、攻擊、命中姿態不同。",
+      "approved": false,
+      "reason": "候選動作具有差異，但臉型及頭身比例偏成熟；仍待身份校正與逐組驗收。"
+    }
+  ]
+}

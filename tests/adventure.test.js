@@ -183,4 +183,228 @@ test('四大裝備部位（劍／刀／槍、護腕、防具、丹藥）與敵�
   }
 });
 
+test('v2.1.0 RPG 血量與傷害系統、長度平方根公平曲線、Boss 三階段與流派差異', async () => {
+  const {
+    ADVENTURE_WEAPONS, SPIRIT_BEASTS, calculateAttackDamage, bossPhaseForHp, advanceBossPhase, awardStage, newAdventure, getProfile
+  } = await import('../src/engine/AdventureEngine.js');
 
+  const duelStage = ADVENTURE_STAGES.find(s => s.kind === 'duel');
+  const bossStage = ADVENTURE_STAGES.find(s => s.kind === 'boss');
+  const sword = ADVENTURE_WEAPONS.find(w => w.id === 'qingfeng_sword');
+  const saber = ADVENTURE_WEAPONS.find(w => w.id === 'flame_saber');
+  const spear = ADVENTURE_WEAPONS.find(w => w.id === 'thunder_spear');
+
+  // 1. 戰鬥關卡可於敵人 HP 歸零時獲勝（不強制滿 10 題）
+  const save = newAdventure();
+  const p = getProfile(save);
+  const combatReward = awardStage(save, p, duelStage.id, { completedWords: 4, completedChars: 12, accuracy: 96, enemyHp: 0 }, '2026-10-09');
+  assert.ok(combatReward.reward > 0);
+
+  // 2. 題目長度平方根公平曲線：長句傷害高於單字，但上限受控（<= 2.5x 比例）
+  const shortDmg = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: { text: '風', bopomofo: ['ㄈㄥ'] },
+    combo: 0,
+    grade: '3',
+    loadout: sword,
+    stage: duelStage
+  });
+  const longDmg = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: { text: '清風徐來水波不興萬里無雲', bopomofo: Array(12).fill('ㄈㄥ') },
+    combo: 0,
+    grade: '3',
+    loadout: sword,
+    stage: duelStage
+  });
+  assert.ok(longDmg.finalDamage > shortDmg.finalDamage);
+  assert.ok(longDmg.lengthBonus <= 2.5);
+
+  // 3. 武器流派差異：刀系完成詞語具爆發加成、槍系具破防與蓄力擊退加成、劍系隨 Combo 穩定增傷
+  const word4 = { text: '行俠仗義', bopomofo: ['ㄒㄧㄥˊ', 'ㄒㄧㄚˊ', 'ㄓㄤˋ', 'ㄧˋ'] };
+  const swordHit = calculateAttackDamage({ actionType: 'word', wordObj: word4, combo: 15, grade: '4', loadout: sword, stage: bossStage });
+  const saberHit = calculateAttackDamage({ actionType: 'word', wordObj: word4, combo: 2, grade: '4', loadout: saber, stage: bossStage });
+  const spearHit = calculateAttackDamage({ actionType: 'word', wordObj: word4, combo: 2, grade: '4', loadout: spear, stage: bossStage });
+  assert.ok(swordHit.comboMultiplier > saberHit.comboMultiplier);
+  assert.ok(saberHit.schoolBonus >= 1.28);
+  assert.ok(spearHit.defenseFactor > swordHit.defenseFactor);
+  assert.ok(spearHit.atbBreak > swordHit.atbBreak);
+
+  // 4. Boss HP 三階段：100%~70% 試探、70%~30% 破防、30% 以下決勝，大招跨階段直接進入最終階段
+  assert.equal(bossPhaseForHp(400, 420, 0).name, '試探');
+  assert.equal(bossPhaseForHp(200, 420, 0).name, '破防');
+  assert.equal(bossPhaseForHp(80, 420, 0).name, '決勝');
+  const jump = advanceBossPhase(0, 80, 420);
+  assert.equal(jump.changed, true);
+  assert.equal(jump.index, 2);
+  assert.equal(jump.skippedIntermediate, true);
+
+  // 5. 馴獸師四種靈獸：毒蟾對 Boss 毒傷單次上限 35，蒼狼高連擊觸發多段攻擊
+  const toad = SPIRIT_BEASTS.find(b => b.id === 'beast_toad');
+  const wolf = SPIRIT_BEASTS.find(b => b.id === 'beast_wolf');
+  const toadHit = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: word4,
+    combo: 5,
+    grade: '5',
+    loadout: toad,
+    stage: bossStage,
+    enemyHp: 800,
+    enemyMaxHp: 880
+  });
+  assert.equal(toadHit.applyPoison, true);
+  assert.ok(toadHit.poisonDamage <= 35);
+
+  const wolfHit = calculateAttackDamage({
+    actionType: 'word',
+    wordObj: word4,
+    combo: 12,
+    grade: '5',
+    loadout: wolf,
+    stage: bossStage
+  });
+  assert.equal(wolfHit.multiHitCount, 3);
+});
+
+test('v2.1.0 動態補題與四層防重、馴獸師裝備切換、音訊四開關與舊版存檔無損遷移', async () => {
+  const {
+    SPIRIT_BEASTS, newAdventure, migrateAdventureSave, getProfile, getActiveLoadout, buyGear
+  } = await import('../src/engine/AdventureEngine.js');
+  const { buildAdaptiveQuestionBatch, recordQuestionHistory } = await import('../src/data/gradeQuestionMix.js');
+  const { HEROES } = await import('../src/data/enemies.js');
+
+  // 1. 驗證第三角色「馴獸師・林牧風」與四靈獸皆已註冊並有對應素材
+  assert.ok(HEROES.mu);
+  assert.equal(HEROES.mu.school, 'beast');
+  assert.equal(SPIRIT_BEASTS.length, 4);
+  for (const beast of SPIRIT_BEASTS) {
+    const rel = beast.icon.replace(/^\.\//, '');
+    assert.ok(existsSync(new URL('../' + rel, import.meta.url)), `缺少靈獸圖示: ${rel}`);
+  }
+
+  // 2. 驗證舊版 v2.0.0 存檔無損遷移（保留銅錢、武器、通關紀錄，自動補齊靈獸與音訊設定）
+  const v2Save = {
+    version: 1,
+    grade: '3',
+    hero: 'yun',
+    coins: 520,
+    weapon: 'qingfeng_sword',
+    owned: ['wood_sword', 'qingfeng_sword'],
+    profiles: {
+      '3': { stage: 12, realm: 'medium', records: { 0: { accuracy: 98 } }, recent: ['江湖', '朋友'], weak: { 朋友: 2 }, session: null }
+    }
+  };
+  const migrated = migrateAdventureSave(v2Save);
+  assert.equal(migrated.coins, 520);
+  assert.equal(migrated.weapon, 'qingfeng_sword');
+  assert.equal(migrated.beast, 'beast_dog');
+  assert.ok(migrated.ownedBeasts.includes('beast_dog'));
+  assert.deepEqual(migrated.profiles['3'].recentZh, ['江湖', '朋友']);
+  assert.equal(migrated.profiles['3'].stage, 12);
+
+  // 3. 驗證切換為馴獸師時，出戰配置自動切換為靈獸，且可用銅錢結契新靈獸
+  migrated.hero = 'mu';
+  assert.equal(getActiveLoadout(migrated).id, 'beast_dog');
+  const eagle = SPIRIT_BEASTS.find(b => b.id === 'beast_eagle');
+  assert.equal(buyGear(migrated, 'beast', eagle), true);
+  assert.equal(migrated.beast, 'beast_eagle');
+  assert.equal(getActiveLoadout(migrated).id, 'beast_eagle');
+
+  // 4. 驗證四層防重與動態補題（同場不重複、錯題複習標記 isReview、中英分池）
+  const pool = getGradeMixedWords(3);
+  const prof = getProfile(migrated);
+  recordQuestionHistory(prof, pool[0].text, false);
+  const batch1 = buildAdaptiveQuestionBatch(pool, '3', 'medium', {
+    sessionUsed: [],
+    recentList: prof.recentZh,
+    practicedMap: prof.practiced,
+    weakMap: { [pool[5].text]: 3 },
+    count: 10
+  });
+  assert.equal(batch1.length, 10);
+  assert.equal(new Set(batch1.map(w => w.text)).size, 10);
+  assert.ok(batch1.filter(w => w.isReview).length <= 2);
+
+  const batch2 = buildAdaptiveQuestionBatch(pool, '3', 'medium', {
+    sessionUsed: batch1.map(w => w.text),
+    recentList: prof.recentZh,
+    practicedMap: prof.practiced,
+    weakMap: prof.weak,
+    count: 8
+  });
+  assert.equal(batch2.length, 8);
+  for (const w of batch2) {
+    assert.ok(!batch1.some(b => b.text === w.text), '同一場戰鬥動態補題不應與已出題目重複');
+  }
+
+  // 5. 驗證 AudioEngine 四項設定與情境 BGM 切換
+  const audio = new AudioEngine();
+  audio.applySettings({ bgm: true, sfx: true, speech: true, muted: false });
+  assert.equal(audio.bgmEnabled, true);
+  assert.equal(audio.sfxEnabled, true);
+  assert.equal(audio.setBgmEnabled(false), false);
+  assert.equal(audio.setSfxEnabled(false), false);
+});
+
+test('v2.1.0 教育部離線字典例詞與成語入庫、英文 300 題擴充與完整題庫循環防重', async () => {
+  const { buildAdaptiveQuestionBatch, recordQuestionHistory, getQuestionLengthGroup } = await import('../src/data/gradeQuestionMix.js');
+  const { isDictionaryReading } = await import('../src/data/moeDictionary.js');
+
+  // 1. 驗證 1～6 年級皆已從教育部離線字典 (moeMiniIndex.js) 匯入例詞與成語，且單字、詞語、短句題量充足
+  for (let grade = 1; grade <= 6; grade++) {
+    const words = getGradeMixedWords(grade);
+    const dictExamples = words.filter(w => w.sourceKind === 'dictionary-example');
+    const g0 = words.filter(w => getQuestionLengthGroup(w) === 0);
+    const g1 = words.filter(w => getQuestionLengthGroup(w) === 1);
+    const g2 = words.filter(w => getQuestionLengthGroup(w) === 2);
+
+    assert.ok(dictExamples.length >= 60, `${grade} 年級應包含至少 60 個教育部字典例詞／成語`);
+    assert.ok(g0.length >= 60, `${grade} 年級單字題庫應至少 60 題`);
+    assert.ok(g1.length >= 90, `${grade} 年級 2～4 字詞語與成語題庫應至少 90 題`);
+    assert.ok(g2.length >= 22, `${grade} 年級 5 字以上短句題庫應至少 22 題`);
+
+    for (const item of dictExamples) {
+      const chars = Array.from(item.text);
+      assert.equal(chars.length, item.bopomofo.length);
+      chars.forEach((ch, idx) => {
+        assert.ok(isDictionaryReading(ch, item.bopomofo[idx]), `${item.text} 的 ${ch}(${item.bopomofo[idx]}) 應符合教育部小字典讀音`);
+      });
+    }
+  }
+
+  // 2. 驗證英文題庫由 90 題擴充至 300 題（初階 120、中階 100、高階 80）
+  assert.equal(ENGLISH_PRACTICE_BANKS.easy.length, 120);
+  assert.equal(ENGLISH_PRACTICE_BANKS.medium.length, 100);
+  assert.equal(ENGLISH_PRACTICE_BANKS.hard.length, 80);
+
+  // 3. 驗證完整題庫循環防重：120 題英文初階題庫連續進行 12 場（每場 10 題），120 題全數出完一輪前 0 重複
+  const profile = { recent: [], recentEn: [], practiced: {}, weak: {} };
+  const drawnCycle1 = [];
+  for (let round = 0; round < 12; round++) {
+    const batch = buildAdaptiveQuestionBatch(ENGLISH_PRACTICE_BANKS.easy, 'english', 'easy', {
+      sessionUsed: [],
+      recentList: profile.recentEn,
+      practicedMap: profile.practiced,
+      weakMap: profile.weak,
+      count: 10
+    });
+    assert.equal(batch.length, 10);
+    drawnCycle1.push(...batch.map(w => w.text));
+    recordQuestionHistory(profile, batch, true);
+  }
+  assert.equal(drawnCycle1.length, 120);
+  assert.equal(new Set(drawnCycle1).size, 120, '完整題庫 120 題未全部用完一輪前，不應出現任何重複題目');
+
+  // 第 13 場進入第二輪循環時，仍優先排除第一輪最後 60 題近期題目
+  const tail60 = new Set(drawnCycle1.slice(-60));
+  const round13 = buildAdaptiveQuestionBatch(ENGLISH_PRACTICE_BANKS.easy, 'english', 'easy', {
+    sessionUsed: [],
+    recentList: profile.recentEn,
+    practicedMap: profile.practiced,
+    weakMap: profile.weak,
+    count: 10
+  });
+  for (const w of round13) {
+    assert.ok(!tail60.has(w.text), '進入第二輪循環時應優先排除第一輪末尾 60 道近期題目');
+  }
+});

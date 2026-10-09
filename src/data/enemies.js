@@ -11,6 +11,7 @@ export const HEROES = {
     id: 'yun',
     name: '雲清川',
     title: '少年劍客',
+    school: 'weapon',
     avatar: './assets/icons/yun_avatar_v3.png',
     primaryColor: 0x48cae4,
     secondaryColor: 0x90e0ef,
@@ -20,9 +21,20 @@ export const HEROES = {
     id: 'su',
     name: '蘇映雪',
     title: '靈動女劍士',
+    school: 'weapon',
     avatar: './assets/icons/su_avatar_v3.png',
     primaryColor: 0x72efdd,
     secondaryColor: 0xcaf0f8,
+    robeColor: 0x2d6a4f
+  },
+  mu: {
+    id: 'mu',
+    name: '林牧風',
+    title: '萬獸山莊馴獸師',
+    school: 'beast',
+    avatar: './assets/icons/mu_avatar_v5.png',
+    primaryColor: 0x52b788,
+    secondaryColor: 0x95d5b2,
     robeColor: 0x2d6a4f
   }
 };

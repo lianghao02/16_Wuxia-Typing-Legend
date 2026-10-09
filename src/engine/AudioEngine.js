@@ -13,12 +13,17 @@ export class AudioEngine {
   constructor() {
     this.ctx = null;
     this.muted = false;
+    this.bgmEnabled = true;
+    this.sfxEnabled = true;
     this.speechEnabled = true;
     this.volume = 0.7;
+    this.currentBgmTheme = 'title';
+    this.lastAutoSpeakAt = 0;
+    this.lastAutoWord = '';
   }
 
   init() {
-    if (!this.ctx) {
+    if (!this.ctx && typeof window !== 'undefined') {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
@@ -31,10 +36,28 @@ export class AudioEngine {
 
   setMuted(muted) {
     this.muted = Boolean(muted);
-    if (this.muted && typeof window !== 'undefined' && window.speechSynthesis) {
-      try { window.speechSynthesis.cancel(); } catch {}
+    if (this.muted) {
+      this.stopBgm();
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch {}
+      }
     }
     return this.muted;
+  }
+
+  setBgmEnabled(enabled) {
+    this.bgmEnabled = Boolean(enabled);
+    if (!this.bgmEnabled) {
+      this.stopBgm();
+    } else if (!this.muted && this.currentBgmTheme) {
+      this.startBgm(this.currentBgmTheme);
+    }
+    return this.bgmEnabled;
+  }
+
+  setSfxEnabled(enabled) {
+    this.sfxEnabled = Boolean(enabled);
+    return this.sfxEnabled;
   }
 
   setSpeechEnabled(enabled) {
@@ -43,6 +66,13 @@ export class AudioEngine {
       try { window.speechSynthesis.cancel(); } catch {}
     }
     return this.speechEnabled;
+  }
+
+  applySettings({ bgm = true, sfx = true, speech = true, muted = false } = {}) {
+    this.sfxEnabled = Boolean(sfx);
+    this.setSpeechEnabled(speech);
+    this.setMuted(muted);
+    this.setBgmEnabled(bgm);
   }
 
   toggleMute() {
@@ -75,12 +105,25 @@ export class AudioEngine {
   }
 
   /**
-   * 零體積語音朗讀（打對國字、詞語或英文單字時發音；自動截斷前一句避免延遲堆積）
+   * 智慧語音朗讀：
+   * - 單字、詞語、成語、英文單字完成後自動朗讀
+   * - 長句（8 字以上）預設以手動朗讀為主，不自動朗讀拖慢節奏
+   * - 手動重聽（options.manual = true）具最高優先權，立即播報
+   * - 自動朗讀不任意截斷剛開始未滿 650ms 的前一個完整詞語，亦不排隊堆積
    */
-  speakText(text, lang = 'zh-TW') {
-    if (this.muted || !this.speechEnabled) return false;
+  speakText(text, lang = 'zh-TW', options = {}) {
+    const manual = Boolean(options?.manual);
+    if (this.muted) return false;
+    if (!manual && !this.speechEnabled) return false;
     const clean = String(text ?? '').trim();
     if (!clean) return false;
+
+    const charLen = Array.from(clean).length;
+    const isEnglish = lang.toLowerCase().startsWith('en');
+    // 長句以手動朗讀為主
+    if (!manual && !isEnglish && charLen >= 8) {
+      return false;
+    }
 
     if (this.playCustomSound(`word_${clean}`)) return true;
 
@@ -94,14 +137,21 @@ export class AudioEngine {
 
     try {
       const synth = window.speechSynthesis;
+      const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+      if (!manual && synth.speaking && (now - this.lastAutoSpeakAt) < 650) {
+        // 不讓新自動語音粗暴截斷剛發音的前一個完整詞語，亦不排入長佇列
+        return false;
+      }
       synth.cancel();
       const utter = new SpeechSynthesisUtterance(clean);
       utter.lang = lang;
       const voice = this.pickVoice(lang);
       if (voice) utter.voice = voice;
-      utter.rate = lang.toLowerCase().startsWith('en') ? 0.96 : 1.05;
+      utter.rate = isEnglish ? 0.96 : 1.05;
       utter.pitch = 1.0;
       utter.volume = Math.min(1, Math.max(0.25, this.volume * 1.15));
+      this.lastAutoSpeakAt = now;
+      this.lastAutoWord = clean;
       synth.speak(utter);
       return true;
     } catch {
@@ -113,7 +163,7 @@ export class AudioEngine {
    * 1. 敲對單一注音符號／字母：清脆劍鳴「鏘」，隨 Combo 提升音高
    */
   playKeyHit(combo = 1) {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -145,7 +195,7 @@ export class AudioEngine {
    * 2. 完成單一國字：小型劍光揮砍聲
    */
   playCharSlash(comboTier = 0) {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -183,7 +233,7 @@ export class AudioEngine {
    * 3. 完成整個詞語／必殺技：大範圍劍氣破風與共鳴
    */
   playWordComplete(comboTier = 0) {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -264,7 +314,7 @@ export class AudioEngine {
    * 4. 失誤架招（Miss）：木鐵偏斜震盪聲；若原本達 5 連擊以上則疊加「斷弦破功」音效
    */
   playMiss(previousCombo = 0) {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     if (this.playCustomSound(previousCombo >= 5 ? 'miss_break' : 'miss')) return;
     this.init();
     if (!this.ctx) return;
@@ -307,7 +357,7 @@ export class AudioEngine {
    * 4.5 連擊里程碑專屬音效（5 連清風、10 連驚雷、15+ 連龍鳳宗師劍意）
    */
   playComboMilestone(combo = 5) {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     const tierKey = combo >= 15 ? 'combo_15' : combo >= 10 ? 'combo_10' : 'combo_5';
     if (this.playCustomSound(tierKey)) return;
     this.init();
@@ -393,7 +443,7 @@ export class AudioEngine {
    * 5. 破招成功（看破破綻）：清越金鐘聲
    */
   playParryBreak() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -416,7 +466,7 @@ export class AudioEngine {
    * 6. 玩家受擊
    */
   playPlayerHurt() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -440,7 +490,7 @@ export class AudioEngine {
    * 7. 銅錢與商店購買音效
    */
   playCoin() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -463,7 +513,7 @@ export class AudioEngine {
    * 8. 通關勝利：古箏五聲音階琶音
    */
   playVictory() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -487,7 +537,7 @@ export class AudioEngine {
    * 9. 武功招式：青蓮劍氣
    */
   playSkillSlash() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -511,7 +561,7 @@ export class AudioEngine {
    * 10. 武功招式：凌波微步（冰封定身・玉石風鈴）
    */
   playSkillDodge() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -534,7 +584,7 @@ export class AudioEngine {
    * 11. 武功招式：太極回春（回血甘霖調息）
    */
   playSkillHeal() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -557,7 +607,7 @@ export class AudioEngine {
    * 12. 武功招式：流雲劍訣（全屏大招裂空）
    */
   playUltimateBurst() {
-    if (this.muted) return;
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
@@ -591,51 +641,202 @@ export class AudioEngine {
   }
 
   /**
-   * 13. 古風禪意背景樂 (BGM) - 輕柔五聲古琴撥弦循環
+   * 12.5 依武器流派或靈獸類型播放差異化攻擊音效
+   * - sword: 清脆金屬聲、劍氣
+   * - saber: 沉重斬擊、烈焰
+   * - spear: 破風、雷霆
+   * - beast_dog / beast_wolf: 撲擊、低鳴
+   * - beast_eagle: 破空俯衝
+   * - beast_toad: 毒霧與施術
    */
-  startBgm() {
-    if (this.bgmTimer || this.muted) return;
+  playWeaponAttack(styleOrId = 'sword', isFinisher = false) {
+    if (this.muted || !this.sfxEnabled) return;
     this.init();
     if (!this.ctx) return;
 
-    const melody = [
-      { f: 329.63, delay: 0 },    // E4 (角)
-      { f: 392.00, delay: 1800 }, // G4 (徵)
-      { f: 440.00, delay: 3600 }, // A4 (羽)
-      { f: 523.25, delay: 5400 }, // C5 (宮)
-      { f: 587.33, delay: 7200 }, // D5 (商)
-      { f: 440.00, delay: 9000 }, // A4
-      { f: 392.00, delay: 10800 },// G4
-      { f: 329.63, delay: 12600 } // E4
-    ];
+    const now = this.ctx.currentTime;
+    const gainScale = isFinisher ? 1.25 : 0.9;
+
+    if (styleOrId === 'saber' || styleOrId === 'blade') {
+      // 沉重烈焰斬擊
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(68, now + 0.22);
+      g.gain.setValueAtTime(0.28 * this.volume * gainScale, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+      osc.connect(g);
+      g.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+      return;
+    }
+
+    if (styleOrId === 'spear') {
+      // 破風雷霆突刺
+      [440, 880, 1320].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'triangle';
+        const t = now + i * 0.025;
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.45, t + 0.14);
+        g.gain.setValueAtTime(0.2 * this.volume * gainScale, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.16);
+      });
+      return;
+    }
+
+    if (styleOrId === 'beast_eagle') {
+      // 穿雲靈鷹：高亢鷹嘯與破空俯衝
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1480, now);
+      osc.frequency.exponentialRampToValueAtTime(680, now + 0.21);
+      g.gain.setValueAtTime(0.22 * this.volume * gainScale, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+      osc.connect(g);
+      g.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.24);
+      return;
+    }
+
+    if (styleOrId === 'beast_toad') {
+      // 碧玉毒蟾：深沉蛙鳴施術與毒霧鼓音
+      [185, 240].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        const t = now + i * 0.06;
+        osc.frequency.setValueAtTime(freq, t);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.78, t + 0.16);
+        g.gain.setValueAtTime(0.24 * this.volume * gainScale, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+        osc.connect(g);
+        g.connect(this.ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.19);
+      });
+      return;
+    }
+
+    if (styleOrId === 'beast_dog' || styleOrId === 'beast_wolf' || styleOrId === 'beast') {
+      // 靈犬／蒼狼：迅捷撲咬與低鳴破空
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'triangle';
+      const startF = styleOrId === 'beast_wolf' ? 310 : 390;
+      osc.frequency.setValueAtTime(startF, now);
+      osc.frequency.exponentialRampToValueAtTime(130, now + 0.17);
+      g.gain.setValueAtTime(0.24 * this.volume * gainScale, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+      osc.connect(g);
+      g.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+      return;
+    }
+
+    // 預設劍系：清脆金屬劍氣
+    if (isFinisher) this.playWordComplete(1);
+    else this.playCharSlash(1);
+  }
+
+  /**
+   * 13. 情境國風背景音樂 (BGM)
+   * 支援五種情境：'title' (江湖首頁) | 'battle' (一般戰鬥) | 'boss' (Boss 戰) | 'inn' (客棧) | 'story' (劇情與通關)
+   */
+  startBgm(theme = this.currentBgmTheme || 'title') {
+    this.currentBgmTheme = theme || 'title';
+    if (this.muted || !this.bgmEnabled) return false;
+    if (this.bgmTimer && this.bgmRunning) return true;
+    this.init();
+    if (!this.ctx) return false;
+
+    const themes = {
+      title: {
+        stepMs: 1650,
+        wave: 'sine',
+        gain: 0.048,
+        notes: [329.63, 392.00, 440.00, 523.25, 587.33, 440.00, 392.00, 329.63]
+      },
+      battle: {
+        stepMs: 720,
+        wave: 'triangle',
+        gain: 0.042,
+        notes: [261.63, 329.63, 392.00, 440.00, 392.00, 523.25, 440.00, 392.00]
+      },
+      boss: {
+        stepMs: 480,
+        wave: 'triangle',
+        gain: 0.052,
+        notes: [196.00, 220.00, 261.63, 293.66, 329.63, 293.66, 220.00, 196.00]
+      },
+      inn: {
+        stepMs: 1200,
+        wave: 'sine',
+        gain: 0.045,
+        notes: [392.00, 440.00, 523.25, 659.25, 587.33, 523.25, 440.00, 392.00]
+      },
+      story: {
+        stepMs: 1450,
+        wave: 'sine',
+        gain: 0.046,
+        notes: [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00]
+      }
+    };
 
     let currentStep = 0;
     const playNext = () => {
-      if (!this.bgmRunning || this.muted) return;
-      const note = melody[currentStep % melody.length];
+      if (!this.bgmRunning || this.muted || !this.bgmEnabled || !this.ctx) return;
+      const cfg = themes[this.currentBgmTheme] || themes.title;
+      const freq = cfg.notes[currentStep % cfg.notes.length];
       currentStep++;
 
       const now = this.ctx.currentTime;
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
+      const noteDur = Math.max(0.35, (cfg.stepMs / 1000) * 0.92);
 
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(note.f, now);
-      // 輕柔古風泛音，極低背景音量 0.05
-      gain.gain.setValueAtTime(0.05 * this.volume, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
+      osc.type = cfg.wave;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(cfg.gain * this.volume, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + noteDur);
 
       osc.connect(gain);
       gain.connect(this.ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 1.65);
+      osc.stop(now + noteDur + 0.04);
 
-      this.bgmTimer = setTimeout(playNext, 1800);
+      this.bgmTimer = setTimeout(playNext, cfg.stepMs);
     };
 
     this.bgmRunning = true;
     playNext();
+    return true;
+  }
+
+  switchBgm(theme) {
+    if (!theme) return;
+    const changed = this.currentBgmTheme !== theme;
+    this.currentBgmTheme = theme;
+    if (this.muted || !this.bgmEnabled) return;
+    if (!this.bgmRunning) {
+      this.startBgm(theme);
+    } else if (changed && this.bgmTimer) {
+      clearTimeout(this.bgmTimer);
+      this.bgmTimer = null;
+      this.bgmRunning = false;
+      this.startBgm(theme);
+    }
   }
 
   stopBgm() {
@@ -651,7 +852,7 @@ export class AudioEngine {
       this.stopBgm();
       return false;
     } else {
-      this.startBgm();
+      this.startBgm(this.currentBgmTheme);
       return true;
     }
   }

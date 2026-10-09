@@ -38,8 +38,42 @@ export const CHAPTERS = [
     ['黑風劍陣','duel','protector','護法協助你破解寨主的劍陣。完成十次交手，走向山巔。','劍陣消散，你將完整文章交到寨主手中。'],
     ['以字為劍','boss','boss','最後十招，不為擊倒一個人，而為打破封住記憶的黑風。','最後一道劍光照亮文章，寨主想起自己的初心。傳承文印重新亮起。'] ] }
 ];
-export const ADVENTURE_STAGES = CHAPTERS.flatMap((chapter, c) => chapter.quests.map((q, i) => ({
-  id: c * 5 + i, chapter: c, chapterName: chapter.name, sceneTheme: chapter.theme,
-  name: q[0], kind: q[1], enemy: { visualType: q[2], name: q[0], title: '文印江湖', primaryColor: 0xc0a06c },
-  intro: q[3], outro: q[4], reward: q[1] === 'boss' ? 60 : 30
-})));
+const CHAPTER_HP_TABLE = [
+  { duel: 120, elite: 150, boss: 220, def: 0.00 }, // 第一章：山門初行
+  { duel: 165, elite: 210, boss: 310, def: 0.05 }, // 第二章：竹海尋信
+  { duel: 220, elite: 280, boss: 420, def: 0.08 }, // 第三章：古驛燈火
+  { duel: 270, elite: 350, boss: 550, def: 0.12 }, // 第四章：襄陽會武
+  { duel: 350, elite: 440, boss: 700, def: 0.15 }, // 第五章：月下墨閣
+  { duel: 440, elite: 540, boss: 880, def: 0.18 }  // 第六章：雲海歸字
+];
+
+export const ADVENTURE_STAGES = CHAPTERS.flatMap((chapter, c) => chapter.quests.map((q, i) => {
+  const kind = q[1];
+  const isCombat = kind === 'duel' || kind === 'boss';
+  const isElite = kind === 'duel' && i === 3 && c >= 1;
+  const hpCfg = CHAPTER_HP_TABLE[c] || CHAPTER_HP_TABLE[0];
+  const maxHp = kind === 'boss' ? hpCfg.boss : isElite ? hpCfg.elite : isCombat ? hpCfg.duel : 100;
+  const defense = kind === 'boss' ? hpCfg.def + 0.04 : isElite ? hpCfg.def + 0.02 : isCombat ? hpCfg.def : 0;
+  return {
+    id: c * 5 + i,
+    chapter: c,
+    chapterName: chapter.name,
+    sceneTheme: chapter.theme,
+    name: q[0],
+    kind,
+    isCombat,
+    isElite,
+    targetWords: 10,
+    enemy: {
+      visualType: q[2],
+      name: q[0],
+      title: kind === 'boss' ? '章節首領' : isElite ? '精銳強敵' : '文印江湖',
+      primaryColor: 0xc0a06c,
+      maxHp,
+      defense: Number(defense.toFixed(2))
+    },
+    intro: q[3],
+    outro: q[4],
+    reward: kind === 'boss' ? 60 : isElite ? 40 : 30
+  };
+}));

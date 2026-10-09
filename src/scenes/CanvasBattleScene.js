@@ -8,6 +8,8 @@
  */
 
 import { getWeaponEffectProfile } from '../data/weaponEffects.js';
+import { battleAnimations, animationAliases } from '../data/battleAnimations.js';
+import { BattlePoseAnimation } from './BattlePoseAnimation.js';
 
 function hexToRgb(hexInt) {
   const r = (hexInt >> 16) & 255;
@@ -27,6 +29,8 @@ export class CanvasBattleScene {
     this.heroConfig = null;
     this.weaponConfig = null;
     this.stageConfig = null;
+    this.attackAnimation = new BattlePoseAnimation();
+    this.enemyAnimation = new BattlePoseAnimation();
     this.comboTier = 0;
     this.swordIntentActive = false;
     this.enemyDangerAlert = false;
@@ -84,17 +88,28 @@ export class CanvasBattleScene {
 
   preloadImages() {
     const assets = {
-      // 雙主角 × 5 大神兵（劍／刀／槍）全身立繪 (1080x1440，優先註冊)
+      // 雙主角 × 神兵（劍／刀／槍）全身立繪 (1080x1440，優先註冊)
       yun_wood_sword: './assets/characters/yun_wood_idle_v3.png',
       su_wood_sword: './assets/characters/su_wood_idle_v3.png',
       yun_qingfeng_sword: './assets/characters/yun_qingfeng_idle_v3.png',
       su_qingfeng_sword: './assets/characters/su_qingfeng_idle_v3.png',
       yun_flame_saber: './assets/characters/yun_flame_saber_v4.png',
       su_flame_saber: './assets/characters/su_flame_saber_v4.png',
+      yun_dragon_saber: './assets/characters/yun_flame_saber_v4.png',
+      su_dragon_saber: './assets/characters/su_flame_saber_v4.png',
       yun_xuantie_sword: './assets/characters/yun_xuantie_idle_v3.png',
       su_xuantie_sword: './assets/characters/su_xuantie_idle_v3.png',
+      yun_iron_spear: './assets/characters/yun_thunder_spear_v4.png',
+      su_iron_spear: './assets/characters/su_thunder_spear_v4.png',
       yun_thunder_spear: './assets/characters/yun_thunder_spear_v4.png',
       su_thunder_spear: './assets/characters/su_thunder_spear_v4.png',
+
+      // 第三角色：馴獸師・林牧風與四大靈獸全身立繪 (1080x1440 v5)
+      mu_tamer: './assets/characters/mu_tamer_idle_v5.png',
+      beast_dog: './assets/characters/beast_dog_v5.png',
+      beast_eagle: './assets/characters/beast_eagle_v5.png',
+      beast_toad: './assets/characters/beast_toad_v5.png',
+      beast_wolf: './assets/characters/beast_wolf_v5.png',
 
       // 初階主角專屬格擋／受擊姿態 v4 立繪 (1080x1440，僅限初階布衣＋桃木劍使用)
       yun_wood_hurt: './assets/characters/yun_wood_hurt_v4.png',
@@ -114,7 +129,7 @@ export class CanvasBattleScene {
       enemy_puppet: './assets/enemies/earth_puppet_idle_v3.png',
       enemy_boss: './assets/enemies/blackwind_boss_idle_v3.png',
 
-      // 對手受擊、5/10/15 連擊爆發、失誤偏斜與中毒／灼傷／結冰狀態 v4 視覺特效 (512x512)
+      // 對手受擊、5/10/15 連擊爆發、失誤偏斜、中毒／灼傷／結冰與靈獸破空特效 (512x512)
       fx_training_debris: './assets/effects/training_debris_v4.png',
       fx_humanoid_hit: './assets/effects/humanoid_hit_flash_v4.png',
       fx_combo_5: './assets/effects/combo_5_breeze_v4.png',
@@ -124,6 +139,8 @@ export class CanvasBattleScene {
       fx_status_poison: './assets/effects/status_poison_v4.png',
       fx_status_burn: './assets/effects/status_burn_v4.png',
       fx_status_freeze: './assets/effects/status_freeze_v4.png',
+      fx_beast_claw: './assets/effects/beast_claw_v5.png',
+      fx_beast_dive: './assets/effects/beast_dive_v5.png',
 
       // 6 大水墨戰鬥場景背景 (1920x1080，單檔 4~4.8MB，僅載入當前關卡，其餘排入最低優先閒置預載)
       bg_mountain_gate: './assets/backgrounds/mountain_gate_v3.png',
@@ -139,13 +156,22 @@ export class CanvasBattleScene {
       yun_wood_sword: { x: 0.50, y: 0.794, scale: 1.0 },
       yun_qingfeng_sword: { x: 0.50, y: 0.820, scale: 1.0 },
       yun_flame_saber: { x: 0.50, y: 0.819, scale: 1.0 },
+      yun_dragon_saber: { x: 0.50, y: 0.819, scale: 1.0 },
       yun_xuantie_sword: { x: 0.50, y: 0.834, scale: 1.0 },
+      yun_iron_spear: { x: 0.50, y: 0.834, scale: 1.0 },
       yun_thunder_spear: { x: 0.50, y: 0.834, scale: 1.0 },
       su_wood_sword: { x: 0.50, y: 0.781, scale: 1.0 },
       su_qingfeng_sword: { x: 0.50, y: 0.817, scale: 1.0 },
       su_flame_saber: { x: 0.50, y: 0.818, scale: 1.0 },
+      su_dragon_saber: { x: 0.50, y: 0.818, scale: 1.0 },
       su_xuantie_sword: { x: 0.50, y: 0.817, scale: 1.0 },
+      su_iron_spear: { x: 0.50, y: 0.817, scale: 1.0 },
       su_thunder_spear: { x: 0.50, y: 0.817, scale: 1.0 },
+      mu_tamer: { x: 0.51, y: 0.819, scale: 1.0 },
+      beast_dog: { x: 0.57, y: 0.819, scale: 0.72 },
+      beast_eagle: { x: 0.48, y: 0.779, scale: 0.78 },
+      beast_toad: { x: 0.45, y: 0.819, scale: 0.68 },
+      beast_wolf: { x: 0.38, y: 0.819, scale: 0.80 },
       yun_wood_hurt: { x: 0.50, y: 0.776, scale: 1.08 },
       yun_wood_block: { x: 0.50, y: 0.840, scale: 1.05 },
       su_wood_hurt: { x: 0.50, y: 0.771, scale: 1.06 },
@@ -178,6 +204,15 @@ export class CanvasBattleScene {
 
     // 預先排入背景緩慢預載佇列（人物與敵人優先，大型場景圖殿後）
     this.bgPrefetchQueue = Object.keys(assets);
+    // 新姿態只預載當前組合，避免一次下載全部 76 張。
+    for (const [group, poses] of Object.entries(battleAnimations)) {
+      for (const [pose, frame] of Object.entries(poses)) {
+        const key = `${group}:${pose}`;
+        this.spriteAnchors[key] = frame.anchor;
+        this.imageCache.set(key, { src: `./${frame.path}`, img: null, loaded: false,
+          loading: false, failed: false, retries: 0, promise: null });
+      }
+    }
 
     // 啟動時立即高優先載入預設主角與第一關敵人
     this.loadAsset('yun_wood_sword', 'high');
@@ -286,30 +321,52 @@ export class CanvasBattleScene {
     this.enemyBaseY = this.height * 0.73;
   }
 
-  setupBattle({ hero, weapon, stage }) {
+  setupBattle({ hero, weapon, beast, stage }) {
+    this.attackAnimation.reset();
+    this.enemyAnimation.reset();
+    this.heroPose = 'idle';
+    this.heroPoseTimer = 0;
+    this.heroOffsetX = this.enemyOffsetX = this.heroTilt = this.enemyTilt = 0;
+    this.heroScaleX = this.heroScaleY = 1;
+    this.afterImages.length = this.slashes.length = this.particles.length = 0;
     this.heroConfig = hero;
     this.weaponConfig = weapon;
+    this.beastConfig = beast || (hero?.id === 'mu' ? weapon : null);
     this.stageConfig = stage;
     this.comboTier = 0;
     this.swordIntentActive = false;
     this.enemyDangerAlert = false;
+    this.enemyPoisoned = false;
     this.heroStatus = null;
+    this.beastLungeOffset = 0;
+    this.beastFxTimer = 0;
+    this.beastFxKey = null;
     const theme = stage?.sceneTheme || 'mountain_gate';
     this.initAmbientParticles(theme);
 
-    // 優先載入當前關卡的「少俠立繪」與「對手立繪」，確保切換關卡或換角時秒開不塞車
+    // 優先載入當前關卡的「少俠／靈獸立繪」與「對手立繪」，確保切換關卡或換角時秒開不塞車
     const heroId = hero?.id || 'yun';
-    const weaponId = weapon?.id || 'wood_sword';
+    const weaponId = weapon?.spriteWeaponId || weapon?.id || 'wood_sword';
     const enemyType = stage?.enemy?.visualType || 'straw';
-    const heroKey = `${heroId}_${weaponId}`;
+    const heroKey = heroId === 'mu' ? 'mu_tamer' : `${heroId}_${weaponId}`;
+    const beastKey = heroId === 'mu' ? (this.beastConfig?.spriteKey || this.beastConfig?.id || 'beast_dog') : null;
     const enemyKey = `enemy_${enemyType}`;
     const bgKey = `bg_${theme}`;
     const fxKey = (enemyType === 'straw' || enemyType === 'wood') ? 'fx_training_debris' : 'fx_humanoid_hit';
+    this.heroAnimationGroup = animationAliases[heroKey] || heroKey;
+    this.beastAnimationGroup = beastKey;
+    this.enemyAnimationGroup = animationAliases[enemyKey] || enemyKey;
+    for (const group of [this.heroAnimationGroup, beastKey, this.enemyAnimationGroup]) {
+      for (const pose of Object.keys(battleAnimations[group] || {})) this.loadAsset(`${group}:${pose}`, 'high');
+    }
 
-    Promise.all([
+    const preloadPromises = [
       this.loadAsset(heroKey, 'high'),
       this.loadAsset(enemyKey, 'high')
-    ]).then(() => {
+    ];
+    if (beastKey) preloadPromises.push(this.loadAsset(beastKey, 'high'));
+
+    Promise.all(preloadPromises).then(() => {
       this.loadAsset(bgKey, 'high');
       this.loadAsset(fxKey, 'auto');
       this.loadAsset('fx_combo_5', 'auto');
@@ -319,11 +376,64 @@ export class CanvasBattleScene {
       this.loadAsset('fx_status_poison', 'auto');
       this.loadAsset('fx_status_burn', 'auto');
       this.loadAsset('fx_status_freeze', 'auto');
-      if ((weapon?.tier || 1) === 1) {
+      if (heroId === 'mu') {
+        this.loadAsset('fx_beast_claw', 'auto');
+        this.loadAsset('fx_beast_dive', 'auto');
+      } else if ((weapon?.tier || 1) === 1) {
         this.loadAsset(`${heroId}_wood_block`, 'auto');
         this.loadAsset(`${heroId}_wood_hurt`, 'auto');
       }
     });
+  }
+
+  get reducedMotion() {
+    return this.motionOverride ?? globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  }
+
+  requestAttack(kind = 'char') {
+    const priorities = { char: 0, word: 1, combo: 2, skill: 2, ultimate: 3 };
+    const factor = this.reducedMotion ? 0.42 : kind === 'ultimate' ? 1.4 : 1;
+    const frames = battleAnimations[this.heroAnimationGroup];
+    if (!frames) return;
+    this.attackAnimation.request(['windup', 'attack', 'impact', 'recover'].map(pose => ({
+      pose, durationMs: frames[pose].durationMs * factor
+    })), priorities[kind]);
+    if (this.heroPose === 'block') { this.heroPose = 'idle'; this.heroPoseTimer = 0; }
+  }
+
+  requestEnemyReaction(pose = 'hit') {
+    const frames = battleAnimations[this.enemyAnimationGroup];
+    if (!frames) return;
+    const factor = this.reducedMotion ? 0.42 : 1;
+    this.enemyAnimation.request([pose, 'recover'].map(name => ({
+      pose: name, durationMs: frames[name].durationMs * factor
+    })), pose === 'stagger' ? 1 : 0);
+  }
+
+  playEnemyDefeat() {
+    if (battleAnimations[this.enemyAnimationGroup]) {
+      this.enemyAnimation.request([{ pose: 'defeat', durationMs: 480 }], 10, true);
+    }
+  }
+
+  resolvePoseSprite(baseKey, group, pose) {
+    const key = `${group}:${pose}`;
+    // 尚未載入或失敗時，僅回到同角色／同裝備的正式圖。
+    const img = pose !== 'idle' && battleAnimations[group]?.[pose] ? this.getImage(key, 'high') : null;
+    return { key: img ? key : baseKey, img: img || this.getImage(baseKey, 'high') };
+  }
+
+  clampPoseX(x, group, height) {
+    // 以整組最大輪廓預留武器空間，各姿態不因個別裁切而左右跳動。
+    let left = height * 0.285, right = left;
+    for (const frame of Object.values(battleAnimations[group] || {})) {
+      const [width, imageHeight] = frame.size;
+      const [minX, , maxX] = frame.visibleBounds;
+      const factor = height * frame.anchor.scale / imageHeight;
+      left = Math.max(left, (frame.anchor.x * width - minX) * factor);
+      right = Math.max(right, (maxX - frame.anchor.x * width) * factor);
+    }
+    return Math.max(left + 6, Math.min(this.width - right - 6, x));
   }
 
   initAmbientParticles(theme) {
@@ -364,6 +474,10 @@ export class CanvasBattleScene {
     this.enemyHazard = hazardType || null;
   }
 
+  setEnemyPoisoned(poisoned) {
+    this.enemyPoisoned = Boolean(poisoned);
+  }
+
   /**
    * 設定主角異常狀態視覺（'poison' 碧綠中毒 | 'burn' 赤焰灼傷 | 'freeze' 寒霜結冰 | null 解除）
    */
@@ -385,7 +499,7 @@ export class CanvasBattleScene {
   }
 
   /**
-   * 1. 微觀演出：每敲對一個注音／字母 -> 劍氣聚氣星芒
+   * 1. 微觀演出：每敲對一個注音／字母 -> 劍氣聚氣星芒（馴獸師則發出靈笛號令波紋）
    */
   playMicroGather(combo = 1, comboTier = 0) {
     this.comboTier = comboTier;
@@ -413,16 +527,28 @@ export class CanvasBattleScene {
 
     this.heroScaleX = 1.05;
     this.heroScaleY = 0.96;
+    if (this.heroConfig?.id === 'mu') {
+      this.beastLungeOffset = Math.max(this.beastLungeOffset || 0, 12);
+    }
   }
 
   /**
-   * 2. 中觀演出：完成單一國字 -> 快速弧形劍光／刀光／槍芒斬中敵人
+   * 2. 中觀演出：完成單一國字 -> 快速弧形劍光／刀光／槍芒／靈獸撲擊斬中敵人
    */
   playCharSlash({ charText, damage, isCrit, comboTier }) {
+    this.requestAttack('char');
+    this.requestEnemyReaction('hit');
     const profile = getWeaponEffectProfile(this.weaponConfig);
     const rgb = hexToRgb(profile.color);
     const fxLabel = profile.effectName || '劍氣';
     this.emitWeaponSlashes(false, isCrit);
+
+    if (this.heroConfig?.id === 'mu') {
+      this.beastLungeOffset = 26;
+      const beastId = this.beastConfig?.id || this.weaponConfig?.id || 'beast_dog';
+      this.beastFxKey = beastId === 'beast_eagle' ? 'fx_beast_dive' : beastId === 'beast_toad' ? 'fx_status_poison' : 'fx_beast_claw';
+      this.beastFxTimer = 260;
+    }
 
     this.spawnBurstParticles(this.enemyBaseX, this.enemyBaseY - 75, rgb, profile.particles + (isCrit ? 4 : 0));
     this.enemyOffsetX = 18;
@@ -432,34 +558,44 @@ export class CanvasBattleScene {
       this.enemyBaseX + (Math.random() - 0.5) * 28,
       this.enemyBaseY - 135,
       `${charText ? `【${charText}】` : ''}${fxLabel} ${damage}`,
-      isCrit ? '#ffd166' : profile.style === 'saber' ? '#ff9f1c' : '#90e0ef',
+      isCrit ? '#ffd166' : profile.style === 'saber' ? '#ff9f1c' : profile.style === 'beast' ? '#80ed99' : '#90e0ef',
       isCrit ? 22 : 18
     );
   }
 
   /**
-   * 3. 巨觀演出：完成整個詞語／必殺技 -> 殘影突進 + Hit Stop + 兵器專屬大招氣勁貫穿
+   * 3. 巨觀演出：完成整個詞語／必殺技 -> 殘影突進 + Hit Stop + 兵器／靈獸專屬大招氣勁貫穿
    */
-  playWordFinisher({ wordText, damage, isCrit, isParryBreak, comboTier }) {
+  playWordFinisher({ wordText, damage, isCrit, isParryBreak, comboTier, extraNote = '' }) {
+    this.requestAttack('word');
+    this.requestEnemyReaction(isCrit || isParryBreak ? 'stagger' : 'hit');
     const profile = getWeaponEffectProfile(this.weaponConfig);
     const rgb = hexToRgb(profile.color);
     const fxLabel = profile.effectName || '劍氣';
 
-    // 少俠高速突進殘影
-    for (let i = 1; i <= profile.afterImages; i++) {
-      this.afterImages.push({
-        x: this.heroBaseX + i * (240 / profile.afterImages),
-        y: this.heroBaseY,
-        rgb,
-        alpha: 0.45 - (i / profile.afterImages) * 0.3,
-        life: 0,
-        maxLife: 280
-      });
+    if (this.heroConfig?.id === 'mu') {
+      // 馴獸師原地指揮，靈獸向前撲擊演出（避免角色與靈獸同時奔跑遮擋題目框）
+      this.heroOffsetX = 18;
+      this.beastLungeOffset = Math.min(180, (this.enemyBaseX - this.heroBaseX) * 0.42);
+      const beastId = this.beastConfig?.id || this.weaponConfig?.id || 'beast_dog';
+      this.beastFxKey = beastId === 'beast_eagle' ? 'fx_beast_dive' : beastId === 'beast_toad' ? 'fx_status_poison' : 'fx_beast_claw';
+      this.beastFxTimer = 420;
+    } else {
+      // 少俠高速突進殘影
+      for (let i = 1; i <= profile.afterImages; i++) {
+        this.afterImages.push({
+          x: this.heroBaseX + i * (240 / profile.afterImages),
+          y: this.heroBaseY,
+          rgb,
+          alpha: 0.45 - (i / profile.afterImages) * 0.3,
+          life: 0,
+          maxLife: 280
+        });
+      }
+      this.heroOffsetX = (this.enemyBaseX - this.heroBaseX) * 0.58;
     }
 
-    this.heroOffsetX = (this.enemyBaseX - this.heroBaseX) * 0.58;
-
-    // 兵器專屬斬擊／刀芒／槍芒
+    // 兵器／靈獸專屬斬擊／刀芒／槍芒／爪擊
     this.emitWeaponSlashes(true, isCrit);
 
     // Hit Stop 瞬間頓幀 75ms + 畫面微震
@@ -477,7 +613,8 @@ export class CanvasBattleScene {
     this.enemyTilt = 0.14;
     this.enemyHitFxTimer = this.enemyHitFxMax;
 
-    const label = `${isParryBreak ? '⚡看破破綻！' : profile.name}・${fxLabel} ${damage}・破題 +1`;
+    const suffix = extraNote || '破題 +1';
+    const label = `${isParryBreak ? '⚡看破破綻！' : profile.name}・${fxLabel} ${damage}・${suffix}`;
     this.spawnFloatingText(this.enemyBaseX, this.enemyBaseY - 155, label, '#ffd166', 25);
   }
 
@@ -486,6 +623,64 @@ export class CanvasBattleScene {
     const rgb = hexToRgb(profile.color);
     const cuts = finisher ? profile.finisherCuts : profile.charCuts;
     const waves = finisher ? profile.finisherWaves : profile.charWaves;
+
+    if (profile.style === 'beast') {
+      const beastId = profile.beastId || this.beastConfig?.id || 'beast_dog';
+      if (beastId === 'beast_eagle') {
+        // 靈鷹：高空斜向金青穿雲羽刃俯衝
+        for (let i = -1; i <= 1; i++) {
+          this.slashes.push({
+            x1: this.enemyBaseX - 95 + i * 16,
+            y1: this.enemyBaseY - 175 + i * 12,
+            x2: this.enemyBaseX + 65 + i * 16,
+            y2: this.enemyBaseY - 15 + i * 12,
+            rgb,
+            secondaryRgb: '255, 209, 102',
+            isSpearThrust: true,
+            isWave: false,
+            thickness: (finisher ? 7 : 4) + (isCrit ? 2 : 0),
+            life: 0,
+            maxLife: profile.lifetime + 40
+          });
+        }
+        return;
+      }
+      if (beastId === 'beast_toad') {
+        // 毒蟾：碧紫雙重毒霧氣環
+        for (let i = 0; i < (finisher ? 2 : 1); i++) {
+          this.slashes.push({
+            x1: this.enemyBaseX + i * 14,
+            y1: this.enemyBaseY - 72,
+            rgb: '82, 183, 136',
+            secondaryRgb: '157, 78, 221',
+            isSaberArc: true,
+            isWave: true,
+            radius: (finisher ? 92 : 68) - i * 18,
+            life: 0,
+            maxLife: profile.lifetime + 60
+          });
+        }
+        return;
+      }
+      // 靈犬／蒼狼：三道平行破空利爪斬痕
+      for (let i = -1; i <= 1; i++) {
+        const offset = i * 22;
+        this.slashes.push({
+          x1: this.enemyBaseX - 82,
+          x2: this.enemyBaseX + 82,
+          y1: this.enemyBaseY - 135 + offset,
+          y2: this.enemyBaseY - 25 + offset,
+          rgb,
+          secondaryRgb: beastId === 'beast_wolf' ? '202, 240, 248' : '255, 209, 102',
+          isSaberArc: true,
+          isWave: false,
+          thickness: (finisher ? 6 : 4) + (isCrit ? 2 : 0),
+          life: 0,
+          maxLife: profile.lifetime
+        });
+      }
+      return;
+    }
 
     if (profile.style === 'spear') {
       // 槍系（龍膽亮銀槍）：長距離直線貫穿雷霆槍芒 + 十字槍花閃電
@@ -581,6 +776,8 @@ export class CanvasBattleScene {
    * 4.1 武功招式：青蓮劍氣 (消耗 2 內力)
    */
   playSkillSlash({ damage, isCrit = false }) {
+    this.requestAttack('skill');
+    this.requestEnemyReaction('stagger');
     const rgb = isCrit ? '245, 159, 0' : '72, 202, 228';
     this.heroOffsetX = 20;
 
@@ -668,6 +865,8 @@ export class CanvasBattleScene {
    * 4.4 武功絕招：隨所持「劍／刀／槍」自動切換三流派絕學大招演出
    */
   playUltimateBurst({ damage, style, ultName }) {
+    this.requestAttack('ultimate');
+    this.requestEnemyReaction('stagger');
     const activeStyle = style || this.weaponConfig?.style || 'sword';
     const labelName = ultName || this.weaponConfig?.ultName || '流雲劍訣';
     const rgb =
@@ -821,6 +1020,8 @@ export class CanvasBattleScene {
    * 4.5 連擊里程碑大特效（連續打對 5 字清風劍氣、10 字驚雷流雲、15+ 字龍鳳宗師劍意）
    */
   playComboMilestone(combo = 5) {
+    this.requestAttack('combo');
+    this.requestEnemyReaction('stagger');
     if (combo >= 15) {
       this.comboTier = 3;
       this.setSwordIntentMode(true);
@@ -936,8 +1137,13 @@ export class CanvasBattleScene {
     if (this.comboBurstFxTimer > 0) {
       this.comboBurstFxTimer = Math.max(0, this.comboBurstFxTimer - dt);
     }
+    if (this.beastFxTimer > 0) {
+      this.beastFxTimer = Math.max(0, this.beastFxTimer - dt);
+    }
 
     if (this.isHitStop) return;
+    this.attackAnimation.tick(dt);
+    this.enemyAnimation.tick(dt);
 
     this.breathTime += dt * 0.0038;
 
@@ -946,6 +1152,7 @@ export class CanvasBattleScene {
     this.heroTilt *= 0.82;
     this.heroScaleX += (1 - this.heroScaleX) * 0.22;
     this.heroScaleY += (1 - this.heroScaleY) * 0.22;
+    this.beastLungeOffset = (this.beastLungeOffset || 0) * 0.80;
     this.enemyOffsetX *= 0.82;
     this.enemyTilt *= 0.82;
 
@@ -1008,7 +1215,7 @@ export class CanvasBattleScene {
     const h = this.height;
 
     ctx.save();
-    if (this.shakeTime > 0) {
+    if (this.shakeTime > 0 && !this.reducedMotion) {
       const dx = (Math.random() - 0.5) * this.shakeIntensity * 2;
       const dy = (Math.random() - 0.5) * this.shakeIntensity * 2;
       ctx.translate(dx, dy);
@@ -1030,13 +1237,13 @@ export class CanvasBattleScene {
     }
 
     // 3. 劍意狀態背景壓暗
-    if (this.swordIntentActive) {
+    if (this.swordIntentActive && !this.reducedMotion) {
       ctx.fillStyle = 'rgba(8, 12, 20, 0.42)';
       ctx.fillRect(0, 0, w, h);
     }
 
     // 4. 繪製殘影
-    for (const ghost of this.afterImages) {
+    for (const ghost of this.reducedMotion ? [] : this.afterImages) {
       const ratio = 1 - ghost.life / ghost.maxLife;
       ctx.fillStyle = `rgba(${ghost.rgb}, ${ghost.alpha * ratio})`;
       ctx.beginPath();
@@ -1045,16 +1252,16 @@ export class CanvasBattleScene {
     }
 
     // 5. 繪製少俠與敵人
-    const breathOffset = Math.sin(this.breathTime) * 3.5;
+    const breathOffset = this.reducedMotion ? 0 : Math.sin(this.breathTime) * 3.5;
     this.drawHero(
       ctx,
-      this.heroBaseX + this.heroOffsetX,
+      this.heroBaseX + (this.reducedMotion ? 0 : this.heroOffsetX),
       this.heroBaseY + breathOffset
     );
     this.drawEnemy(
       ctx,
-      this.enemyBaseX + this.enemyOffsetX,
-      this.enemyBaseY + Math.sin(this.breathTime + 1.2) * 3
+      this.enemyBaseX + (this.reducedMotion ? 0 : this.enemyOffsetX),
+      this.enemyBaseY + (this.reducedMotion ? 0 : Math.sin(this.breathTime + 1.2) * 3)
     );
 
     // 6. 繪製劍光斬擊、赤炎刀罡與雷霆槍芒
@@ -1294,9 +1501,9 @@ export class CanvasBattleScene {
     const swordRgb = hexToRgb(weapon.slashColor);
 
     ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(this.heroTilt || 0);
-    ctx.scale(this.heroScaleX, this.heroScaleY);
+    ctx.translate(this.clampPoseX(x, this.heroAnimationGroup, this.getFighterImageHeight()), y);
+    ctx.rotate(this.reducedMotion ? 0 : this.heroTilt || 0);
+    ctx.scale(this.reducedMotion ? 1 : this.heroScaleX, this.reducedMotion ? 1 : this.heroScaleY);
 
     // 腳下劍氣光陣（若處於中毒／灼傷／結冰狀態則轉為對應元素警示法陣）
     const statusAuraMap = {
@@ -1330,7 +1537,7 @@ export class CanvasBattleScene {
         const auraSize = baseH * (0.64 + this.comboTier * 0.06);
         ctx.save();
         ctx.translate(0, -baseH * 0.36);
-        ctx.rotate(this.breathTime * (0.4 + this.comboTier * 0.2));
+        ctx.rotate(this.reducedMotion ? 0 : this.breathTime * (0.4 + this.comboTier * 0.2));
         ctx.globalAlpha = 0.28 + this.comboTier * 0.08;
         ctx.drawImage(auraImg, -auraSize / 2, -auraSize / 2, auraSize, auraSize);
         ctx.restore();
@@ -1339,41 +1546,61 @@ export class CanvasBattleScene {
 
     // 依主角 ID、裝備神兵與當前姿態選擇立繪：
     // 四張 hurt/block v4 圖僅支援初階（tier === 1 布衣＋桃木短劍），中高階維持原階級立繪避免服裝跳回初階
-    const baseSpriteKey = `${hero.id}_${weapon.id || 'wood_sword'}`;
+    const isTamer = hero.id === 'mu';
+    const spriteWeaponId = weapon.spriteWeaponId || weapon.id || 'wood_sword';
+    const baseSpriteKey = isTamer ? 'mu_tamer' : `${hero.id}_${spriteWeaponId}`;
     const poseSpriteKey =
-      tier === 1 && (this.heroPose === 'block' || this.heroPose === 'hurt')
+      !isTamer && tier === 1 && (this.heroPose === 'block' || this.heroPose === 'hurt')
         ? `${hero.id}_wood_${this.heroPose}`
         : baseSpriteKey;
 
     const poseImg = poseSpriteKey !== baseSpriteKey ? this.getImage(poseSpriteKey, 'auto') : null;
-    const activeSpriteKey = poseImg ? poseImgKey(poseSpriteKey) : baseSpriteKey;
-    function poseImgKey(k) { return k; }
-    const heroImg =
-      poseImg ||
-      this.getImage(baseSpriteKey, 'high') ||
-      (!this.imageCache.has(baseSpriteKey) ? this.getImage('yun_wood_sword', 'high') : null);
+    const animated = this.resolvePoseSprite(baseSpriteKey, this.heroAnimationGroup, this.attackAnimation.pose);
+    const activeSpriteKey = poseImg ? poseSpriteKey : animated.key;
+    const heroImg = poseImg || animated.img;
 
     if (heroImg) {
-      // v3/v4 立繪四周含 15% 安全留白，乘上 anchor.scale 確保 idle/block/hurt 切換時頭部與鞋底高度一致
+      // v3/v4/v5 立繪四周含 15% 安全留白，乘上 anchor.scale 確保切換時頭部與鞋底高度一致
       const anchor = this.spriteAnchors?.[activeSpriteKey] || { x: 0.50, y: 0.80, scale: 1.0 };
       const targetH = baseH * (anchor.scale || 1.0);
       const targetW = targetH * (heroImg.width / heroImg.height);
       const anchorX = anchor.x * targetW;
       const anchorY = anchor.y * targetH;
+      const heroOffsetX = isTamer ? -22 : 0;
 
       ctx.save();
       if (this.heroStatus === 'poison') {
-        // 中毒綠綠感：人物全身泛起碧綠毒光與綠暈
         ctx.filter = 'sepia(0.65) hue-rotate(65deg) saturate(2.8) brightness(0.96) drop-shadow(0 0 16px rgba(56, 176, 0, 0.92))';
       } else if (this.heroStatus === 'burn') {
-        // 灼傷紅焰感：人物全身泛起赤紅火光與熱浪
         ctx.filter = 'sepia(0.65) hue-rotate(-34deg) saturate(3.1) brightness(1.06) drop-shadow(0 0 18px rgba(255, 77, 0, 0.95))';
       } else if (this.heroStatus === 'freeze') {
-        // 結冰凍結感：人物全身泛起寒冰青藍霜光
         ctx.filter = 'sepia(0.55) hue-rotate(155deg) saturate(2.8) brightness(1.12) drop-shadow(0 0 18px rgba(0, 180, 216, 0.95))';
       }
-      ctx.drawImage(heroImg, -anchorX, -anchorY + 6, targetW, targetH);
+      ctx.drawImage(heroImg, -anchorX + heroOffsetX, -anchorY + 6, targetW, targetH);
       ctx.restore();
+
+      // 若為馴獸師，於身前繪製出戰靈獸（打字完成時產生局部撲擊位移，不遮擋中央題目區）
+      if (isTamer) {
+        const beastKey = this.beastConfig?.spriteKey || this.beastConfig?.id || 'beast_dog';
+        const beastSprite = this.resolvePoseSprite(beastKey, this.beastAnimationGroup, this.attackAnimation.pose);
+        const beastImg = beastSprite.img;
+        if (beastImg) {
+          const beastAnchor = this.spriteAnchors?.[beastSprite.key] || { x: 0.50, y: 0.80, scale: 0.75 };
+          const beastH = baseH * (beastAnchor.scale || 0.75);
+          const beastW = beastH * (beastImg.width / beastImg.height);
+          const lungeX = 52 + (this.reducedMotion ? 0 : this.beastLungeOffset || 0);
+          const flyOffsetY = beastKey === 'beast_eagle' ? -28 + (this.reducedMotion ? 0 : Math.sin(this.breathTime * 3.2) * 6) : 6;
+          ctx.save();
+          ctx.drawImage(
+            beastImg,
+            -beastAnchor.x * beastW + lungeX,
+            -beastAnchor.y * beastH + flyOffsetY,
+            beastW,
+            beastH
+          );
+          ctx.restore();
+        }
+      }
     } else {
       // --- 備援降級向量繪製（無圖時等比放大 1.4 倍） ---
       ctx.save();
@@ -1494,7 +1721,7 @@ export class CanvasBattleScene {
       }
     }
 
-    // 角色名牌（含兵器與異常狀態標示）
+    // 角色名牌（含兵器／靈獸與異常狀態標示）
     const statusBadge =
       this.heroStatus === 'poison'
         ? ' ☠️中毒'
@@ -1503,6 +1730,8 @@ export class CanvasBattleScene {
         : this.heroStatus === 'freeze'
         ? ' ❄️結冰'
         : '';
+    const activeGear = isTamer && this.beastConfig ? this.beastConfig : weapon;
+    const gearLabel = activeGear.name.split('・')[1] || activeGear.name;
     ctx.font = 'bold 13px "Microsoft JhengHei", sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = this.heroStatus ? 'rgba(28, 12, 18, 0.82)' : 'rgba(0, 0, 0, 0.65)';
@@ -1515,7 +1744,7 @@ export class CanvasBattleScene {
         : this.heroStatus === 'freeze'
         ? '#90e0ef'
         : '#f4f0e6';
-    ctx.fillText(`${hero.name}｜${weapon.name.split('・')[1] || weapon.name}${statusBadge}`, 0, 36);
+    ctx.fillText(`${hero.name}｜${gearLabel}${statusBadge}`, 0, 36);
 
     ctx.restore();
   }
@@ -1536,8 +1765,8 @@ export class CanvasBattleScene {
     const rgb = (this.enemyHazard && hazardAuraMap[this.enemyHazard]) || hexToRgb(enemy.primaryColor || 0xd4a373);
 
     ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(this.enemyTilt);
+    ctx.translate(this.clampPoseX(x, this.enemyAnimationGroup, this.getFighterImageHeight() * (type === 'boss' ? 1.08 : 1)), y);
+    ctx.rotate(this.reducedMotion ? 0 : this.enemyTilt);
 
     // 腳下陰影與屬性法陣（毒／火／冰敵人自帶對應元素光陣，蓄力 >75% 時強烈脈動）
     const pulseAlpha = this.enemyDangerAlert ? 0.55 + Math.sin(this.breathTime * 5) * 0.2 : (this.enemyHazard ? 0.36 : 0.28);
@@ -1555,20 +1784,21 @@ export class CanvasBattleScene {
 
     // 優先使用 10 大代表敵人之 v3 全身立繪
     const enemyKey = `enemy_${type}`;
-    const enemyImg =
-      this.getImage(enemyKey, 'high') ||
-      (!this.imageCache.has(enemyKey) ? this.getImage('enemy_straw', 'high') : null);
+    const enemySprite = this.resolvePoseSprite(enemyKey, this.enemyAnimationGroup, this.enemyAnimation.pose);
+    const enemyImg = enemySprite.img;
+    const anchor = this.spriteAnchors?.[enemySprite.key] || { x: 0.50, y: 0.80, scale: 1 };
     const baseH = this.getFighterImageHeight();
-    const targetH = type === 'boss' ? baseH * 1.08 : baseH;
+    const targetH = baseH * (type === 'boss' ? 1.08 : 1) * (anchor.scale || 1);
 
     if (enemyImg) {
       const targetW = targetH * (enemyImg.width / enemyImg.height);
-      const anchor = this.spriteAnchors?.[enemyKey] || { x: 0.50, y: 0.80 };
       const anchorX = anchor.x * targetW;
       const anchorY = anchor.y * targetH;
 
       ctx.save();
-      if (this.enemyDangerAlert) {
+      if (this.enemyPoisoned) {
+        ctx.filter = 'sepia(0.55) hue-rotate(65deg) saturate(2.5) drop-shadow(0 0 14px rgba(56, 176, 0, 0.88))';
+      } else if (this.enemyDangerAlert) {
         if (this.enemyHazard === 'poison') {
           ctx.filter = ' brightness(1.08) drop-shadow(0 0 18px rgba(56, 176, 0, 0.95))';
         } else if (this.enemyHazard === 'burn') {
@@ -1633,6 +1863,20 @@ export class CanvasBattleScene {
       }
     }
 
+    // 靈獸專屬爪擊／俯衝／毒霧特效疊加（v5）
+    if (this.beastFxTimer > 0 && this.beastFxKey) {
+      const beastFxImg = this.getImage(this.beastFxKey, 'auto');
+      if (beastFxImg) {
+        const progress = Math.min(1, Math.max(0, this.beastFxTimer / (this.beastFxMax || 520)));
+        const fxSize = targetH * 0.68 * (1.14 - progress * 0.16);
+        ctx.save();
+        ctx.translate(0, -targetH * 0.42);
+        ctx.globalAlpha = Math.sin(progress * Math.PI) * 0.92;
+        ctx.drawImage(beastFxImg, -fxSize / 2, -fxSize / 2, fxSize, fxSize);
+        ctx.restore();
+      }
+    }
+
     // 受擊特效疊加（v4）：練功靶（稻草人／木人樁）顯示草木碎屑，人型敵人顯示受擊白光
     if (this.enemyHitFxTimer > 0) {
       const fxKey = type === 'straw' || type === 'wood' ? 'fx_training_debris' : 'fx_humanoid_hit';
@@ -1664,7 +1908,9 @@ export class CanvasBattleScene {
 
     // 敵人名牌（含屬性與蓄力即將出招警示）
     const hazardBadge =
-      this.enemyHazard === 'poison'
+      this.enemyPoisoned
+        ? '☠️中毒'
+        : this.enemyHazard === 'poison'
         ? '☠️毒'
         : this.enemyHazard === 'burn'
         ? '🔥火'
@@ -1675,7 +1921,7 @@ export class CanvasBattleScene {
     ctx.textAlign = 'center';
     ctx.fillStyle = this.enemyDangerAlert ? 'rgba(92, 16, 24, 0.88)' : 'rgba(0, 0, 0, 0.65)';
     ctx.fillRect(-90, 20, 180, 24);
-    ctx.fillStyle = this.enemyDangerAlert ? '#ffd166' : '#ffccd5';
+    ctx.fillStyle = this.enemyDangerAlert ? '#ffd166' : this.enemyPoisoned ? '#80ed99' : '#ffccd5';
     const nameLabel = this.enemyDangerAlert
       ? `⚡即將出招！${enemy.name}${hazardBadge ? `(${hazardBadge})` : ''}`
       : `${enemy.name}（${hazardBadge || enemy.title}）`;
