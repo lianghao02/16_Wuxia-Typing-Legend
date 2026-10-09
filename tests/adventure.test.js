@@ -433,13 +433,15 @@ test('全部 30 關統一採用 RPG 氣血制，且多字詞須整題打完才�
     assert.ok(s.enemy.maxHp >= 150, `關卡 ${s.id} (${s.name}) 應具備 RPG 氣血上限`);
   }
 
-  // 2. charComplete 不提前呼叫 applyPlayerAttack('char') 扣減敵人血量或中途結束戰鬥
+  // 2. charComplete 不提前呼叫 applyPlayerAttack('char') 扣減敵人血量或中途結束戰鬥，且不扣減敵方 ATB
   assert.ok(!adventureCode.includes("applyPlayerAttack('char'"), '單字完成不應提前扣減敵方氣血');
   assert.ok(adventureCode.includes("applyPlayerAttack('word'"), '整題完成才統一結算敵方氣血傷害');
+  assert.ok(adventureCode.includes('const isMultiChar = wordLen >= 2'), '2 字以上詞句不打斷敵方集氣攻擊');
+  assert.ok(!adventureCode.includes('session.atb = Math.max(0, session.atb - charAtbBreak)'), '連字途中不扣減敵方集氣');
 
-  // 3. 單字完成具備至少 18% 蓄力擊退量，整題完成具備 40%+ 蓄力擊退量，防止四字詞打到一半被敵人滿氣偷打
+  // 3. 單字題完成仍保留蓄力壓制計算，大絕招可擊退敵方蓄力
   const charCheck = calculateAttackDamage({ actionType: 'char', loadout: ADVENTURE_WEAPONS[0] });
-  const wordCheck = calculateAttackDamage({ actionType: 'word', wordObj: { text: '行俠仗義' }, loadout: ADVENTURE_WEAPONS[0] });
+  const wordCheck = calculateAttackDamage({ actionType: 'word', wordObj: { text: '俠' }, loadout: ADVENTURE_WEAPONS[0] });
   assert.ok(charCheck.atbBreak >= 18);
   assert.ok(wordCheck.atbBreak >= 40);
 });

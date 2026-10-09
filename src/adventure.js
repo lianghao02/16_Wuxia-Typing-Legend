@@ -464,21 +464,19 @@ function applyPlayerAttack(actionType, extra = {}) {
     isParryBreak: Boolean(extra.isParryBreak),
     isPerfectWord: Boolean(extra.isPerfectWord)
   });
-  let totalDmg = dmgResult.finalDamage;
+  const totalDmg = dmgResult.finalDamage;
   if (actionType === 'word' && (dmgResult.applyPoison || session.enemyPoisonTurns > 0)) {
     if (dmgResult.applyPoison) {
       session.enemyPoisonTurns = Math.max(session.enemyPoisonTurns || 0, dmgResult.poisonTurns || 3);
       scene.setEnemyPoisoned(true);
     }
     if (session.enemyPoisonTurns > 0) {
-      const dot = dmgResult.poisonDamage || Math.min(stage.kind === 'boss' ? 35 : 45, Math.max(6, Math.round(session.enemyMaxHp * 0.045)));
-      totalDmg += dot;
       session.enemyPoisonTurns = Math.max(0, session.enemyPoisonTurns - 1);
       if (session.enemyPoisonTurns === 0) scene.setEnemyPoisoned(false);
     }
   }
   session.enemyHp = Math.max(0, session.enemyHp - totalDmg);
-  if (dmgResult.atbBreak > 0) {
+  if ((actionType === 'ultimate' || actionType === 'ult') && dmgResult.atbBreak > 0) {
     session.atb = Math.max(0, session.atb - dmgResult.atbBreak);
   }
   if (stage.kind === 'boss') {
@@ -747,11 +745,7 @@ engine.on('keyHit',()=>{
   audio.playKeyHit(engine.combo);scene.playMicroGather(engine.combo,engine.getComboTier());
 });
 engine.on('charComplete',event=>{
-  const loadout = getLoadout(), bracer = getBracer();
   if (!event.isLastChar) {
-    const charAtbBreak = 18 + (bracer.knockbackBonus || 0) + (loadout.id === 'beast_dog' ? 4 : 0);
-    session.atb = Math.max(0, session.atb - charAtbBreak);
-    readUntil = Math.max(readUntil, performance.now() + 260);
     scene.playMicroGather(event.combo, event.comboTier);
   }
   // 若處於中毒／灼傷／結冰狀態，連續打對 2 個字即可運功逼毒／滅火／破冰！
@@ -769,9 +763,8 @@ engine.on('charComplete',event=>{
         scene.setHeroStatus(null, '💨 刀劍生風滅火！內力 +1');
         notify('💨 連打 2 字劍風滅火成功！灼傷解除，內力＋1！');
       } else {
-        session.atb = Math.max(0, session.atb - 20);
         scene.setHeroStatus(null, '⚡ 真氣破冰而出！');
-        notify('⚡ 連打 2 字真氣破冰而出！寒霜震碎，擊退對手蓄力！');
+        notify('⚡ 連打 2 字真氣破冰而出！寒霜震碎！');
       }
     }
   }
@@ -779,14 +772,14 @@ engine.on('charComplete',event=>{
     audio.playComboMilestone(event.combo);
     scene.playComboMilestone(event.combo);
     if(event.combo>=15){
-      session.shield=1;session.qi=5;save.coins+=10;session.atb=Math.max(0,session.atb-40);
+      session.shield=1;session.qi=5;save.coins+=10;
       notify(`🐉 連續 ${event.combo} 字・龍鳳文印劍意！（銅錢＋10・內力滿・護印加持）`);
     }else if(event.combo===10){
-      session.hp=Math.min(100,session.hp+10);save.coins+=5;session.atb=Math.max(0,session.atb-25);
-      notify('⚡ 連續 10 字・驚雷流雲！（氣血＋10・銅錢＋5・擊退蓄力）');
+      session.hp=Math.min(100,session.hp+10);save.coins+=5;
+      notify('⚡ 連續 10 字・驚雷流雲！（氣血＋10・銅錢＋5）');
     }else{
-      session.qi=Math.min(5,session.qi+1);session.atb=Math.max(0,session.atb-15);
-      notify('🌪️ 連續 5 字・清風劍氣！（內力＋1・擊退對手蓄力）');
+      session.qi=Math.min(5,session.qi+1);
+      notify('🌪️ 連續 5 字・清風劍氣！（內力＋1）');
     }
   }
   render(); rememberSession();
@@ -839,21 +832,20 @@ engine.on('miss',event=>{
 engine.on('wordComplete',event=>{
   const loadout = getLoadout(), bracer = getBracer();
   engine.active=false; session.cursor++;
+  const wordLen = Array.from(event.word?.text || '').length;
+  const isMultiChar = wordLen >= 2;
   const isParryBreak = session.atb >= 75;
   const isZeroMissWord = wordMisses === 0;
-  const isPerfectWord = isZeroMissWord && Array.from(event.word?.text || '').length >= 2;
+  const isPerfectWord = isZeroMissWord && isMultiChar;
   wordMisses = 0;
   const qiDelta = Math.max(1, (bracer.qiGain || 1) + (loadout.qiGainMod || 0) + (isParryBreak ? 1 : 0));
   session.qi=Math.min(5,session.qi+qiDelta);
   if(loadout.healPerWord) session.hp=Math.min(100,session.hp+loadout.healPerWord);
-  if (isParryBreak) {
-    session.atb = 0;
-    frozenUntil = Math.max(frozenUntil, performance.now() + 2200);
-  } else {
-    session.atb=Math.max(0,session.atb-(CONFIG.knockbackAtb+(loadout.knockbackBonus||0)+(bracer.knockbackBonus||0)*2));
+  // 打 2 個字以上的詞語或長句時，完全不打斷敵人集氣攻擊（僅單字題小幅壓制蓄力）
+  if (!isMultiChar) {
+    session.atb = Math.max(0, session.atb - 10);
   }
   const atk = applyPlayerAttack('word', { wordObj: event.word, combo: engine.combo, isParryBreak, isPerfectWord });
-  session.atb = Math.min(20, session.atb);
   audio.playWeaponAttack(loadout.style === 'beast' ? (loadout.spriteKey || loadout.id) : loadout.style, true);
   audio.playWordComplete(engine.getComboTier());
   audio.speakText?.(event.word.text,engine.mode==='english'?'en-US':'zh-TW',{manual:false});
@@ -876,7 +868,7 @@ engine.on('wordComplete',event=>{
     return;
   }
   ensureSessionQueue();
-  engine.loadWord(session.queue[session.cursor]); session.typing=null; readUntil=performance.now()+550;
+  engine.loadWord(session.queue[session.cursor]); session.typing=null; readUntil=performance.now()+(isMultiChar?0:220);
   engine.active=true; render(); rememberSession();
   if(!(event.combo>=5&&event.combo%5===0)){
     const phaseName = stage.kind === 'boss' ? `${bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0).name} · ` : '';
