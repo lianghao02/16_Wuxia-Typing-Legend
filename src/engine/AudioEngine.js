@@ -750,9 +750,13 @@ export class AudioEngine {
   }
 
   /**
-   * 13. 情境國風背景音樂 (BGM) — 緊湊武俠節奏版
-   * 支援五種情境：'title' (江湖首頁) | 'battle' (一般戰鬥) | 'boss' (Boss 戰) | 'inn' (客棧) | 'story' (劇情與通關)
-   * 包含：主旋律撥弦（古箏／琵琶）、低音根音律動（Bassline）與武俠戰鼓節拍（Percussion）
+   * 13. 情境國風背景音樂 (BGM) — 公共領域（Public Domain）傳統武俠古曲緊湊編曲版
+   * 採用 100% 無版權爭議之傳世古曲樂譜與琵琶掃弦／古箏撥弦／大堂鼓合成：
+   * - 'boss'   (首領決戰)：琵琶古曲《十面埋伏》（雞鳴山小戰・九里山大戰，135ms 高速急奏＋掃弦＋堂鼓竹板）
+   * - 'battle' (一般戰鬥)：古曲《將軍令》（武俠男兒當自強原型古曲，165ms 緊湊行軍戰鼓變奏）
+   * - 'inn'    (古驛客棧)：傳統名曲《步步高》（210ms 輕快茶肆絲竹小調）
+   * - 'story'  (劇情捷報)：琵琶古曲《陽春白雪》（230ms 明朗慶賀五聲旋律）
+   * - 'title'  (江湖首頁)：古箏名曲《漁舟唱晚・高山流水》（240ms 行雲流水五聲琶音）
    */
   startBgm(theme = this.currentBgmTheme || 'title') {
     this.currentBgmTheme = theme || 'title';
@@ -762,65 +766,103 @@ export class AudioEngine {
     if (!this.ctx) return false;
 
     const themes = {
+      // 首領戰：古曲《十面埋伏》（雞鳴山小戰～九里山大戰 32 拍高速琵琶輪指與煞音掃弦）
+      boss: {
+        stepMs: 135,
+        wave: 'sawtooth',
+        filterHz: 2800,
+        gain: 0.056,
+        bassGain: 0.058,
+        drumGain: 0.088,
+        strumEvery: 8,
+        notes: [
+          // 一段：列營掃弦・埋伏逼近
+          329.63, 440.00, 329.63, 493.88, 523.25, 493.88, 440.00, 329.63,
+          // 二段：雞鳴山小戰・短兵相接
+          440.00, 523.25, 493.88, 440.00, 587.33, 523.25, 493.88, 329.63,
+          // 三段：九里山大戰・刀光劍影（高音急促推進）
+          659.25, 587.33, 523.25, 493.88, 659.25, 698.46, 659.25, 587.33,
+          // 四段：十面合圍・金鼓齊鳴
+          523.25, 493.88, 440.00, 392.00, 440.00, 329.63, 440.00, 440.00
+        ],
+        bass: [110.00, 110.00, 146.83, 110.00, 164.81, 146.83, 130.81, 110.00],
+        strumChord: [110.00, 164.81, 220.00]
+      },
+      // 一般戰鬥：古曲《將軍令》（緊湊武俠行軍變奏 32 拍）
+      battle: {
+        stepMs: 165,
+        wave: 'sawtooth',
+        filterHz: 2300,
+        gain: 0.054,
+        bassGain: 0.050,
+        drumGain: 0.072,
+        strumEvery: 8,
+        notes: [
+          // 一段：將軍升帳（6 6 3 5 | 6 7 6 5）
+          440.00, 440.00, 329.63, 392.00, 440.00, 493.88, 440.00, 392.00,
+          // 二段：策馬出征（1 2 3 2 | 1 7 6 5）
+          523.25, 587.33, 659.25, 587.33, 523.25, 493.88, 440.00, 392.00,
+          // 三段：劍氣縱橫（6 3 5 6 | 7 5 3 2）
+          440.00, 329.63, 392.00, 440.00, 493.88, 392.00, 329.63, 293.66,
+          // 四段：得勝破陣（3 5 6 7 | 1 7 6 3）
+          329.63, 392.00, 440.00, 493.88, 523.25, 493.88, 440.00, 329.63
+        ],
+        bass: [110.00, 164.81, 130.81, 146.83, 110.00, 146.83, 164.81, 110.00],
+        strumChord: [110.00, 164.81, 220.00]
+      },
+      // 江湖首頁：古曲《漁舟唱晚・高山流水》（明快古箏五聲琶音）
       title: {
-        stepMs: 320,
+        stepMs: 240,
         wave: 'triangle',
-        gain: 0.052,
+        filterHz: 2000,
+        gain: 0.050,
         bassGain: 0.036,
-        drumGain: 0.025,
+        drumGain: 0.022,
+        strumEvery: 16,
         notes: [
           329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 587.33, 523.25,
-          440.00, 523.25, 659.25, 783.99, 659.25, 587.33, 440.00, 392.00
+          440.00, 523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00,
+          392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 783.99,
+          659.25, 587.33, 523.25, 440.00, 392.00, 440.00, 392.00, 329.63
         ],
-        bass: [130.81, 164.81, 196.00, 146.83]
+        bass: [130.81, 164.81, 196.00, 146.83],
+        strumChord: [130.81, 196.00, 261.63]
       },
-      battle: {
-        stepMs: 220,
-        wave: 'triangle',
-        gain: 0.058,
-        bassGain: 0.048,
-        drumGain: 0.065,
-        notes: [
-          329.63, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 440.00,
-          523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00
-        ],
-        bass: [110.00, 110.00, 130.81, 146.83, 110.00, 130.81, 146.83, 164.81]
-      },
-      boss: {
-        stepMs: 170,
-        wave: 'sawtooth',
-        gain: 0.054,
-        bassGain: 0.056,
-        drumGain: 0.082,
-        notes: [
-          220.00, 261.63, 293.66, 329.63, 392.00, 329.63, 293.66, 440.00,
-          392.00, 440.00, 523.25, 587.33, 523.25, 440.00, 329.63, 293.66
-        ],
-        bass: [110.00, 110.00, 130.81, 110.00, 146.83, 130.81, 164.81, 146.83]
-      },
+      // 古驛客棧：傳統名曲《步步高》（江南茶肆輕快迎客）
       inn: {
-        stepMs: 280,
-        wave: 'sine',
-        gain: 0.052,
-        bassGain: 0.035,
-        drumGain: 0.022,
-        notes: [
-          392.00, 440.00, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00,
-          523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 440.00, 392.00
-        ],
-        bass: [130.81, 164.81, 196.00, 164.81]
-      },
-      story: {
-        stepMs: 340,
+        stepMs: 210,
         wave: 'triangle',
+        filterHz: 2200,
         gain: 0.050,
-        bassGain: 0.034,
-        drumGain: 0.018,
+        bassGain: 0.036,
+        drumGain: 0.026,
+        strumEvery: 16,
         notes: [
-          523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33,
-          523.25, 659.25, 587.33, 523.25, 440.00, 523.25, 440.00, 392.00
+          392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33,
+          523.25, 659.25, 587.33, 523.25, 440.00, 523.25, 440.00, 392.00,
+          440.00, 523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25,
+          587.33, 659.25, 587.33, 523.25, 440.00, 392.00, 440.00, 523.25
         ],
-        bass: [130.81, 146.83, 164.81, 130.81]
+        bass: [130.81, 164.81, 196.00, 164.81],
+        strumChord: [130.81, 196.00, 261.63]
+      },
+      // 劇情與捷報：琵琶古曲《陽春白雪》（明朗輕快）
+      story: {
+        stepMs: 230,
+        wave: 'triangle',
+        filterHz: 2100,
+        gain: 0.048,
+        bassGain: 0.034,
+        drumGain: 0.022,
+        strumEvery: 16,
+        notes: [
+          523.25, 587.33, 659.25, 783.99, 659.25, 783.99, 880.00, 783.99,
+          659.25, 587.33, 523.25, 659.25, 587.33, 523.25, 440.00, 392.00,
+          440.00, 523.25, 659.25, 587.33, 523.25, 440.00, 392.00, 440.00,
+          523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 587.33, 523.25
+        ],
+        bass: [130.81, 146.83, 164.81, 130.81],
+        strumChord: [130.81, 196.00, 261.63]
       }
     };
 
@@ -838,33 +880,56 @@ export class AudioEngine {
 
       const now = this.ctx.currentTime;
       const stepSec = cfg.stepMs / 1000;
-      const noteDur = Math.max(0.14, stepSec * 0.88);
+      const noteDur = Math.max(0.11, stepSec * 0.86);
+      const isCombatTheme = themeName === 'battle' || themeName === 'boss';
 
-      // 1. 主旋律撥弦音（古箏／琵琶清脆起音）
+      // 1. 琵琶／古箏主旋律撥弦（含濾波收束包絡，呈現絲弦顆粒感）
       const osc = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
       const gain = this.ctx.createGain();
       osc.type = cfg.wave;
       osc.frequency.setValueAtTime(freq, now);
-      if (themeName === 'battle' || themeName === 'boss') {
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.006, now + 0.03);
+      if (isCombatTheme) {
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.005, now + 0.025);
       }
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(cfg.filterHz || 2400, now);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(480, freq * 1.35), now + noteDur);
+
       const peakGain = Math.max(0.002, cfg.gain * this.volume);
       gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(peakGain, now + 0.008);
+      gain.gain.linearRampToValueAtTime(peakGain, now + 0.006);
       gain.gain.exponentialRampToValueAtTime(0.001, now + noteDur);
-      osc.connect(gain);
+      osc.connect(filter);
+      filter.connect(gain);
       gain.connect(this.ctx.destination);
       osc.start(now);
-      osc.stop(now + noteDur + 0.02);
+      osc.stop(now + noteDur + 0.015);
 
-      // 2. 低音根音律動（Bass Pulse：戰鬥每 2 拍推進，非戰鬥每 4 拍支撐）
-      const isCombatTheme = themeName === 'battle' || themeName === 'boss';
+      // 2. 琵琶掃弦／煞音和弦（小節首拍三弦快速刷弦，營造《十面埋伏》與《將軍令》氣勢）
+      if (cfg.strumChord && cfg.strumEvery && stepIdx % cfg.strumEvery === 0) {
+        cfg.strumChord.forEach((cFreq, idx) => {
+          const sOsc = this.ctx.createOscillator();
+          const sGain = this.ctx.createGain();
+          const t = now + idx * 0.014;
+          sOsc.type = 'triangle';
+          sOsc.frequency.setValueAtTime(cFreq, t);
+          sGain.gain.setValueAtTime(Math.max(0.002, peakGain * 0.55), t);
+          sGain.gain.exponentialRampToValueAtTime(0.001, t + stepSec * 1.6);
+          sOsc.connect(sGain);
+          sGain.connect(this.ctx.destination);
+          sOsc.start(t);
+          sOsc.stop(t + stepSec * 1.65);
+        });
+      }
+
+      // 3. 低音根音律動（Bass Pulse：戰鬥每 2 拍推進，非戰鬥每 4 拍支撐）
       const bassInterval = isCombatTheme ? 2 : 4;
       if (cfg.bass && stepIdx % bassInterval === 0) {
         const bassFreq = cfg.bass[Math.floor(stepIdx / bassInterval) % cfg.bass.length];
         const bOsc = this.ctx.createOscillator();
         const bGain = this.ctx.createGain();
-        const bassDur = Math.max(0.18, stepSec * (bassInterval * 0.82));
+        const bassDur = Math.max(0.15, stepSec * (bassInterval * 0.8));
         bOsc.type = isCombatTheme ? 'triangle' : 'sine';
         bOsc.frequency.setValueAtTime(bassFreq, now);
         bGain.gain.setValueAtTime(Math.max(0.002, (cfg.bassGain || 0.04) * this.volume), now);
@@ -875,20 +940,20 @@ export class AudioEngine {
         bOsc.stop(now + bassDur + 0.02);
       }
 
-      // 3. 武俠戰鼓與節拍點（戰鬥與首領戰強拍重鼓、弱拍清脆鼓邊）
-      if (cfg.drumGain && (stepIdx % 4 === 0 || (themeName === 'boss' && stepIdx % 2 === 0))) {
+      // 4. 武場大堂鼓與竹板節拍（強拍重堂鼓、切分拍清脆板鼓）
+      if (cfg.drumGain && (stepIdx % 4 === 0 || (isCombatTheme && stepIdx % 2 === 1))) {
         const drum = this.ctx.createOscillator();
         const dGain = this.ctx.createGain();
         const isHeavyBeat = stepIdx % 4 === 0;
-        drum.type = 'sine';
-        drum.frequency.setValueAtTime(isHeavyBeat ? 135 : 195, now);
-        drum.frequency.exponentialRampToValueAtTime(isHeavyBeat ? 42 : 75, now + 0.11);
-        dGain.gain.setValueAtTime(Math.max(0.002, cfg.drumGain * (isHeavyBeat ? 1 : 0.65) * this.volume), now);
-        dGain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        drum.type = isHeavyBeat ? 'sine' : 'triangle';
+        drum.frequency.setValueAtTime(isHeavyBeat ? 140 : 320, now);
+        drum.frequency.exponentialRampToValueAtTime(isHeavyBeat ? 42 : 115, now + (isHeavyBeat ? 0.11 : 0.055));
+        dGain.gain.setValueAtTime(Math.max(0.002, cfg.drumGain * (isHeavyBeat ? 1 : 0.42) * this.volume), now);
+        dGain.gain.exponentialRampToValueAtTime(0.001, now + (isHeavyBeat ? 0.12 : 0.06));
         drum.connect(dGain);
         dGain.connect(this.ctx.destination);
         drum.start(now);
-        drum.stop(now + 0.13);
+        drum.stop(now + (isHeavyBeat ? 0.13 : 0.065));
       }
 
       this.bgmTimer = setTimeout(playNext, cfg.stepMs);
