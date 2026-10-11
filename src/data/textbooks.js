@@ -245,22 +245,25 @@ export function getGradeMixedWords(gradeLevel) {
       for (const lesson of grade.lessons) {
         for (const word of lesson.words) {
           const key = JSON.stringify([word.text, word.bopomofo]);
-          const item = words.get(key) || { ...word, gradeLevel, sourceKind: 'practice-example', sourceRefs: [] };
+          const len = Array.from(word.text).length;
+          const defaultTier = len === 1 ? 'easy' : len >= 4 ? 'hard' : 'medium';
+          const item = words.get(key) || { ...word, gradeLevel, difficultyTier: word.difficultyTier || defaultTier, sourceKind: 'practice-example', sourceRefs: [] };
           item.sourceRefs.push({ publisherId, gradeId: grade.gradeId, lessonId: lesson.lessonId });
           words.set(key, item);
         }
       }
     }
   }
+  for (const word of getGradeVocabulary(gradeLevel)) {
+    const key = JSON.stringify([word.text, word.bopomofo]);
+    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
+    else if (word.difficultyTier) words.get(key).difficultyTier = word.difficultyTier;
+  }
   for (const word of getOriginalProseWords(gradeLevel)) {
     const key = JSON.stringify([word.text, word.bopomofo]);
     if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
   }
   for (const word of getGradeCommonWords(gradeLevel)) {
-    const key = JSON.stringify([word.text, word.bopomofo]);
-    if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
-  }
-  for (const word of getGradeVocabulary(gradeLevel)) {
     const key = JSON.stringify([word.text, word.bopomofo]);
     if (!words.has(key)) words.set(key, { ...word, sourceRefs: [] });
   }
@@ -273,16 +276,29 @@ const gradeCommonAdditions = [
   '兄弟姐妹祖孫親兒女老幼姓身臉眼鼻舌背腿指毛襪裙褲袋枕桌椅窗房屋菜粥湯碗盤筷洗睡站跑跳笑哭唱聽說讀寫畫學校班師生課早晚午安禮謝愛幫忙陪抱問答春夏秋冬風雨雪雲星光紅黃綠藍白黑百千',
   '肩肚皮被牆廚浴匙鍋氣晴陰冷熱暖涼晨夜海河湖溪泉池浪沙石土地林森竹葉根果種苗瓜豆稻雞鴨鵝牛羊馬兔鼠蜂蟻紫亮暗乾濕數量個位元次件本張盒串雙群隊排列年季週秒時刻點歲斤尺寸度',
   '岩峰谷坡根枝芽蟲蝶虎龍蛇熊鹿蝦蟹貝龜萬億零層套頁圓方角邊線長短寬窄高低細厚薄輕重多滿半全少空前後內外東西南北中遠近旁間頂底首尾先末來去進退出入直斜平正反順逆快慢增減倍總均等',
-  '責任誠信尊敬勤勞勇敢耐心合作觀察探索思考理解表達規則公平珍惜資源環境保護',
-  '溝通協助判斷選擇比較推論證據實驗研究創意規劃目標反省改善文化歷史社會自然科學'
+  '責任誠信尊敬勤勞勇敢耐心合作觀察探索思考理解表達規則公平珍惜資源環境保護關懷陪伴智慧溫暖希望夢想堅持努力謙虛禮貌團結互助感恩分享健康快樂平安幸福',
+  '溝通協助判斷選擇比較推論證據實驗研究創意規劃目標反省改善文化歷史社會自然科學視野胸懷理想抱負實踐創新思辨包容尊重正義勇氣傳承使命卓越奉獻審慎篤行'
 ];
 
 export function getGradeCommonWords(gradeLevel) {
-  const characters = new Set(Array.from(gradeCommonAdditions.slice(0, gradeLevel).join('')));
-  return [...characters].filter(character => COMMON_CHAR_BOPOMOFO_MAP[character]).map(character => ({
-    text: character, bopomofo: [COMMON_CHAR_BOPOMOFO_MAP[character]], gradeLevel,
-    sourceKind: 'dictionary-practice', meaning: '教育部國語小字典字音・遊戲自編年級練習。'
-  }));
+  const currentChars = [...new Set(Array.from(gradeCommonAdditions[gradeLevel - 1] || ''))]
+    .filter(ch => COMMON_CHAR_BOPOMOFO_MAP[ch]);
+  const currentSet = new Set(currentChars);
+  const allChars = [...new Set(Array.from(gradeCommonAdditions.slice(0, gradeLevel).join('')))]
+    .filter(ch => COMMON_CHAR_BOPOMOFO_MAP[ch]);
+  return allChars.map((character) => {
+    const isCurrentGradeChar = currentSet.has(character);
+    const idx = currentChars.indexOf(character);
+    const ratio = idx >= 0 && currentChars.length > 0 ? idx / currentChars.length : 0;
+    const difficultyTier = !isCurrentGradeChar
+      ? 'easy'
+      : ratio < 0.34 ? 'easy' : ratio < 0.68 ? 'medium' : 'hard';
+    return {
+      text: character, bopomofo: [COMMON_CHAR_BOPOMOFO_MAP[character]], gradeLevel,
+      difficultyTier, isCurrentGradeChar,
+      sourceKind: 'dictionary-practice', meaning: '教育部國語小字典字音・遊戲自編年級練習。'
+    };
+  });
 }
 
 TEXTBOOK_CATALOG.mixed = {

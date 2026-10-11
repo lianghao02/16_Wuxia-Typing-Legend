@@ -39,17 +39,24 @@ const passageReadings = {
   '落': 'ㄌㄨㄛˋ', '漂': 'ㄆㄧㄠ', '遠': 'ㄩㄢˇ', '處': 'ㄔㄨˋ', '扇': 'ㄕㄢˋ',
   '文': 'ㄨㄣˊ', '識': 'ㄕˋ', '石': 'ㄕˊ', '頭': '˙ㄊㄡ', '子': '˙ㄗ',
   '泥': 'ㄋㄧˊ', '待': 'ㄉㄞˋ', '都': 'ㄉㄡ', '句': 'ㄐㄩˋ', '期': 'ㄑㄧˊ',
-  '合': 'ㄏㄜˊ', '繫': 'ㄐㄧˋ', '傍': 'ㄅㄤˋ', '分': 'ㄈㄣ', '見': 'ㄐㄧㄢˋ',
+  '合': 'ㄏㄜˊ', '繫': 'ㄐㄧˋ', '傍': 'ㄅㄤ', '分': 'ㄈㄣ', '見': 'ㄐㄧㄢˋ',
   '為': 'ㄨㄟˋ', '量': 'ㄌㄧㄤˋ', '難': 'ㄋㄢˊ', '更': 'ㄍㄥˋ', '當': 'ㄉㄤ',
   '正': 'ㄓㄥˋ', '降': 'ㄐㄧㄤˋ', '無': 'ㄨˊ', '法': 'ㄈㄚˇ', '要': 'ㄧㄠˋ',
   '解': 'ㄐㄧㄝˇ', '化': 'ㄏㄨㄚˋ', '從': 'ㄘㄨㄥˊ'
+};
+
+// 特定語境詞組優先消歧（如「種子」讀三聲 ㄓㄨㄥˇ ㄗˇ，區別於「日子」的輕聲 ㄖˋ ˙ㄗ）
+const phraseOverrides = {
+  '種子躺在泥土裡等待春天': { 1: 'ㄗˇ' }
 };
 
 export function getOriginalProseWords(gradeLevel) {
   const passage = ORIGINAL_PROSE_PASSAGES[gradeLevel - 1];
   if (!passage) return [];
   return passage[2].map((text, i) => {
-    const bopomofo = Array.from(text).map((character) => {
+    const bopomofo = Array.from(text).map((character, idx) => {
+      const override = phraseOverrides[text]?.[idx];
+      if (override) return override;
       const candidates = getCharacterReadings(character);
       const reading = candidates.length === 1 ? candidates[0] : passageReadings[character];
       if (!reading || !isDictionaryReading(character, reading)) {
@@ -57,7 +64,8 @@ export function getOriginalProseWords(gradeLevel) {
       }
       return reading;
     });
+    const difficultyTier = i < 3 ? 'easy' : i < 7 ? 'medium' : 'hard';
     return { text, bopomofo, meaning: `原創散文《${passage[i < 5 ? 0 : 1]}》`,
-      sourceKind: 'original', sourceTitle: passage[i < 5 ? 0 : 1], gradeLevel };
+      sourceKind: 'original', sourceTitle: passage[i < 5 ? 0 : 1], gradeLevel, difficultyTier };
   });
 }

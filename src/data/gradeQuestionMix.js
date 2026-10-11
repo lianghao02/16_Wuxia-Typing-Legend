@@ -25,18 +25,33 @@ function shuffled(items, random) {
 }
 
 export function buildGradeQuestionQueue(pool, gradeLevel, difficulty, random = Math.random) {
+  const targetDiff = difficulty || 'easy';
   const unique = [...new Map(pool.map(word => [word.text, word])).values()];
-  const ratio = getGradeQuestionRatio(gradeLevel, difficulty);
+  const ratio = getGradeQuestionRatio(gradeLevel, targetDiff);
   const selected = ratio.flatMap((count, group) => {
+    if (count === 0) return [];
     let candidates = unique.filter(word => getQuestionLengthGroup(word) === group);
     // 同屬長句時，初階先練短句；宗師則提高較長散文出現的機率。
     if (group === 2 && gradeLevel >= 5) {
       candidates.sort((a, b) => Array.from(a.text).length - Array.from(b.text).length);
-      const preferred = difficulty === 'easy' ? candidates.slice(0, Math.ceil(candidates.length / 2))
-        : difficulty === 'hard' ? candidates.slice(Math.floor(candidates.length / 3)) : candidates;
+      const preferred = targetDiff === 'easy' ? candidates.slice(0, Math.ceil(candidates.length / 2))
+        : targetDiff === 'hard' ? candidates.slice(Math.floor(candidates.length / 3)) : candidates;
       if (preferred.length >= count) candidates = preferred;
     }
-    if (candidates.length < count) throw new Error(`${gradeLevel} 年級${difficulty}的第 ${group + 1} 類題目不足。`);
+    // 優先從對應難度（difficultyTier === targetDiff）與當學年專屬字庫抽取，不足才由同級其他字庫遞補
+    const tierMatches = candidates.filter(word => {
+      if (group === 0 && word.isCurrentGradeChar !== undefined) {
+        return word.isCurrentGradeChar && word.difficultyTier === targetDiff;
+      }
+      return word.difficultyTier === targetDiff;
+    });
+    if (tierMatches.length >= count) {
+      candidates = tierMatches;
+    } else if (tierMatches.length > 0) {
+      const rest = candidates.filter(w => !tierMatches.includes(w));
+      return [...shuffled(tierMatches, random), ...shuffled(rest, random).slice(0, count - tierMatches.length)];
+    }
+    if (candidates.length < count) throw new Error(`${gradeLevel} 年級${targetDiff}的第 ${group + 1} 類題目不足。`);
     return shuffled(candidates, random).slice(0, count);
   });
   return shuffled(selected, random);
