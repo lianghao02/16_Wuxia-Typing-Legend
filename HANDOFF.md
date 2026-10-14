@@ -235,13 +235,13 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 ### 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：master
-- **Commit SHA**：45d2c22（本輪前基準；成果 SHA 以 Git log 為準）
+- **Commit SHA**：3d14dbbc9ae17aad607d08e7125092ce7cf198bf（原基準 45d2c22）
 - **Skill Version**：v8.5
 - **Task Type**：FEAT / PERF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
 
 ### 目前狀態
-已成功完成「全素材現代化 WebP 瘦身（體積縮減 83.6%）」與「一鍵 ⛶ 全螢幕 (F11) 沉浸對決按鈕」實作，所有立繪與姿態動畫優先載入 WebP 並保留 PNG 無縫回退，64／64 項測試全數通過。
+已成功完成「全素材現代化 WebP 瘦身（體積縮減 83.6%）」與「一鍵 ⛶ 全螢幕 (F11) 沉浸對決按鈕」實作，所有立繪與姿態動畫優先載入 WebP 並保留 PNG 無縫回退，64／64 項測試全數通過，並已同步推送到遠端儲存庫。
 
 ### 本輪目標
 1. 解決 150MB 靜態圖片造成的首屏與網路負擔，批次轉為高畫質 WebP 格式並建立 PNG 安全回退機制。
@@ -287,6 +287,6 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 - `git diff --check`：無多餘空白或編碼異常。
 
 ### Git 狀態
-- Commit：本輪以 feat 提交。
-- Push：待後續指示推送到 remote。
-- Branch：master。
+- Commit：`3d14dbbc9ae17aad607d08e7125092ce7cf198bf`。
+- Push：已推送到 `origin/master`。
+- Branch：`master`。
