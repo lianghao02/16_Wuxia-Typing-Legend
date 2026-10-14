@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>武俠打字傳｜以字為劍，打出你的江湖</title>
   <link rel="stylesheet" href="./css/style.css?v=20261007_center_keyboard" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#15232d" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="武俠打字傳" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
 </head>
 <body>
   <!-- Phaser 3 戰鬥畫布底層 -->
@@ -394,5 +401,12 @@
   </div>
 
   <script type="module" src="./src/main.js?v=20261007_small_screen"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

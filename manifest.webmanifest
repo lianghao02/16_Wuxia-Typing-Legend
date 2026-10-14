@@ -1,0 +1,25 @@
+{
+  "name": "武俠打字傳｜文印江湖",
+  "short_name": "武俠打字傳",
+  "description": "新國風水墨動畫 × 注音打字闖關教育網頁遊戲",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#15232d",
+  "theme_color": "#15232d",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

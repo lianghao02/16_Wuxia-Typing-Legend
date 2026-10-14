@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>武俠打字傳｜文印江湖</title><link rel="stylesheet" href="./css/adventure.css"></head>
+<title>武俠打字傳｜文印江湖</title><link rel="stylesheet" href="./css/adventure.css">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#15232d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="武俠打字傳">
+<link rel="apple-touch-icon" href="./icon-192.png"></head>
 <body><div id="adventure-stage" aria-hidden="true"></div>
 <header id="journey-hud" hidden><strong id="stage-name"></strong><span id="progress"></span><div class="route" id="route"></div></header>
 <main id="battle" tabindex="-1" hidden>
@@ -12,4 +19,11 @@
 <nav id="controls" hidden aria-label="遊戲操作"><button id="home">江湖首頁</button><button id="shop">客棧</button><button id="settings">設定</button><button id="ultimate" disabled>絕招 0／5 · Alt＋1</button><button id="show-keyboard" hidden>鍵盤 Tab</button></nav>
 <div id="notice" role="status" aria-live="polite"></div>
 <dialog id="panel"><div id="panel-content"></div></dialog>
-<script type="module" src="./src/adventure.js"></script></body></html>
+<script type="module" src="./src/adventure.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script></body></html>
