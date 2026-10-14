@@ -1,6 +1,6 @@
 {
   "name": "wuxia-typing-legend",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "《武俠打字傳｜文印江湖》新國風水墨動畫 × 打字闖關教育網頁遊戲（Canvas 2D + DOM）",
   "type": "module",
   "scripts": {
