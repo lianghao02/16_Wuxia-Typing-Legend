@@ -229,3 +229,64 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 - Commit：本輪以 docs 提交。
 - Push：待後續指示推送到 remote。
 - Branch：master。
+
+## 2026-10-14 全素材 WebP 瘦身與一鍵全螢幕按鈕實作交接
+
+### 核心元資料 (Metadata)
+- **Repository**：lianghao02/16_Wuxia-Typing-Legend
+- **Branch**：master
+- **Commit SHA**：45d2c22（本輪前基準；成果 SHA 以 Git log 為準）
+- **Skill Version**：v8.5
+- **Task Type**：FEAT / PERF
+- **Local Path Hint**：16_Wuxia-Typing-Legend
+
+### 目前狀態
+已成功完成「全素材現代化 WebP 瘦身（體積縮減 83.6%）」與「一鍵 ⛶ 全螢幕 (F11) 沉浸對決按鈕」實作，所有立繪與姿態動畫優先載入 WebP 並保留 PNG 無縫回退，64／64 項測試全數通過。
+
+### 本輪目標
+1. 解決 150MB 靜態圖片造成的首屏與網路負擔，批次轉為高畫質 WebP 格式並建立 PNG 安全回退機制。
+2. 實作一鍵全螢幕切換按鈕，支援 Fullscreen API 與 F11 雙向連動，徹底消除瀏覽器分頁干擾，釋放橫向大畫布對決張力。
+
+### 基準與已確認事實 (Baseline & Confirmed Facts)
+- 靜態資產目錄 195 張 PNG 圖片全部轉換出對應 WebP 檔案，原始 PNG 完整留存作為 fallback。
+- 專案維持純實體鍵盤環境定位，左右少俠與對手全身立繪寬度與演出空間 100% 保持未被壓縮。
+
+### 已完成 (Completed)
+1. **全素材 WebP 現代化瘦身（縮減 83.6%）**：
+   - 擴充 `scripts/build_webp.py` 支援 7 大資產子目錄（`backgrounds`、`characters`、`enemies`、`effects`、`animations`、`icons`、`ui`）批次轉檔。
+   - 總容量由 **146.66 MB 驟降至 24.06 MB（體積縮減 83.6%）**。
+   - `CanvasBattleScene.js` 更新快取註冊邏輯：全身立繪、敵人、特效與 76 張姿態動畫全部優先載入 `.webp`，載入失敗自動回退 `.png`。
+2. **一鍵「⛶ 全螢幕 (F11)」沉浸對決按鈕**：
+   - `index.html`：新增右上角金邊水墨常駐懸浮按鈕（`fullscreen-btn`）與底部控制列按鈕（`fullscreen-control-btn`）。
+   - `css/adventure.css`：新增 `.fullscreen-fab` 毛玻璃金邊樣式，懸浮於畫面右上角，完全不佔用中央戰鬥操作區。
+   - `src/adventure.js`：實作 `toggleFullscreen`、`updateFullscreenButtons`，監聽 `fullscreenchange` 事件，切換「⛶ 全螢幕」與「🗗 視窗」狀態，並自適應重繪大畫布。
+3. **新增單元測試**：
+   - 建立 `tests/webpFullscreen.test.js` 並納入 `package.json`，涵蓋按鈕存在性、WebP 優先註冊、PNG 回退與實體檔案存在性斷言。
+
+### 異動檔案 (Changed Files)
+- `css/adventure.css`
+- `index.html`
+- `package.json`
+- `scripts/build_webp.py`
+- `src/adventure.js`
+- `src/scenes/CanvasBattleScene.js`
+- `tests/webpFullscreen.test.js`（新建）
+- `HANDOFF.md`
+- 新增各目錄下的 `*.webp` 檔案
+
+### 刻意未修改 (Do Not Do / Deliberately Omitted)
+第三步電腦教室「通關文牒」依使用者指示本輪暫不實作；未變更核心打字判定與戰鬥數值規則；未壓縮左右人物立繪尺寸。
+
+### 尚未完成 (Remaining Work)
+- **P1 (阻斷/必須)**：無。
+- **P2 (重要/當次)**：無。
+- **P3 (改善建議/暫緩)**：未來可依教學現場需要考慮是否加入存檔短碼匯出。
+
+### 驗證結果 (Validation)
+- `npm test`：**64／64 測試全數通過（0 fail）**。
+- `git diff --check`：無多餘空白或編碼異常。
+
+### Git 狀態
+- Commit：本輪以 feat 提交。
+- Push：待後續指示推送到 remote。
+- Branch：master。

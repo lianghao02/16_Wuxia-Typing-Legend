@@ -190,9 +190,10 @@ export class CanvasBattleScene {
 
     // 僅先建立快取索引，不一口氣併發 28 個請求阻塞瀏覽器頻寬
     Object.entries(assets).forEach(([key, src]) => {
+      const isPng = src.endsWith('.png');
       this.imageCache.set(key, {
-        src: key.startsWith('bg_') ? src.replace(/\.png$/, '.webp') : src,
-        fallbackSrc: key.startsWith('bg_') ? src : null,
+        src: isPng ? src.replace(/\.png$/, '.webp') : src,
+        fallbackSrc: isPng ? src : null,
         img: null,
         loaded: false,
         loading: false,
@@ -208,9 +209,19 @@ export class CanvasBattleScene {
     for (const [group, poses] of Object.entries(battleAnimations)) {
       for (const [pose, frame] of Object.entries(poses)) {
         const key = `${group}:${pose}`;
+        const rawPath = `./${frame.path}`;
+        const isPng = rawPath.endsWith('.png');
         this.spriteAnchors[key] = frame.anchor;
-        this.imageCache.set(key, { src: `./${frame.path}`, img: null, loaded: false,
-          loading: false, failed: false, retries: 0, promise: null });
+        this.imageCache.set(key, {
+          src: isPng ? rawPath.replace(/\.png$/, '.webp') : rawPath,
+          fallbackSrc: isPng ? rawPath : null,
+          img: null,
+          loaded: false,
+          loading: false,
+          failed: false,
+          retries: 0,
+          promise: null
+        });
       }
     }
 

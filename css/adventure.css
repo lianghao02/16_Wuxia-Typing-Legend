@@ -38,8 +38,30 @@ button:disabled {
   background:#c67a2e}
 h1,h2 {
   color:var(--gold)}
-p {
-  line-height:1.8}
+.fullscreen-fab {
+  position:fixed;
+  top:12px;
+  right:14px;
+  z-index:100;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#15232deb;
+  border:1px solid var(--gold);
+  border-radius:9px;
+  color:var(--gold);
+  padding:6px 14px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,.45);
+  backdrop-filter:blur(4px);
+  transition:all .2s ease}
+.fullscreen-fab:hover {
+  background:#263845;
+  color:#fff;
+  border-color:#ffe08a;
+  transform:translateY(-1px)}
 #adventure-stage {
   position:fixed;
   inset:0}

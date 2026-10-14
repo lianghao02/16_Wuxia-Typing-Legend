@@ -1001,6 +1001,51 @@ $('question').onclick=()=>{
 };
 function toggleKeyboard(){save.keyboard=!save.keyboard;persist();render();}
 $('hide-keyboard').onclick=toggleKeyboard; $('show-keyboard').onclick=toggleKeyboard;
+
+function isFullscreen() {
+  return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function updateFullscreenButtons() {
+  const active = isFullscreen();
+  const label = active ? '🗗 視窗' : '⛶ 全螢幕';
+  const title = active ? '退出全螢幕 (F11 / Esc)' : '切換全螢幕 (F11)';
+  const b1 = $('fullscreen-btn'), b2 = $('fullscreen-control-btn');
+  if (b1) { b1.textContent = label; b1.title = title; }
+  if (b2) { b2.textContent = label; b2.title = title; }
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenEnabled && !document.webkitFullscreenEnabled) {
+    notify('⚠️ 目前瀏覽器或環境不支援全螢幕切換。');
+    return;
+  }
+  if (!isFullscreen()) {
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) {
+      req.call(el).catch(() => notify('⚠️ 無法切換至全螢幕模式'));
+    }
+  } else {
+    const exit = document.exitFullscreen || document.webkitExitFullscreen;
+    if (exit) {
+      exit.call(document).catch(() => {});
+    }
+  }
+}
+
+document.addEventListener('fullscreenchange', () => {
+  updateFullscreenButtons();
+  if (view === 'battle') render();
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  updateFullscreenButtons();
+  if (view === 'battle') render();
+});
+
+if ($('fullscreen-btn')) $('fullscreen-btn').onclick = toggleFullscreen;
+if ($('fullscreen-control-btn')) $('fullscreen-control-btn').onclick = toggleFullscreen;
+
 $('panel').addEventListener('cancel',event=>{event.preventDefault();if(view==='shop'&&resumeView==='battle'){audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}else home();});
 document.addEventListener('keydown',event=>{
   audio.init(); if(audio.bgmEnabled&&!audio.muted&&!audio.bgmRunning)audio.startBgm(audio.currentBgmTheme);
