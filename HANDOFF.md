@@ -180,3 +180,52 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 
 ## 發布狀態 (Release Status)
 `v2.1.0` 與六大深化功能已正式提交並推送至 GitHub。
+
+## 2026-10-14 目標平台與視覺吸引力邊界確立交接
+
+### 核心元資料 (Metadata)
+- **Repository**：lianghao02/16_Wuxia-Typing-Legend
+- **Branch**：master
+- **Commit SHA**：a12ec8a（本輪前基準；成果 SHA 以 Git log 為準）
+- **Skill Version**：v8.5
+- **Task Type**：IMPROVE / HANDOFF
+- **Local Path Hint**：16_Wuxia-Typing-Legend
+
+### 目前狀態
+已明確確立專案產品目標平台與視覺空間邊界，並寫入專案 `AGENTS.md`：專注於 PC、筆電與學校電腦教室實體鍵盤大千注音訓練，明確排除手機與平板觸控裝置（Non-Goal）；嚴格確立「遊戲吸引力至上、左右人物立繪與演出空間絕對不可被壓縮犧牲，虛擬鍵盤僅作輔助指法儀表板」之設計原則。
+
+### 本輪目標
+確立教育型打字遊戲的真實硬體環境（實體鍵盤、大千注音肌肉記憶），解除無謂的手機/平板觸控妥協包袱，並保護左右兩側少俠與對手的戰鬥立繪與水墨演出空間，確保遊戲維持強大吸引感。
+
+### 基準與已確認事實 (Baseline & Confirmed Facts)
+- 既有 63 項單元與整合測試保持 100% 通過。
+- 專案定位為純 Web 實體鍵盤教育打字遊戲，核心受眾為國小學童與注音學習者。
+
+### 已完成 (Completed)
+1. 在 `AGENTS.md` 新增第 2 節「目標平台邊界與視覺優先級」：
+   - 專注實體鍵盤環境（非目標：手機與平板）。
+   - 確立遊戲吸引力至上原則：左右人物全身立繪與演出空間絕對不可被壓縮犧牲。
+   - 虛擬鍵盤明確定位為「輔助指法儀表板」，嚴禁因放大鍵盤而侵占或縮小左右人物寬度。
+   - 中央題目與鍵盤區域嚴格限制於兩側角色圖框（`FIGHTER_VISIBLE_WIDTH`）內。
+2. 更新 `HANDOFF.md` 完整交接記錄。
+
+### 異動檔案 (Changed Files)
+- `AGENTS.md`
+- `HANDOFF.md`
+
+### 刻意未修改 (Do Not Do / Deliberately Omitted)
+未改動遊戲運行程式碼與渲染邏輯；未引入任何手機觸控手勢或破壞兩側人物比例的 CSS 修改。
+
+### 尚未完成 (Remaining Work)
+- **P1 (阻斷/必須)**：無。
+- **P2 (重要/當次)**：無。
+- **P3 (改善建議/暫緩)**：未來可依電腦教室環境針對 Windows 125%/150% DPI 縮放、一鍵 F11 全螢幕與通關文牒短代碼進一步優化。
+
+### 驗證結果 (Validation)
+- `npm test`：63／63 測試全數通過。
+- `git diff --check`：無多餘空白或編碼異常。
+
+### Git 狀態
+- Commit：本輪以 docs 提交。
+- Push：待後續指示推送到 remote。
+- Branch：master。
