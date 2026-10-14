@@ -13,6 +13,7 @@ import { getDictionaryUsage, getWordUsageHint, getCharacterReadings } from './da
 import { ADVENTURE_STAGES, CHAPTERS, REALMS } from './data/adventureWorld.js';
 import {
   ADVENTURE_KEY, CONFIG, ADVENTURE_WEAPONS, SPIRIT_BEASTS, ADVENTURE_BRACERS, ADVENTURE_ARMORS, ADVENTURE_POTIONS,
+  getArmorMaxHp,
   DAILY_QUEST_DEFS, getBeastBond, addBeastBondExp, feedSpiritBeast, getSealForStats, ensureDailyState, recordDailyProgress,
   newAdventure, migrateAdventureSave, getProfile, getActiveLoadout, phaseFor, bossPhaseForHp, advanceBossPhase,
   calculateAttackDamage, stageHazard, attackDuration, awardStage, buyGear, buyPotion, favorFresh
@@ -22,6 +23,7 @@ const $ = id => document.getElementById(id);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const gradeLabel = (g = save?.grade) => g === 'english' ? '英文' : g === 'custom' ? '自訂聯絡簿' : `${g} 年級`;
 let save, firstVisit = false, storageFailed = false;
+let hurtInvincibleUntil = 0;
 try {
   const raw = localStorage.getItem(ADVENTURE_KEY);
   const parsed = raw ? JSON.parse(raw) : newAdventure(JSON.parse(localStorage.getItem('wuxia_typing_legend_save_v2') || '{}'));
@@ -301,14 +303,17 @@ function begin(resume = true, replayId = null, weakDrill = false) {
   );
   const targetStageId = resume && valid ? savedSession.stageId : (replayId ?? Math.min(profile.stage, 29));
   stage = ADVENTURE_STAGES[targetStageId] || ADVENTURE_STAGES[0];
-  const maxHp = weakDrill ? 95 : (stage.enemy?.maxHp || 100);
+  const heroMaxHp = getArmorMaxHp(getArmor());
+  const carryHp = (profile.adventureHp !== null && profile.adventureHp !== undefined) ? profile.adventureHp : heroMaxHp;
+  const initialHp = Math.min(heroMaxHp, Math.max(15, Number(carryHp) || heroMaxHp));
   session = resume && valid ? savedSession : {
     stageId: stage.id,
     realm: profile.realm,
     isWeakDrill: Boolean(weakDrill),
     queue: makeQueue([], 10, weakDrill),
     cursor: 0,
-    hp: 100,
+    hp: initialHp,
+    maxHp: heroMaxHp,
     enemyMaxHp: maxHp,
     enemyHp: maxHp,
     bossPhaseIndex: 0,
@@ -318,10 +323,13 @@ function begin(resume = true, replayId = null, weakDrill = false) {
     shield: getArmor().startShield || 0,
     status: null,
     statusCureNeed: 0,
+    deathToll: 0,
     mistakeNotes: [],
     typing: null
   };
   session.realm = profile.realm;
+  session.maxHp = heroMaxHp;
+  session.deathToll ||= 0;
   session.enemyMaxHp ||= maxHp;
   if (typeof session.enemyHp !== 'number') {
     session.enemyHp = Math.max(10, Math.round(session.enemyMaxHp * (1 - (session.cursor || 0) / 10)));
@@ -406,13 +414,16 @@ function render() {
   const info=engine.getExpectedKeyInfo();
   $('next-key').classList.toggle('help',misses>=2);
   const symbol=engine.getExpectedSymbol();
-  const symLabel=symbol==='˙'?'˙ (輕聲)':symbol==='␣'?'␣ (一聲)':symbol;
-  $('next-key').innerHTML=info?`${misses>=2?'慢慢來，':''}${english?'':escape(symLabel)+' → '}按 <kbd>${escape(info.en==='Space'?'空白鍵':info.en)}</kbd> · ${escape(info.finger)}`:'完成！';
+  const isDivineHelp = Boolean((session.deathToll || 0) >= 2 || misses >= 3);
+  const divineTip = isDivineHelp ? '<span class="divine-tip">🌟 凝神指路中！若此題不熟，可按鍵盤【Tab】凝神換題</span>' : '';
+  $('next-key').innerHTML = (info ? `${misses>=2?'慢慢來，':''}${english?'':escape(symLabel)+' → '}按 <kbd>${escape(info.en==='Space'?'空白鍵':info.en)}</kbd> · ${escape(info.finger)}` : '完成！') + divineTip;
   $('keyboard').hidden=!save.keyboard;
   $('show-keyboard').hidden=save.keyboard;
   for(const key of $('keys').querySelectorAll('.key')){
-    key.classList.toggle('active',key.dataset.code===info?.code);
-    key.classList.toggle('wrong',Boolean(wrongKeyCode)&&key.dataset.code===wrongKeyCode&&key.dataset.code!==info?.code);
+    const isTarget = key.dataset.code === info?.code;
+    key.classList.toggle('active', isTarget && !isDivineHelp);
+    key.classList.toggle('divine-guide', isTarget && isDivineHelp);
+    key.classList.toggle('wrong', Boolean(wrongKeyCode) && key.dataset.code === wrongKeyCode && !isTarget);
   }
   const loadout = getLoadout();
   const statusLabels = { poison: `☠️中毒(再對${session.statusCureNeed||1}字解毒)`, burn: `🔥灼傷(再對${session.statusCureNeed||1}字滅火)`, freeze: `❄️結冰(再對${session.statusCureNeed||1}字破冰)` };
@@ -420,14 +431,19 @@ function render() {
   const healCnt = save.potions?.heal_potion || 0;
   const antiCnt = save.potions?.antidote_potion || 0;
   const heroObj = HEROES[save.hero] || HEROES.yun;
+  const heroMaxHp = session.maxHp || getArmorMaxHp(getArmor());
   $('hero-name').textContent=`${heroObj.name} · ${loadout.name.split('・')[1]||loadout.name}`;
-  $('hp').value=session.hp;
+  $('hp').max = heroMaxHp;
+  $('hp').value = session.hp;
+  const isLowHp = session.hp <= 25;
+  $('battle')?.classList.toggle('low-hp-alert', isLowHp);
+  scene?.setLowHpAlert?.(isLowHp);
   const tier=engine.getComboTier();
   const comboBadge=tier===3?'🐉龍鳳劍意':tier===2?'⚡驚雷流雲':tier===1?'🌪️清風劍氣':'';
   $('hero-status').dataset.comboTier=String(tier);
   $('hero-status').dataset.status=session.status||'';
   $('question').dataset.comboTier=String(tier);
-  $('hero-detail').textContent=`氣血 ${session.hp}／100${statusText} · 連擊 ${engine.combo}${comboBadge?` (${comboBadge})`:''} · 銅錢 ${save.coins} · 🧪回春×${healCnt}(Alt+2)·清心×${antiCnt}`;
+  $('hero-detail').textContent=`氣血 ${session.hp}／${heroMaxHp}${statusText} · 連擊 ${engine.combo}${comboBadge?` (${comboBadge})`:''} · 銅錢 ${save.coins} · 🧪回春×${healCnt}(Alt+2)·清心×${antiCnt}`;
   const hazard = stageHazard(stage);
   const hazardBadge = hazard ? ` · ${hazard.icon}${hazard.label}` : '';
   const isDanger = session.atb > 75;
@@ -502,11 +518,14 @@ function finish() {
   }
   audio.switchBgm('story');
   audio.playVictory();
+  const heroMaxHp = getArmorMaxHp(getArmor());
+  const isChapterBoss = stage.id % 5 === 4;
   const stats={
     ...engine.getStats(),
     completedWords: Math.max(1, engine.completedWords || session?.cursor || 1),
     enemyHp: stage?.isCombat ? 0 : undefined,
-    realm: session?.realm || profile.realm
+    realm: session?.realm || profile.realm,
+    heroEndHp: session?.hp ?? heroMaxHp
   };
   const today = datestring();
   const reward=awardStage(save,profile,stage.id,stats,today);
@@ -556,12 +575,20 @@ function finish() {
   const shopBtnLabel = affordableGear
     ? `✨ 前往客棧（可買【${affordableGear.name.split('・')[1] || affordableGear.name}】！）`
     : '前往客棧';
-  const seal=stage.id%5===4?`<p>✦ 尋回「${CHAPTERS[stage.chapter].seal}」文印</p><p>${CHAPTERS[stage.chapter].end}</p>`:'';
+  let sealHtml = '';
+  if (isChapterBoss) {
+    session.hp = heroMaxHp;
+    profile.adventureHp = heroMaxHp;
+    sealHtml = `<div class="seal-heal-banner">✦ 尋回「${CHAPTERS[stage.chapter].seal}」文印！天地文印共鳴，俠士氣血全數補滿（${heroMaxHp}／${heroMaxHp}）！</div><p>${CHAPTERS[stage.chapter].end}</p>`;
+  } else {
+    profile.adventureHp = session.hp;
+    sealHtml = `<div class="hp-carry-banner">⚔️ 氣血延續：當前氣血 ${session.hp}／${heroMaxHp}（章節每五關尋回文印時方可自動補滿）</div>`;
+  }
   persist();
   view='result';
   modal(`<span class="eyebrow">${reward.ending?'六印重聚 · 主線完結':wasWeakDrill?'錯題墨寶閣 · 掃除捷報':'江湖捷報'}</span>
     <div class="result-head"><h2>${stage.name} · ${wasWeakDrill?'特訓完成':'任務完成'}</h2><span class="result-seal">${sealGrade}</span></div>
-    <p class="story">${stage.outro}</p>${seal}${lootHtml}${notesHtml}
+    <p class="story">${stage.outro}</p>${sealHtml}${lootHtml}${notesHtml}
     <div class="stats"><span>實際完成 ${stats.completedWords} 題</span><span>${stats.completedChars} 字</span><span>正確率 ${stats.accuracy}%</span></div>
     <p>銅錢 ＋${reward.reward}${reward.dailyBonus?' · 今日首次冒險 ＋20':''} · 最長連擊 ${stats.maxCombo} · 現有銅錢 ${save.coins}</p>
     <p class="muted">${profile.stage===30?'你已完成整段故事。可以隨時點選「選關」重遊任一關卡，或在設定選擇更高境界。':`下一站：${ADVENTURE_STAGES[profile.stage].name}`}</p>
@@ -603,8 +630,15 @@ function shop(tab = shopTab) {
       return `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}（持有 ${cnt}／${item.maxStack}）</strong><p>${item.desc}</p></div><button data-buy-potion="${item.id}" ${cnt>=item.maxStack?'disabled':''}>${cnt>=item.maxStack?'已帶滿':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢添購`}</button></div>`;
     }).join('');
   }
+  const heroMaxHp = getArmorMaxHp(a);
+  const curHp = session ? session.hp : (profile.adventureHp ?? heroMaxHp);
+  const hpShort = curHp < heroMaxHp;
+  const restBtn = hpShort
+    ? `<button class="primary" data-action="inn-rest" ${save.coins < 30 ? 'disabled' : ''}>🛌 客棧客房調息（氣血補滿至 ${heroMaxHp} · 30 銅錢）</button>`
+    : `<button disabled>✨ 目前氣血充沛（${curHp}／${heroMaxHp}）</button>`;
   modal(`<h2>古驛客棧 · 銅錢 ${save.coins}</h2>
-    <div class="gear-summary">目前穿戴：${isTamer?'🐾':'⚔️'} ${loadout.name.split('・')[1]||loadout.name}（攻擊力 ${loadout.atk}）${isTamer&&loadout.bondTitle?` · Lv.${loadout.bondLevel} ${loadout.bondTitle}`:''} ｜ 🧤 ${b.name} ｜ 🛡️ ${a.name} ｜ 🧪 回春丹×${healCnt}・清心散×${antiCnt}</div>
+    <div class="gear-summary">❤️ 冒險氣血：<strong>${curHp}／${heroMaxHp}</strong> ｜ ${isTamer?'🐾':'⚔️'} ${loadout.name.split('・')[1]||loadout.name}（攻擊力 ${loadout.atk}）${isTamer&&loadout.bondTitle?` · Lv.${loadout.bondLevel} ${loadout.bondTitle}`:''} ｜ 🧤 ${b.name} ｜ 🛡️ ${a.name} ｜ 🧪 回春丹×${healCnt}・清心散×${antiCnt}</div>
+    <div style="margin: 8px 0;">${restBtn}</div>
     <div class="shop-tabs">
       <button class="${shopTab==='weapon'?'active':''}" data-shop-tab="weapon">${isTamer?'🐾 靈獸（馴獸與餵養）':'⚔️ 兵器（劍／刀／槍）'}</button>
       <button class="${shopTab==='bracer'?'active':''}" data-shop-tab="bracer">🧤 護腕（打字輔助）</button>
@@ -685,18 +719,20 @@ function weakDojoModal() {
 }
 function useHealPotion(autoTriggered = false) {
   if (!session || (save.potions?.heal_potion || 0) <= 0) return false;
-  if (!autoTriggered && session.hp >= 100 && !session.status) {
+  const heroMaxHp = session.maxHp || getArmorMaxHp(getArmor());
+  if (!autoTriggered && session.hp >= heroMaxHp && !session.status) {
     notify('目前氣血充沛且無異常狀態，無需飲用九轉回春丹。');
     return false;
   }
   save.potions.heal_potion--;
-  session.hp = Math.min(100, session.hp + 50);
+  session.hp = Math.min(heroMaxHp, session.hp + 50);
   session.status = null;
   session.statusCureNeed = 0;
+  scene.spawnFloatingText(scene.heroBaseX, scene.heroBaseY - 170, autoTriggered ? '🧪 護主保命！回春丹 +50 氣血' : '🧪 服用回春丹 +50 氣血', '#72efdd', 22);
   scene.setHeroStatus(null, '🧪 九轉回春丹 +50 氣血');
   scene.playSkillHeal({ healAmount: 50 });
   persist();
-  notify(`${autoTriggered ? '🧪 氣血偏低，自動飲用' : '🧪 飲用'}九轉回春丹！回復 50 氣血並淨化狀態（剩餘 ${save.potions.heal_potion} 份）`);
+  notify(`${autoTriggered ? '🧪 氣血告急，自動飲用' : '🧪 飲用'}九轉回春丹！回復 50 氣血並淨化狀態（剩餘 ${save.potions.heal_potion} 份）`);
   render();
   return true;
 }
@@ -712,7 +748,8 @@ function ultimate() {
   const freezeDuration = loadout.style === 'spear' ? CONFIG.freezeMs + 2000 : CONFIG.freezeMs;
   frozenUntil = performance.now() + freezeDuration;
   if (loadout.style === 'spear' || loadout.id === 'beast_toad') {
-    session.hp = Math.min(100, session.hp + 20);
+    const heroMaxHp = session.maxHp || 100;
+    session.hp = Math.min(heroMaxHp, session.hp + 20);
   } else if (loadout.style === 'saber' || loadout.id === 'beast_wolf') {
     save.coins += 10;
   }
@@ -736,12 +773,21 @@ function ultimate() {
 }
 function failed() {
   pause();
-  if (session) { session.status = null; session.statusCureNeed = 0; scene.setHeroStatus(null); }
+  if (session) {
+    session.deathToll = (session.deathToll || 0) + 1;
+    session.status = null;
+    session.statusCureNeed = 0;
+    scene.setHeroStatus(null);
+  }
   profile.session=session; persist();
-  modal(`<h2>先調息，再出發</h2><p>你已完成 ${session.cursor} 題，對手剩餘氣血與進度皆已保留。調息後從目前這一字接著練習。</p><p class="muted">回擊會放慢，找鍵提示持續陪著你。擊敗對手或完成任務即可領取賞金。</p><button class="primary" data-action="recover">調息續戰 · Enter</button><button data-action="home">回到首頁</button>`, 'failed');
+  const helpHint = (session?.deathToll || 0) >= 2
+    ? '<p class="divine-tip">🌟 已啟動神仙指路！調息後若此題仍不熟悉，可按鍵盤【Tab】凝神換題！</p>'
+    : '';
+  modal(`<h2>先調息，再出發</h2><p>你已完成 ${session.cursor} 題，對手剩餘氣血與進度皆已保留。調息後將有 3 秒倒數準備，雙手就位後再出招。</p>${helpHint}<p class="muted">回擊會放慢，找鍵提示持續陪著你。擊敗對手或完成任務即可領取賞金。</p><button class="primary" data-action="recover">調息續戰 · Enter</button><button data-action="home">回到首頁</button>`, 'failed');
 }
 engine.on('keyHit',()=>{
   misses=0; wrongKeyCode=''; $('question')?.classList.remove('miss-focus');
+  showImeWarning(false);
   audio.playKeyHit(engine.combo);scene.playMicroGather(engine.combo,engine.getComboTier());
 });
 engine.on('charComplete',event=>{
@@ -755,7 +801,8 @@ engine.on('charComplete',event=>{
       const cured = session.status;
       session.status = null;
       if (cured === 'poison') {
-        session.hp = Math.min(100, session.hp + 8);
+        const heroMaxHp = session.maxHp || 100;
+        session.hp = Math.min(heroMaxHp, session.hp + 8);
         scene.setHeroStatus(null, '🌿 運功逼毒！氣血 +8');
         notify('🌿 連打 2 字運功逼毒成功！綠毒消散，氣血＋8！');
       } else if (cured === 'burn') {
@@ -775,7 +822,8 @@ engine.on('charComplete',event=>{
       session.shield=1;session.qi=5;save.coins+=10;
       notify(`🐉 連續 ${event.combo} 字・龍鳳文印劍意！（銅錢＋10・內力滿・護印加持）`);
     }else if(event.combo===10){
-      session.hp=Math.min(100,session.hp+10);save.coins+=5;
+      const heroMaxHp = session.maxHp || 100;
+      session.hp=Math.min(heroMaxHp,session.hp+10);save.coins+=5;
       notify('⚡ 連續 10 字・驚雷流雲！（氣血＋10・銅錢＋5）');
     }else{
       session.qi=Math.min(5,session.qi+1);
@@ -840,7 +888,7 @@ engine.on('wordComplete',event=>{
   wordMisses = 0;
   const qiDelta = Math.max(1, (bracer.qiGain || 1) + (loadout.qiGainMod || 0) + (isParryBreak ? 1 : 0));
   session.qi=Math.min(5,session.qi+qiDelta);
-  if(loadout.healPerWord) session.hp=Math.min(100,session.hp+loadout.healPerWord);
+  if(loadout.healPerWord) session.hp=Math.min(session.maxHp || 100,session.hp+loadout.healPerWord);
   // 打 2 個字以上的詞語或長句時，完全不打斷敵人集氣攻擊（僅單字題小幅壓制蓄力）
   if (!isMultiChar) {
     session.atb = Math.max(0, session.atb - 10);
@@ -977,7 +1025,35 @@ document.addEventListener('click',event=>{
   if(action==='shop')shop(shopTab);
   if(action==='settings')settings();
   if(action==='return'){if(resumeView==='battle'){audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}else home();}
-  if(action==='recover'){session.hp=100;session.atb=0;session.status=null;session.statusCureNeed=0;scene.setHeroStatus(null);session.slow=(session.slow||1)*1.25;readUntil=performance.now()+4000;audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();rememberSession();}
+  if(action==='recover'){
+    const heroMaxHp = session?.maxHp || getArmorMaxHp(getArmor());
+    session.hp = heroMaxHp;
+    session.atb = 0;
+    session.status = null;
+    session.statusCureNeed = 0;
+    scene.setHeroStatus(null);
+    session.slow = (session.slow || 1) * 1.25;
+    readUntil = performance.now() + 3500;
+    scene.startCountdown(3, '雙手就位・準備出招！');
+    audio.switchBgm(stage?.kind === 'boss' ? 'boss' : 'battle');
+    closePanel();
+    rememberSession();
+    render();
+  }
+  if(action==='inn-rest'){
+    const heroMaxHp = getArmorMaxHp(getArmor());
+    if((save.coins||0)<30){
+      notify('⚠️ 銅錢不足 30，無法在客棧客房調息。');
+      return;
+    }
+    save.coins -= 30;
+    profile.adventureHp = heroMaxHp;
+    if(session) session.hp = heroMaxHp;
+    persist();
+    notify(`🛌 在客棧好生調息一夜，氣血全數補滿至 ${heroMaxHp}！（花費 30 銅錢）`);
+    shop(shopTab);
+    return;
+  }
   if(action==='save-settings'){
     const changed=save.grade!==$('grade-select').value;
     save.grade=$('grade-select').value;save.hero=$('hero-select').value;save.keyboard=$('keyboard-select').checked;
@@ -1043,6 +1119,30 @@ document.addEventListener('webkitfullscreenchange', () => {
   if (view === 'battle') render();
 });
 
+function skipCurrentWord() {
+  if (view !== 'battle' || !session || !engine.currentWord) return;
+  session.deathToll = 0;
+  misses = 0;
+  wordMisses = 0;
+  wrongKeyCode = '';
+  const used = session.queue.map(w => w.text);
+  const extra = makeQueue(used, 2, session.isWeakDrill);
+  if (extra.length > 0) {
+    session.queue[session.cursor] = extra[0];
+  }
+  engine.loadWord(session.queue[session.cursor]);
+  notify('💨 施展踏雪無痕換得新題目，凝神再戰！');
+  render();
+  rememberSession();
+}
+
+function showImeWarning(show) {
+  const el = $('ime-warning');
+  if (el) el.hidden = !show;
+}
+engine.on('imeDetected', () => showImeWarning(true));
+engine.on('imeCleared', () => showImeWarning(false));
+
 if ($('fullscreen-btn')) $('fullscreen-btn').onclick = toggleFullscreen;
 if ($('fullscreen-control-btn')) $('fullscreen-control-btn').onclick = toggleFullscreen;
 
@@ -1060,7 +1160,15 @@ document.addEventListener('keydown',event=>{
   if(event.code==='Enter'&&view!=='battle'){event.preventDefault();$('panel-content').querySelector('.primary')?.click();return;}
   if(event.code==='Escape'&&view==='battle'){event.preventDefault();settings();return;}
   if(view!=='battle'||document.hidden)return;
-  if(event.code==='Tab'){event.preventDefault();toggleKeyboard();return;}
+  if(event.code==='Tab'){
+    event.preventDefault();
+    if ((session?.deathToll || 0) >= 2) {
+      skipCurrentWord();
+      return;
+    }
+    toggleKeyboard();
+    return;
+  }
   if(event.altKey&&event.code==='Digit1'){event.preventDefault();ultimate();return;}
   if(event.altKey&&event.code==='Digit2'){event.preventDefault();useHealPotion(false);return;}
   engine.handleKeyDown(event);
@@ -1080,7 +1188,10 @@ function tick(now){
     const statusSpeedMult=session.status==='freeze'?.82:session.status==='burn'?.85:1;
     const duration=attackDuration(engine.currentWord,save.grade,session.realm||profile.realm,stage.kind)*phaseMultiplier*(session.slow||1)*(misses>=2?1.5:1)*statusSpeedMult;
     const wasDanger=session.atb>75;
-    session.atb=Math.min(100,session.atb+dt/duration*100);
+    const isHurtInvincible = performance.now() < hurtInvincibleUntil;
+    if (!isHurtInvincible) {
+      session.atb=Math.min(100,session.atb+dt/duration*100);
+    }
     const isDanger=session.atb>75;
     scene.setEnemyDangerAlert(isDanger);
     if(isDanger!==wasDanger){
@@ -1112,6 +1223,8 @@ function tick(now){
         session.hp=Math.max(0,session.hp-dmg);
         scene.playEnemyAttack(dmg);
         audio.playPlayerHurt();
+        hurtInvincibleUntil = performance.now() + 1500;
+        scene.playHurtShield(1500);
         const hazard=stageHazard(stage);
         if(session.hp>0&&hazard){
           if(armor.resist?.includes(hazard.type)){
@@ -1119,7 +1232,8 @@ function tick(now){
             notify(`🛡️ 【${armor.name}】發動，免疫對手的${hazard.label}！`);
           }else if((save.potions?.antidote_potion||0)>0){
             save.potions.antidote_potion--;
-            session.hp=Math.min(100,session.hp+15);
+            const heroMaxHp = session.maxHp || 100;
+            session.hp=Math.min(heroMaxHp,session.hp+15);
             scene.setHeroStatus(null,`🍵 清心散化${hazard.label} +15`);
             notify(`🍵 自動服用清心淨化散！化解${hazard.label}並回復 15 氣血（剩餘 ${save.potions.antidote_potion} 份）`);
           }else{

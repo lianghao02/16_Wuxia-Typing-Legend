@@ -287,6 +287,57 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 - `git diff --check`：無多餘空白或編碼異常。
 
 ### Git 狀態
-- Commit：`3d14dbbc9ae17aad607d08e7125092ce7cf198bf`。
+- Commit：`e3e43ff`。
 - Push：已推送到 `origin/master`。
 - Branch：`master`。
+
+## 2026-10-14 戰鬥操作體驗深化與五關文印補血機制實作交接
+
+### 核心元資料 (Metadata)
+- **Repository**：lianghao02/16_Wuxia-Typing-Legend
+- **Branch**：master
+- **Commit SHA**：681aa75
+- **Skill Version**：v8.5
+- **Task Type**：FEAT / UX / BALANCE
+- **Local Path Hint**：16_Wuxia-Typing-Legend
+
+### 目前狀態
+已成功完成「戰鬥與操作體驗全套優化」以及使用者指定之「過關不補血、章節每五關尋回文印才自動補滿血（耐久戰模式）」實作，67／67 項單元與整合測試全數通過。
+
+### 本輪目標與核心機制
+1. **五關文印自動補滿血（過關不補血）**：
+   - 解決以往每關結束血量自動全滿、關卡難度過於簡單的痛點。
+   - 冒險主線第 1～4 關過關時**氣血延續不重置**，剩餘血量無損帶入下一關。
+   - 擊敗章節 Boss（每 5 關第 5 關，`stageId % 5 === 4`）尋回「文印」時，天地文印共鳴，**氣血全數補滿至 Max HP**。
+   - 客棧新增「🛏️ 客房調息」按鈕（花費 30 銅錢回復滿血），賦予銅錢實質戰略資源價值。
+2. **防具 Max HP 成長**：
+   - 青竹布衣：100 Max HP。
+   - 百草辟毒袍：115 Max HP（減傷 3 點、免疫中毒）。
+   - 赤鱗宗師鎧：130 Max HP（減傷 5 點、全抗性、開場護印）。
+3. **受傷緩衝保護盾（1.5 秒無敵防雪崩）**：
+   - 玩家受傷扣血後啟動 1.5 秒保護緩衝，敵方 ATB 暫停蓄力，少俠周圍繪製金色金鐘罩光環，避免因慌亂連續扣血。
+4. **防死鎖神仙指路（Death Loop Protection）**：
+   - 連續在同一題調息 2 次以上時，虛擬鍵盤對應鍵啟動高頻金色呼吸光，並提示按下【Tab】鍵可凝神換題，徹底消滅死鎖。
+5. **中文輸入法（IME 229 / isComposing）警示**：
+   - 偵測到微軟新注音選字模式時，出題卡下方亮起醒目的琥珀色警示橫幅，提示按下【Shift】切回英數模式。
+6. **氣血危急暗紅呼吸邊框 (Low HP Vignette)**：
+   - 氣血 ≤25 時啟動邊緣深紅呼吸燈，學生眼角餘光即可察覺危急。
+7. **調息續戰 3 秒就位倒數**：
+   - 調息後中央渲染「3... 2... 1... 預備出招！」倒數，手指就位後 ATB 才開始計時。
+8. **喝藥視覺浮動文字強化**：
+   - 自動飲用回春丹時彈出「🧪 護主保命！回春丹 +50 氣血」浮動文字與音效，消除黑箱感。
+
+### 異動檔案 (Changed Files)
+- `css/adventure.css`
+- `index.html`
+- `package.json`
+- `src/adventure.js`
+- `src/engine/AdventureEngine.js`
+- `src/engine/TypingEngine.js`
+- `src/scenes/CanvasBattleScene.js`
+- `tests/combatUxEnhance.test.js`（新建）
+- `HANDOFF.md`
+
+### 驗證結果 (Validation)
+- `npm test`：**67／67 測試全數通過（0 fail）**。
+- `git diff --check`：通過。

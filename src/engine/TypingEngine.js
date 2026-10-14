@@ -282,6 +282,12 @@ export class TypingEngine {
     if (IGNORED_CODES.has(e.code) || e.code.startsWith('F')) return false;
 
     const now = performance.now();
+    const isImeActive = Boolean(e.isComposing || e.keyCode === 229 || e.key === 'Process');
+    if (isImeActive) {
+      this.emit('imeDetected', { code: e.code, key: e.key });
+    } else {
+      this.emit('imeCleared', { code: e.code, key: e.key });
+    }
     const expectedSymbol = this.getExpectedSymbol();
     if (!expectedSymbol) return false;
 

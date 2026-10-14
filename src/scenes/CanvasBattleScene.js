@@ -64,6 +64,10 @@ export class CanvasBattleScene {
     this.slashes = [];
     this.afterImages = [];
     this.floatingTexts = [];
+    this.hurtShieldUntil = 0;
+    this.lowHpAlert = false;
+    this.countdownUntil = 0;
+    this.countdownText = '';
 
     // 美術資產圖片快取（支援依當前關卡優先載入、自動重試與閒置背景佇列預載）
     this.imageCache = new Map();
@@ -1099,6 +1103,19 @@ export class CanvasBattleScene {
     this.spawnFloatingText(this.heroBaseX, this.heroBaseY - 140, `-${damage} 氣血`, '#ff6b6b', 20);
   }
 
+  playHurtShield(durationMs = 1500) {
+    this.hurtShieldUntil = performance.now() + durationMs;
+  }
+
+  setLowHpAlert(active) {
+    this.lowHpAlert = Boolean(active);
+  }
+
+  startCountdown(seconds = 3, text = '雙手就位・準備出招！') {
+    this.countdownText = text;
+    this.countdownUntil = performance.now() + seconds * 1000;
+  }
+
   spawnBurstParticles(x, y, rgb, count = 12) {
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -1391,6 +1408,45 @@ export class CanvasBattleScene {
       ctx.globalAlpha = alpha;
       ctx.strokeText(ft.text, ft.x, ft.y);
       ctx.fillText(ft.text, ft.x, ft.y);
+      ctx.restore();
+    }
+
+    // 9. 氣血危急暗紅呼吸邊框 (Vignette)
+    if (this.lowHpAlert) {
+      const pulse = Math.sin(performance.now() * 0.005) * 0.12 + 0.32;
+      const radGrad = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.72);
+      radGrad.addColorStop(0, 'rgba(230, 20, 20, 0)');
+      radGrad.addColorStop(1, `rgba(180, 0, 0, ${pulse})`);
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    // 10. 調息就位倒數 (3, 2, 1)
+    if (this.countdownUntil > performance.now()) {
+      const remainingMs = this.countdownUntil - performance.now();
+      const sec = Math.ceil(remainingMs / 1000);
+      const frac = (remainingMs % 1000) / 1000;
+      const scale = 1.0 + (1 - frac) * 0.35;
+      ctx.save();
+      ctx.translate(w / 2, h * 0.42);
+      ctx.scale(scale, scale);
+      ctx.font = 'bold 56px "Microsoft JhengHei", serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = 'rgba(255, 215, 0, 0.85)';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = '#ffd166';
+      ctx.strokeStyle = '#2b1b00';
+      ctx.lineWidth = 6;
+      ctx.strokeText(String(sec), 0, 0);
+      ctx.fillText(String(sec), 0, 0);
+      if (this.countdownText) {
+        ctx.font = 'bold 22px "Microsoft JhengHei", sans-serif';
+        ctx.fillStyle = '#f8f9fa';
+        ctx.shadowBlur = 10;
+        ctx.strokeText(this.countdownText, 0, 60);
+        ctx.fillText(this.countdownText, 0, 60);
+      }
       ctx.restore();
     }
 
@@ -1756,6 +1812,24 @@ export class CanvasBattleScene {
         ? '#90e0ef'
         : '#f4f0e6';
     ctx.fillText(`${hero.name}｜${gearLabel}${statusBadge}`, 0, 36);
+
+    // 受傷後短暫金鐘罩護體（1.5 秒免受連續打擊緩衝）
+    if (this.hurtShieldUntil > performance.now()) {
+      const shieldRemaining = this.hurtShieldUntil - performance.now();
+      const alpha = Math.min(0.72, Math.sin((shieldRemaining / 1500) * Math.PI) * 0.8 + 0.15);
+      ctx.save();
+      ctx.translate(0, -baseH * 0.44);
+      ctx.strokeStyle = `rgba(255, 215, 0, ${alpha})`;
+      ctx.lineWidth = 4;
+      ctx.shadowColor = '#ffd700';
+      ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, baseH * 0.32, baseH * 0.48, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = `rgba(255, 223, 0, ${alpha * 0.22})`;
+      ctx.fill();
+      ctx.restore();
+    }
 
     ctx.restore();
   }

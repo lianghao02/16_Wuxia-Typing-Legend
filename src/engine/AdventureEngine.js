@@ -323,15 +323,24 @@ export const ADVENTURE_BRACERS = [
 
 export const ADVENTURE_ARMORS = [
   { id: 'linen_armor', name: '青竹布衣', price: 0, icon: './assets/icons/linen_outfit_v3.png',
-    dmgTaken: 15, dmgReduce: 0, resist: [], startShield: 0,
-    desc: '輕便修煉布衣，提供基礎防護' },
+    maxHp: 100, dmgTaken: 15, dmgReduce: 0, resist: [], startShield: 0,
+    desc: '輕便修煉布衣 · 氣血上限 100，提供基礎防護' },
   { id: 'herbal_robe', name: '百草辟毒袍', price: 140, icon: './assets/icons/wanderer_outfit_v3.png',
-    dmgTaken: 12, dmgReduce: 3, resist: ['poison'], startShield: 0,
-    desc: '百草浸染俠客袍 · 完全免疫【☠️ 碧磷中毒】且敵人攻擊傷害減免 20%' },
+    maxHp: 115, dmgTaken: 12, dmgReduce: 3, resist: ['poison'], startShield: 0,
+    desc: '百草浸染俠客袍 · 氣血上限提升至 115 · 完全免疫【☠️ 碧磷中毒】且敵人攻擊減免 20%' },
   { id: 'scale_armor', name: '赤鱗宗師鎧', price: 280, icon: './assets/icons/grandmaster_outfit_v3.png',
-    dmgTaken: 10, dmgReduce: 5, resist: ['poison', 'burn', 'freeze'], startShield: 1,
-    desc: '宗師金鱗護甲 · 免疫【☠️毒／🔥火／❄️冰】異常狀態、減傷 33%，每關開場自帶 1 層護印' }
+    maxHp: 130, dmgTaken: 10, dmgReduce: 5, resist: ['poison', 'burn', 'freeze'], startShield: 1,
+    desc: '宗師金鱗護甲 · 氣血上限提升至 130 · 免疫【☠️毒／🔥火／❄️冰】異常狀態、減傷 33%，每關開場自帶 1 層護印' }
 ];
+
+export function getArmorMaxHp(armorOrSave) {
+  if (!armorOrSave) return 100;
+  const armorId = typeof armorOrSave === 'string'
+    ? armorOrSave
+    : (armorOrSave.armor || armorOrSave.id);
+  const found = ADVENTURE_ARMORS.find(a => a.id === armorId);
+  return found?.maxHp || 100;
+}
 
 export const ADVENTURE_POTIONS = [
   { id: 'heal_potion', name: '九轉回春丹', price: 50, maxStack: 5, icon: './assets/icons/restoration_elixir_v3.png',
@@ -583,6 +592,7 @@ export function getProfile(save) {
   p.weak ||= {};
   p.weakSymbols ||= {};
   p.daily ||= {};
+  p.adventureHp = typeof p.adventureHp === 'number' ? p.adventureHp : null;
   return p;
 }
 
@@ -905,10 +915,26 @@ export function awardStage(save, profile, stageId, stats, date) {
   };
   if (first) profile.stage = Math.max(profile.stage, Math.min(ADVENTURE_STAGES.length, stageId + 1));
   profile.session = null;
+  const isChapterSeal = stageId % 5 === 4;
+  const heroMaxHp = getArmorMaxHp(save);
+  if (isChapterSeal) {
+    profile.adventureHp = heroMaxHp;
+  } else if (Number.isFinite(stats?.heroEndHp)) {
+    profile.adventureHp = Math.min(heroMaxHp, Math.max(15, Math.round(stats.heroEndHp)));
+  }
   const dailyBonus = !profile.daily[date] ? 20 : 0;
   profile.daily[date] = true;
   save.coins += dailyBonus;
-  return { reward, dailyBonus, first, seal, ending: stageId === ADVENTURE_STAGES.length - 1 && profile.stage === ADVENTURE_STAGES.length };
+  return {
+    reward,
+    dailyBonus,
+    first,
+    seal,
+    isChapterSeal,
+    adventureHp: profile.adventureHp,
+    heroMaxHp,
+    ending: stageId === ADVENTURE_STAGES.length - 1 && profile.stage === ADVENTURE_STAGES.length
+  };
 }
 
 export function buyWeapon(save, weapon) {
