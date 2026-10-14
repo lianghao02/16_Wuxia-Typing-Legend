@@ -7,6 +7,7 @@ import {
   newAdventure,
   getProfile
 } from '../src/engine/AdventureEngine.js';
+import { ADVENTURE_STAGES } from '../src/data/adventureWorld.js';
 import { TypingEngine } from '../src/engine/TypingEngine.js';
 
 test('1. 防具 Max HP 上限成長：布衣 100、百草袍 115、赤鱗鎧 130', () => {
@@ -108,3 +109,26 @@ test('3. 中文輸入法（微軟新注音 Process / 229 / isComposing）事件�
   });
   assert.equal(imeClearedCount, 1);
 });
+
+test('4. 敵人氣血表升級（第8~10題合理擊殺）與階梯式攻擊力配置', () => {
+  // 第一章普通怪 (stage 0: 340 HP, atk: 8)
+  assert.equal(ADVENTURE_STAGES[0].enemy.maxHp, 340);
+  assert.equal(ADVENTURE_STAGES[0].enemy.atk, 8);
+
+  // 第一章對決怪 (stage 3: 400 HP, atk: 12)
+  assert.equal(ADVENTURE_STAGES[3].enemy.maxHp, 400);
+  assert.equal(ADVENTURE_STAGES[3].enemy.atk, 12);
+
+  // 第一章首領 (stage 4: 520 HP, atk: 18)
+  assert.equal(ADVENTURE_STAGES[4].enemy.maxHp, 520);
+  assert.equal(ADVENTURE_STAGES[4].enemy.atk, 18);
+
+  // 第三章首領 (stage 14: 800 HP, atk: 24)
+  assert.equal(ADVENTURE_STAGES[14].enemy.maxHp, 800);
+  assert.equal(ADVENTURE_STAGES[14].enemy.atk, 24);
+
+  // 第六章終極首領 (stage 29: 1480 HP, atk: 33)
+  assert.equal(ADVENTURE_STAGES[29].enemy.maxHp, 1480);
+  assert.equal(ADVENTURE_STAGES[29].enemy.atk, 33);
+});
+

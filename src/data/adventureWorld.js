@@ -39,12 +39,12 @@ export const CHAPTERS = [
     ['以字為劍','boss','boss','最終決戰，不為擊倒一個人，而為以字為劍打破封住記憶的黑風。','最後一道劍光照亮文章，寨主想起自己的初心。傳承文印重新亮起。'] ] }
 ];
 const CHAPTER_HP_TABLE = [
-  { normal: 150, duel: 185, elite: 215, boss: 270, def: 0.00 }, // 第一章：山門初行
-  { normal: 195, duel: 240, elite: 280, boss: 360, def: 0.05 }, // 第二章：竹海尋信
-  { normal: 245, duel: 300, elite: 350, boss: 460, def: 0.08 }, // 第三章：古驛燈火
-  { normal: 300, duel: 360, elite: 420, boss: 580, def: 0.12 }, // 第四章：襄陽會武
-  { normal: 360, duel: 430, elite: 500, boss: 720, def: 0.15 }, // 第五章：月下墨閣
-  { normal: 420, duel: 510, elite: 600, boss: 880, def: 0.18 }  // 第六章：雲海歸字
+  { normal: 340, duel: 400, elite: 450, boss: 520, def: 0.00 }, // 第一章：山門初行 (10題累積約 530 傷，第 8~10 題擊殺)
+  { normal: 420, duel: 490, elite: 550, boss: 650, def: 0.05 }, // 第二章：竹海尋信 (10題累積約 700 傷，第 8~10 題擊殺)
+  { normal: 520, duel: 600, elite: 680, boss: 800, def: 0.08 }, // 第三章：古驛燈火 (10題累積約 930 傷，第 8~10 題擊殺)
+  { normal: 640, duel: 740, elite: 840, boss: 1000, def: 0.12 }, // 第四章：襄陽會武 (10題累積約 1150 傷，第 8~10 題擊殺)
+  { normal: 780, duel: 900, elite: 1020, boss: 1220, def: 0.15 }, // 第五章：月下墨閣 (10題累積約 1350 傷，第 8~10 題擊殺)
+  { normal: 940, duel: 1080, elite: 1220, boss: 1480, def: 0.18 }  // 第六章：雲海歸字 (10題累積約 1500 傷，第 8~10 題擊殺)
 ];
 
 export const ADVENTURE_STAGES = CHAPTERS.flatMap((chapter, c) => chapter.quests.map((q, i) => {
@@ -54,6 +54,7 @@ export const ADVENTURE_STAGES = CHAPTERS.flatMap((chapter, c) => chapter.quests.
   const hpCfg = CHAPTER_HP_TABLE[c] || CHAPTER_HP_TABLE[0];
   const maxHp = kind === 'boss' ? hpCfg.boss : isElite ? hpCfg.elite : kind === 'duel' ? hpCfg.duel : hpCfg.normal;
   const defense = kind === 'boss' ? hpCfg.def + 0.04 : isElite ? hpCfg.def + 0.02 : kind === 'duel' ? hpCfg.def : Math.max(0, hpCfg.def - 0.02);
+  const atk = kind === 'boss' ? (18 + c * 3) : isElite ? (14 + c * 2) : kind === 'duel' ? (12 + c * 2) : (8 + c);
   return {
     id: c * 5 + i,
     chapter: c,
@@ -70,7 +71,8 @@ export const ADVENTURE_STAGES = CHAPTERS.flatMap((chapter, c) => chapter.quests.
       title: kind === 'boss' ? '章節首領' : isElite ? '精銳強敵' : kind === 'duel' ? '江湖交手' : '江湖歷練',
       primaryColor: 0xc0a06c,
       maxHp,
-      defense: Number(defense.toFixed(2))
+      defense: Number(defense.toFixed(2)),
+      atk
     },
     intro: q[3],
     outro: q[4],

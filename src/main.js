@@ -814,11 +814,23 @@ export class WuxiaGameApp {
   startAtbTimer() {
     setInterval(() => {
       if (this.isBattlePaused || this.isBackgroundPaused || !this.typing.active || this.isEnemyFrozen) return;
-      const interval = this.currentStage?.enemy?.attackIntervalMs || 0;
+      let interval = this.currentStage?.enemy?.attackIntervalMs || 0;
       if (interval <= 0) {
         this.enemyAtb = 0;
         this.updateAtbUI();
         return;
+      }
+
+      // 動態字數補正：每字增加作答緩衝時間，避免長句被秒殺
+      if (this.typing?.currentWord) {
+        const textLen = Array.from(this.typing.currentWord.text || '').length;
+        const perChar = this.typing.mode === 'english' ? 260 : 1200;
+        interval += textLen * perChar;
+      }
+
+      // 動態減速防慌亂：同題連續按錯 2 次以上，蓄力速度放慢 50%
+      if ((this.consecutiveMisses || 0) >= 2) {
+        interval = Math.round(interval * 1.5);
       }
 
       this.enemyAtb += 100 / interval;
