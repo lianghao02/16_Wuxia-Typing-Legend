@@ -180,3 +180,77 @@ Antigravity 已於同一工作目錄接手並完成方案 B（Phase A／Phase B 
 
 ## 發布狀態 (Release Status)
 `v2.1.0` 與六大深化功能已正式提交並推送至 GitHub。
+
+
+# HANDOFF｜問題導向改善・最新斷點
+
+## 核心元資料 (Metadata)
+- **Repository**：lianghao02/16_Wuxia-Typing-Legend
+- **Branch**：feat/jianghu-adventure
+- **Commit SHA**：a6b63e51806b76c9d6478a04b1581c6f46c7c513（基準；本輪修改未提交）
+- **Skill Version**：v1.0.0
+- **Task Type**：FIX
+- **Local Path Hint**：16_Wuxia-Typing-Legend
+
+## 目前狀態
+功能修正與單元測試完成；瀏覽器實測待驗證。此區段取代前文對目前分支與本輪 Git 狀態的描述。
+
+## 本輪目標
+依使用者要求，以問題導向檢查並改善介面、攻防、武功技能、角色、道具與教學；先修確定落差，其他方向與驗收集中保存於 IMPLEMENTATION_PLAN.md。
+
+## 基準與已確認事實 (Baseline & Confirmed Facts)
+開始時工作目錄 Clean，分支 feat/jianghu-adventure 與 origin 同步，既有 63 項測試通過。隔離重現仍發現錯題過早清除、重複記次、快速錯鍵提示漏計、錯鍵降低高蓄力、裝備擊退未套用、十題舊領獎入口與跨專案快取清理等問題。
+
+## 已完成 (Completed)
+- 教學提示與戰鬥懲罰分開；有錯題保留待複習，後續零失誤才降低次數，近期順序依實際重練更新。
+- 保存當題錯鍵數，舊存檔缺欄位時保守處理；不重設玩家財產或注音位置。
+- 錯鍵不直接扣血、不降低高蓄力；異常化解須連續完成兩字。
+- 單字題套用武器／護腕擊退；多字詞含破綻只增傷、不打斷集氣；同步修正商店與關卡說明。
+- RPG 領賞須擊敗敵人；特訓保存與結算不覆寫主線續玩、文印或紀錄，只提供特訓賞金及既有日常成果。
+- Service Worker v2 僅清除本遊戲舊快取；新增 17 項正式處理器隔離回歸測試。
+- 完成 1,512 組戰鬥節奏隔離模擬，保留原傷害／血量；診斷英文連擊與跨年級裝備的練習量，結果見 docs/battle-balance.md。
+- 修正絕招中途獲勝虛增題數；定身改用有效戰鬥時間，選單、分頁隱藏與失焦不耗秒數。
+
+- 第二輪：英文連擊獎勵改為每四個字元一單位，中英混合共用加權進度；新增 24 正確按鍵＋完整當題收招門檻，HUD 原進度文字顯示破防狀態，續玩保留進度。未加選項。
+
+## 異動檔案 (Changed Files)
+src/adventure.js、src/data/gradeQuestionMix.js、src/engine/AdventureEngine.js、sw.js、package.json、tests/adventure.test.js、新檔 tests/adventureProblems.test.js、tests/helpers/adventureHarness.js、scripts/analyze-battle-balance.mjs、docs/battle-balance.md，以及 README.md、CHANGELOG.md、IMPLEMENTATION_PLAN.md、docs/adventure-validation.md、本 HANDOFF.md。
+
+## 刻意未修改 (Do Not Do / Deliberately Omitted)
+不修改 master、classic.html、原圖、姿態動畫、基礎傷害曲線、怪物血量、角色能力與響應式配置；新增收招門檻及獎勵成本，不重畫版面；未建立或恢復監測，不操作使用者視窗與存檔，不提交或推送。未新增測試框架或瀏覽器套件。
+
+## 尚未完成 (Remaining Work)
+- **P1 (阻斷/必須)**：未發現尚未處理的已重現阻斷問題。
+- **P2 (重要/當次)**：瀏覽器工具無可用瀏覽器；正式頁、跨尺寸、console error、PWA 更新與離線啟動待複驗，不宣稱可發布。
+- **P3 (改善建議/暫緩)**：已修英文獎勵與跨年級練習量；仍需真人資料驗證 24 鍵門檻、英文集氣節奏與宗師容錯。英文宗師最終關、木劍、每秒兩鍵、不用絕招時仍需調息，不宣稱所有條件皆可無調息通關。
+
+## 驗證結果 (Validation)
+### 已執行測試與結果
+npm test 80／80；戰鬥診斷 1,512 組完成；語法檢查與 git diff --check 通過。案例與限制詳見 docs/adventure-validation.md 最新段落。
+### 尚未驗證項目
+沒有新瀏覽器截圖、可用視窗尺寸量測或 console error 證據；舊版通過結果不自動適用本輪。
+### 已知風險 (Known Risks)
+無法回溯修復先前已重複累計或已清除的學習紀錄，不猜測重建歷史。舊存檔缺當題錯鍵數且曾有錯誤時，第一次續玩保守不給零失誤加成。特訓中途只在目前頁面保留，主線仍可續玩。
+
+## Git 狀態
+- Commit：本輪未提交（基準 a6b63e5）。
+- Push：否。
+- Working Tree：Modified，均為本輪修改。
+- Branch：feat/jianghu-adventure。
+
+## 下一步建議動作 (Next Recommended Action)
+提供可用 Browser 後，先驗證關卡、特訓返回主線、商店、絕招與小螢幕提示，再依問題清單挑選有證據的改善。不要重做既有素材或擴大功能。
+
+2026-10-16 複查：80／80 測試通過；本機服務原未啟動，已使用工作區隨附 Python 啟動 127.0.0.1:8765，adventure.html 回應 HTTP 200。Browser inventory 仍為空，建立 iab 分頁亦失敗；畫面驗收繼續待辦，無新程式碼修改，未提交或推送。服務為本輪終端工作階段程序，後續仍須確認是否運行。
+
+## 發布狀態 (Release Status)
+待瀏覽器實測；未發布。
+
+
+## 發布交接｜v2.1.1-beta.1（2026-10-16）
+- Repository：lianghao02/16_Wuxia-Typing-Legend；Branch：feat/jianghu-adventure；Skill Version：1.0.0；Task Type：RELEASE。
+- 基準 Commit SHA：a6b63e51806b76c9d6478a04b1581c6f46c7c513；發布提交以 v2.1.1-beta.1 標籤為準。
+- 遠端 master 已有 4b5f823／v2.2.0（WebP、五關耐久與戰鬥調整）；本輪不回退 master、不覆蓋線上網站。
+- 使用者明確要求先發布。本輪採獨立預發行版，README／package.json／CHANGELOG 對齊版本；保留 UI 尚未驗收限制。
+- 已完成：80／80 自動測試、HTTP 200、差異檢查；正式發布結果以 GitHub Release 與遠端標籤為準。
+- 尚未完成：跨尺寸、動畫、console error、PWA 實測；與 v2.2.0 的程式整合另行處理，不宣稱已合併或部署。

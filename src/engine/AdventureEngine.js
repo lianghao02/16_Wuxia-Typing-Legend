@@ -6,6 +6,10 @@ export const CONFIG = {
   freezeMs: 8000,
   damage: 15,
   hp: 100,
+  singleWordKnockbackAtb: 10,
+  weakDrillReward: 35,
+  minPracticeHits: 24,
+  englishComboRewardScale: 4,
   bossPoisonCap: 35,
   intervals: { easy: 6800, medium: 4500, hard: 2800 },
   perCharMs: { easy: 1400, medium: 950, hard: 600 },
@@ -14,6 +18,24 @@ export const CONFIG = {
   graceMs: 700,
   knockbackAtb: 25
 };
+
+/** 英文仍逐字元顯示連擊，實質獎勵按 20／40／60 字元觸發。 */
+export function advanceComboReward(progress, english = false) {
+  const previous = Number.isFinite(progress) ? Math.max(0, progress) : 0;
+  const next = previous + 1 / (english ? CONFIG.englishComboRewardScale : 1);
+  const tier = Math.floor(next / 5);
+  return { progress: next, milestone: tier > Math.floor(previous / 5) ? tier * 5 : 0 };
+}
+
+/** 先破防再收招：保留傷害差異，但須完成基本練習量及當前題目。 */
+export function resolvePracticeDamage(actionType, damage, enemyHp, correctHits = 0) {
+  const canFinish = actionType === 'word' && correctHits >= CONFIG.minPracticeHits;
+  const pendingFinisher = enemyHp > 0 && damage >= enemyHp && !canFinish;
+  return {
+    damage: Math.max(0, pendingFinisher ? enemyHp - 1 : damage),
+    pendingFinisher
+  };
+}
 
 export const GRADE_DAMAGE_SCALE = {
   '1': 1.25,
@@ -69,7 +91,7 @@ export const ADVENTURE_WEAPONS = [
     slashColor: 0x48cae4,
     ultName: '青蓮流雲陣',
     icon: './assets/icons/qingfeng_sword_v3.png',
-    desc: '【第 2 階 · 攻擊力 20】劍系連擊型（每連字＋2.0%）· 雙道青色劍氣 · 銅錢＋20% · 擊退蓄力＋5%'
+    desc: '【第 2 階 · 攻擊力 20】劍系連擊型（每連字＋2.0%）· 雙道青色劍氣 · 銅錢＋20% · 單字題擊退蓄力＋5%'
   },
   {
     id: 'iron_spear',
@@ -91,7 +113,7 @@ export const ADVENTURE_WEAPONS = [
     slashColor: 0x90e0ef,
     ultName: '破軍穿雲刺',
     icon: './assets/icons/thunder_spear_v4.png',
-    desc: '【第 3 階 · 攻擊力 24】槍系破防型（無視敵方護體減傷）· 擊退蓄力＋16% · 每題回血＋1 · 銅錢＋30%'
+    desc: '【第 3 階 · 攻擊力 24】槍系破防型（無視敵方護體減傷）· 單字題擊退蓄力＋16% · 每題回血＋1 · 銅錢＋30%'
   },
   {
     id: 'flame_saber',
@@ -113,7 +135,7 @@ export const ADVENTURE_WEAPONS = [
     slashColor: 0xff5a1f,
     ultName: '烈焰焚天斬',
     icon: './assets/icons/flame_saber_v4.png',
-    desc: '【第 4 階 · 攻擊力 28】刀系爆發型（多字詞爆發傷害＋28%）· 擊退蓄力＋14% · 銅錢＋40%'
+    desc: '【第 4 階 · 攻擊力 28】刀系爆發型（多字詞爆發傷害＋28%）· 單字題擊退蓄力＋14% · 銅錢＋40%'
   },
   {
     id: 'xuantie_sword',
@@ -157,7 +179,7 @@ export const ADVENTURE_WEAPONS = [
     slashColor: 0x00d2ff,
     ultName: '雷霆破陣槍',
     icon: './assets/icons/thunder_spear_v4.png',
-    desc: '【第 6 階 · 攻擊力 40】槍系傳說神兵（完全無視減傷＋擊退蓄力＋20%）· 每題回血＋4 · 銅錢＋60%'
+    desc: '【第 6 階 · 攻擊力 40】槍系傳說神兵（完全無視減傷＋單字題擊退蓄力＋20%）· 每題回血＋4 · 銅錢＋60%'
   }
 ];
 
@@ -206,7 +228,7 @@ export const SPIRIT_BEASTS = [
     slashColor: 0x2a9d8f,
     ultName: '九霄穿雲擊',
     icon: './assets/icons/beast_eagle_icon_v5.png',
-    desc: '【第 2 階 · 攻擊力 20】疾速連擊型（每連字＋2.0%，對應二階青鋒劍）· 銅錢＋20% · 擊退蓄力＋8%'
+    desc: '【第 2 階 · 攻擊力 20】疾速連擊型（每連字＋2.0%，對應二階青鋒劍）· 銅錢＋20% · 單字題擊退蓄力＋8%'
   },
   {
     id: 'beast_toad',
@@ -305,7 +327,7 @@ export const SPIRIT_BEASTS = [
     slashColor: 0x00d2ff,
     ultName: '九霄天狼破',
     icon: './assets/icons/beast_wolf_icon_v5.png',
-    desc: '【第 6 階 · 攻擊力 40】傳說破防神獸（完全無視減傷＋擊退蓄力＋20%，對應六階龍膽亮銀槍）· 每題回血＋4 · 銅錢＋60%'
+    desc: '【第 6 階 · 攻擊力 40】傳說破防神獸（完全無視減傷＋單字題擊退蓄力＋20%，對應六階龍膽亮銀槍）· 每題回血＋4 · 銅錢＋60%'
   }
 ];
 
@@ -315,10 +337,10 @@ export const ADVENTURE_BRACERS = [
     desc: '入門修煉護腕，10 連字以上享劍氣護體降階保護' },
   { id: 'leather_bracer', name: '流雲護腕', price: 120, icon: './assets/icons/bracer_leather_v4.png',
     missAtbPenalty: 4, comboProtectThreshold: 8, qiGain: 1, knockbackBonus: 2, comboGuard: 2,
-    desc: '按錯鍵時對手蓄力懲罰減半（+4%），每字多退蓄力 +2%，8 連字以上即享降階保護' },
+    desc: '按錯鍵時對手蓄力懲罰減半（+4%），完成單字題多退蓄力 2 個百分點，失誤多保留 2 連字（須達 5 連字）' },
   { id: 'jade_bracer', name: '宗師文印護腕', price: 240, icon: './assets/icons/bracer_jade_v4.png',
     missAtbPenalty: 3, comboProtectThreshold: 6, qiGain: 2, knockbackBonus: 4, comboGuard: 5,
-    desc: '每完成一題獲 2 點內力（3 題即可放絕招！），失誤多保留 5 連字，每字多退蓄力 +4%' }
+    desc: '每完成一題獲 2 點內力（3 題即可放絕招！），失誤多保留 5 連字（須達 5 連字），完成單字題多退蓄力 4 個百分點' }
 ];
 
 export const ADVENTURE_ARMORS = [
@@ -826,7 +848,10 @@ export function calculateAttackDamage({
   }
 
   const totalDamage = primaryDamage + multiHitDamage + poisonDamage;
-  const knockbackAtb = isParryBreak ? 100 : (CONFIG.knockbackAtb + 15 + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0) * 2);
+  // 單字題才能壓制蓄力，多字詞保留整段敵方攻擊節奏。
+  const knockbackAtb = rawLen === 1
+    ? Math.min(100, CONFIG.singleWordKnockbackAtb + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0))
+    : 0;
   const lenFixed = Number(lengthMultiplier.toFixed(2));
 
   return {
@@ -875,13 +900,16 @@ export function attackDuration(word, grade, realm, kind = 'duel') {
 
 export function awardStage(save, profile, stageId, stats, date) {
   const stage = ADVENTURE_STAGES[stageId];
+  if (!stage) throw new Error('找不到有效關卡。');
   const isCombat = Boolean(stage?.isCombat);
-  const defeatedByHp = stats?.enemyDefeated === true || (typeof stats?.enemyHp === 'number' && stats.enemyHp <= 0);
+  const defeatedByHp = typeof stats?.enemyHp === 'number'
+    ? Number.isFinite(stats.enemyHp) && stats.enemyHp <= 0
+    : stats?.enemyDefeated === true;
   const completedTen = (stats?.completedWords ?? 0) >= CONFIG.questions;
 
   if (isCombat) {
-    if (!defeatedByHp && !completedTen) {
-      throw new Error('必須擊敗對手或完成十題才能通關。');
+    if (!defeatedByHp) {
+      throw new Error('必須擊敗對手才能通關。');
     }
   } else if (!completedTen) {
     throw new Error('必須實際完成十題才能通關。');

@@ -1,4 +1,5 @@
-const CACHE_NAME = 'wuxia-typing-v1';
+const CACHE_PREFIX = 'wuxia-typing-';
+const CACHE_NAME = `${CACHE_PREFIX}v2`;
 const PRECACHE_ASSETS = [
     './',
     './index.html',
@@ -24,7 +25,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
-                keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+                keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key))
             );
         }).then(() => self.clients.claim())
     );

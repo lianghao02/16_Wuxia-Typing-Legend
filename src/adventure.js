@@ -8,14 +8,15 @@ import { KEYBOARD_ROWS, BOPOMOFO_TO_KEY_INFO, EN_TO_KEY_INFO } from './data/daqi
 import { getGradeMixedWords } from './data/textbooks.js';
 import { ENGLISH_PRACTICE_BANKS } from './data/practice.js';
 import { parseAdventureCustomWords } from './data/vocabulary.js';
-import { buildGradeQuestionQueue, buildAdaptiveQuestionBatch, recordQuestionHistory } from './data/gradeQuestionMix.js';
+import { buildGradeQuestionQueue, buildAdaptiveQuestionBatch, recordQuestionResult } from './data/gradeQuestionMix.js';
 import { getDictionaryUsage, getWordUsageHint, getCharacterReadings } from './data/moeDictionary.js';
 import { ADVENTURE_STAGES, CHAPTERS, REALMS } from './data/adventureWorld.js';
 import {
   ADVENTURE_KEY, CONFIG, ADVENTURE_WEAPONS, SPIRIT_BEASTS, ADVENTURE_BRACERS, ADVENTURE_ARMORS, ADVENTURE_POTIONS,
   DAILY_QUEST_DEFS, getBeastBond, addBeastBondExp, feedSpiritBeast, getSealForStats, ensureDailyState, recordDailyProgress,
   newAdventure, migrateAdventureSave, getProfile, getActiveLoadout, phaseFor, bossPhaseForHp, advanceBossPhase,
-  calculateAttackDamage, stageHazard, attackDuration, awardStage, buyGear, buyPotion, favorFresh
+  calculateAttackDamage, stageHazard, attackDuration, awardStage, buyGear, buyPotion, favorFresh,
+  advanceComboReward, resolvePracticeDamage
 } from './engine/AdventureEngine.js';
 
 const $ = id => document.getElementById(id);
@@ -34,7 +35,7 @@ const getBeast = () => SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BE
 const getLoadout = () => getActiveLoadout(save);
 const getBracer = () => ADVENTURE_BRACERS.find(b => b.id === save.bracer) || ADVENTURE_BRACERS[0];
 const getArmor = () => ADVENTURE_ARMORS.find(a => a.id === save.armor) || ADVENTURE_ARMORS[0];
-let profile = getProfile(save), stage, session, view = 'home', misses = 0, wordMisses = 0, frozenUntil = 0, shopTab = 'weapon';
+let profile = getProfile(save), stage, session, view = 'home', misses = 0, wordMisses = 0, frozenUntil = 0, battleTime = 0, shopTab = 'weapon';
 let readUntil = 0, noticeTimer, lastTick = performance.now(), resumeView = 'home', statusDotAcc = 0;
 let windowFocused = true, lastMissAt = 0, lastMissCharIndex = -1, lastRetainedCombo = 0, wrongKeyCode = '', wrongKeyTimer = null;
 const engine = new TypingEngine();
@@ -192,7 +193,10 @@ function setupScene() {
 }
 function rememberSession() {
   if (!session || view !== 'battle') return;
-  session.typing = engine.getProgress(); profile.session = session; persist();
+  session.wordMisses = wordMisses;
+  session.typing = engine.getProgress();
+  if (!session.isWeakDrill) profile.session = session;
+  persist();
 }
 function pause() { rememberSession(); engine.active = false; engine.setPaused(true); }
 function modal(html, nextView) {
@@ -246,10 +250,10 @@ function getBasePool() {
   }
   return getGradeMixedWords(Number(save.grade) || 3);
 }
-function makeQueue(sessionUsed = [], count = 10, forceWeakDrill = false) {
+function makeQueue(sessionUsed = [], count = 10, forceWeakDrill = Boolean(session?.isWeakDrill)) {
   const isEn = save.grade === 'english';
   const pool = getBasePool();
-  const isDrill = forceWeakDrill || Boolean(session?.isWeakDrill);
+  const isDrill = forceWeakDrill;
   if (isDrill) {
     const weakEntries = Object.entries(profile.weak || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]);
     const weakTexts = weakEntries.map(([t]) => t);
@@ -333,23 +337,26 @@ function begin(resume = true, replayId = null, weakDrill = false) {
   session.mistakeNotes ||= [];
   ensureSessionQueue();
   setupScene(); engine.resetStats();
-  wordMisses = 0;
+  // 舊存檔沒有逐題錯鍵數時，保守保留錯誤，避免續玩被誤算為零失誤。
+  wordMisses = Number.isFinite(session.wordMisses)
+    ? Math.max(0, session.wordMisses)
+    : (session.typing?.stats?.totalMisses > 0 ? 1 : 0);
   engine.loadWord(session.queue[session.cursor]);
   if (session.typing) engine.restoreProgress(session.typing);
   if (session.cursor > 0 && engine.completedWords < session.cursor) {
     engine.completedWords = session.cursor;
     engine.completedChars = Math.max(engine.completedChars, session.queue.slice(0, session.cursor).reduce((sum, w) => sum + Array.from(w.text || '').length, 0));
   }
-  misses=0; frozenUntil=0; statusDotAcc=0; readUntil=performance.now()+CONFIG.graceMs;
+  misses=0; frozenUntil=0; battleTime=0; statusDotAcc=0; readUntil=performance.now()+CONFIG.graceMs;
   audio.switchBgm('story');
   const loadout = getLoadout();
   const hazard = stageHazard(stage);
   const hazardTip = hazard ? `<br>${hazard.icon} 本關對手招式帶有「<strong>${hazard.label}</strong>」，若受擊染上狀態，<strong>連續打對 2 個字</strong>即可運功化解！` : '';
   const chapterIntro = !session.isWeakDrill && session.cursor===0 && !session.typing && stage.id%5===0 ? CHAPTERS[stage.chapter].intro : '';
-  const victoryTip = `氣血對決（對手氣血 ${session.enemyHp}／${session.enemyMaxHp}）：每完整打完一道題目，即可依字數、連擊、${save.hero==='mu'?'靈獸戰技':'兵器流派'}施展招式削減對手氣血，歸零即獲勝！`;
+  const victoryTip = `每完整打完一道題目，即可依字數、連擊、${save.hero==='mu'?'靈獸戰技':'兵器流派'}削減對手氣血。至少完成 ${CONFIG.minPracticeHits} 次正確按鍵，並打完目前題目才能收招通關；強裝備可加快破防。${engine.mode==='english'?'英文連擊獎勵於 20／40／60 個字元觸發。':''}`;
   modal(`<span class="eyebrow">${session.isWeakDrill ? '📖 錯題墨寶閣 · 掃除特訓' : `第 ${stage.chapter+1} 章 · ${stage.chapterName}`}</span><h2>${session.isWeakDrill ? `${stage.name}（錯題掃除戰）` : stage.name}</h2>
-    ${chapterIntro?`<p>${escape(chapterIntro)}</p>`:''}<p class="story">${session.isWeakDrill ? '集中演練近期曾按錯的字詞與注音，擊破對手即可消去錯題紀錄並獲贈勤學特訓賞金 ＋35 銅錢！' : stage.intro}</p>
-    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'打完每個單字可壓制對手蓄力，整題打完即出招造成傷害；在對手「⚡即將出招」瞬間完成整題可觸發【看破破綻】反擊！'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
+    ${chapterIntro?`<p>${escape(chapterIntro)}</p>`:''}<p class="story">${session.isWeakDrill ? '集中演練近期曾按錯的字詞與注音，零失誤完成可逐步降低待複習次數；擊破對手獲贈勤學特訓賞金 ＋35 銅錢！' : stage.intro}</p>
+    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'完成單字題可壓制對手蓄力；多字詞須整題打完才造成傷害，且不打斷對手集氣。對手「⚡即將出招」時完成整題可觸發【看破破綻】增傷！'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
     <button class="primary" data-action="start">${session.cursor||session.typing?'接續交手':'踏入江湖'} · Enter</button>`, 'intro');
 }
 function start() {
@@ -366,8 +373,11 @@ function render() {
   const isReviewWord = Boolean(engine.currentWord?.isReview);
   const reviewTag = isReviewWord ? ' · 🔁錯題複習' : '';
   const enemyPct = Math.max(0, Math.min(100, Math.round((session.enemyHp / (session.enemyMaxHp || 100)) * 100)));
-  const doneDots = Math.min(10, Math.max(0, Math.floor((100 - enemyPct) / 10)));
-  $('progress').textContent = `${gradeLabel(save.grade)} · ${REALMS[session.realm||profile.realm]} · 已出招 ${session.cursor} 題 · 對手剩餘 ${enemyPct}% 氣血${reviewTag}`;
+  const doneDots = Math.min(session.enemyHp>0?9:10, Math.max(0, Math.floor((100 - enemyPct) / 10)));
+  const enemyProgress = session.pendingFinisher
+    ? (engine.totalHits < CONFIG.minPracticeHits ? `已破防・正確按鍵 ${engine.totalHits}／${CONFIG.minPracticeHits}` : '已破防・完成本題收招')
+    : `對手剩餘 ${enemyPct}% 氣血`;
+  $('progress').textContent = `${gradeLabel(save.grade)} · ${REALMS[session.realm||profile.realm]} · 已出招 ${session.cursor} 題 · ${enemyProgress}${reviewTag}`;
   $('route').innerHTML = Array.from({length:10},(_,i)=>`<i class="${i<doneDots?'done':''}"></i>`).join('');
   const bossPhase = stage.kind === 'boss' ? bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0) : null;
   const phaseLabel = stage.kind === 'boss'
@@ -457,6 +467,7 @@ function applyPlayerAttack(actionType, extra = {}) {
     combo: extra.combo ?? engine.combo,
     grade: save.grade,
     loadout,
+    bracer: getBracer(),
     stage,
     enemyHp: session.enemyHp,
     enemyMaxHp: session.enemyMaxHp,
@@ -464,7 +475,9 @@ function applyPlayerAttack(actionType, extra = {}) {
     isParryBreak: Boolean(extra.isParryBreak),
     isPerfectWord: Boolean(extra.isPerfectWord)
   });
-  const totalDmg = dmgResult.finalDamage;
+  const resolved = resolvePracticeDamage(actionType, dmgResult.finalDamage, session.enemyHp, engine.totalHits);
+  const totalDmg = resolved.damage;
+  session.pendingFinisher = resolved.pendingFinisher;
   if (actionType === 'word' && (dmgResult.applyPoison || session.enemyPoisonTurns > 0)) {
     if (dmgResult.applyPoison) {
       session.enemyPoisonTurns = Math.max(session.enemyPoisonTurns || 0, dmgResult.poisonTurns || 3);
@@ -479,6 +492,9 @@ function applyPlayerAttack(actionType, extra = {}) {
   if ((actionType === 'ultimate' || actionType === 'ult') && dmgResult.atbBreak > 0) {
     session.atb = Math.max(0, session.atb - dmgResult.atbBreak);
   }
+  if (actionType === 'word' && Array.from((extra.wordObj || engine.currentWord).text).length === 1) {
+    session.atb = Math.max(0, session.atb - dmgResult.atbBreak);
+  }
   if (stage.kind === 'boss') {
     const phaseCheck = advanceBossPhase(session.bossPhaseIndex || 0, session.enemyHp, session.enemyMaxHp);
     if (phaseCheck.changed) {
@@ -486,7 +502,7 @@ function applyPlayerAttack(actionType, extra = {}) {
       notify(`⚔️ 首領進入【${phaseCheck.name}】階段！攻勢與招式產生變化！`);
     }
   }
-  return { ...dmgResult, finalDamage: totalDmg, loadout };
+  return { ...dmgResult, finalDamage: totalDmg, pendingFinisher: resolved.pendingFinisher, loadout };
 }
 function finish() {
   pause();
@@ -504,16 +520,17 @@ function finish() {
   audio.playVictory();
   const stats={
     ...engine.getStats(),
-    completedWords: Math.max(1, engine.completedWords || session?.cursor || 1),
-    enemyHp: stage?.isCombat ? 0 : undefined,
+    completedWords: Math.max(0, engine.completedWords || session?.cursor || 0),
+    enemyHp: session.enemyHp,
     realm: session?.realm || profile.realm
   };
   const today = datestring();
-  const reward=awardStage(save,profile,stage.id,stats,today);
+  // 特訓僅給練習賞金，不解鎖主線、覆寫印章或清除主線續玩位置。
+  const reward=wasWeakDrill
+    ? { reward: CONFIG.weakDrillReward, dailyBonus: 0, first: false, ending: false }
+    : awardStage(save,profile,stage.id,stats,today);
+  if (wasWeakDrill) save.coins += reward.reward;
   const newlyQuests = recordDailyProgress(save, today, { stages: 1 });
-  const answered = session.queue.slice(0, Math.max(1, session.cursor)).map(w => w.text);
-  const isEn = save.grade === 'english';
-  for (const text of answered) recordQuestionHistory(profile, text, isEn);
   // 江湖奇遇掉寶：首領關或達成 10+ 連字時，贈送未滿丹藥或額外紅包
   let lootHtml = '';
   if (stage.kind === 'boss' || stats.maxCombo >= 10) {
@@ -530,14 +547,7 @@ function finish() {
     }
   }
   if (wasWeakDrill) {
-    for (const text of new Set(answered)) {
-      if (profile.weak?.[text]) {
-        profile.weak[text] -= 2;
-        if (profile.weak[text] <= 0) delete profile.weak[text];
-      }
-    }
-    save.coins += 35;
-    lootHtml += `<div class="bonus-loot">🎓 錯題掃除特訓圓滿：已掃除本輪演練錯字，額外獲贈【勤學特訓賞金 ＋35 銅錢】！</div>`;
+    lootHtml += `<div class="bonus-loot">🎓 完成錯題複習！零失誤的題目已降低待複習次數，獲贈【勤學特訓賞金 ＋35 銅錢】。</div>`;
   }
   if (newlyQuests.length > 0) {
     lootHtml += `<div class="bonus-loot">📅 達成今日江湖懸賞：${newlyQuests.map(q => `【${escape(q.title)} ＋${q.reward} 銅錢】`).join('、')}！</div>`;
@@ -556,7 +566,7 @@ function finish() {
   const shopBtnLabel = affordableGear
     ? `✨ 前往客棧（可買【${affordableGear.name.split('・')[1] || affordableGear.name}】！）`
     : '前往客棧';
-  const seal=stage.id%5===4?`<p>✦ 尋回「${CHAPTERS[stage.chapter].seal}」文印</p><p>${CHAPTERS[stage.chapter].end}</p>`:'';
+  const seal=!wasWeakDrill&&stage.id%5===4?`<p>✦ 尋回「${CHAPTERS[stage.chapter].seal}」文印</p><p>${CHAPTERS[stage.chapter].end}</p>`:'';
   persist();
   view='result';
   modal(`<span class="eyebrow">${reward.ending?'六印重聚 · 主線完結':wasWeakDrill?'錯題墨寶閣 · 掃除捷報':'江湖捷報'}</span>
@@ -710,7 +720,7 @@ function ultimate() {
     scene.setHeroStatus(null);
   }
   const freezeDuration = loadout.style === 'spear' ? CONFIG.freezeMs + 2000 : CONFIG.freezeMs;
-  frozenUntil = performance.now() + freezeDuration;
+  frozenUntil = battleTime + freezeDuration;
   if (loadout.style === 'spear' || loadout.id === 'beast_toad') {
     session.hp = Math.min(100, session.hp + 20);
   } else if (loadout.style === 'saber' || loadout.id === 'beast_wolf') {
@@ -721,6 +731,11 @@ function ultimate() {
   audio.playUltimateBurst();
   if (stage?.isCombat && session.enemyHp <= 0) {
     finish();
+    return;
+  }
+  if (atk.pendingFinisher) {
+    notify(`【${loadout.ultName}】已破防！護印與定身生效，繼續練習後收招。`);
+    render(); rememberSession();
     return;
   }
   notify(
@@ -737,7 +752,8 @@ function ultimate() {
 function failed() {
   pause();
   if (session) { session.status = null; session.statusCureNeed = 0; scene.setHeroStatus(null); }
-  profile.session=session; persist();
+  if (!session.isWeakDrill) profile.session=session;
+  persist();
   modal(`<h2>先調息，再出發</h2><p>你已完成 ${session.cursor} 題，對手剩餘氣血與進度皆已保留。調息後從目前這一字接著練習。</p><p class="muted">回擊會放慢，找鍵提示持續陪著你。擊敗對手或完成任務即可領取賞金。</p><button class="primary" data-action="recover">調息續戰 · Enter</button><button data-action="home">回到首頁</button>`, 'failed');
 }
 engine.on('keyHit',()=>{
@@ -768,18 +784,25 @@ engine.on('charComplete',event=>{
       }
     }
   }
-  if(event.combo>=5&&event.combo%5===0){
-    audio.playComboMilestone(event.combo);
-    scene.playComboMilestone(event.combo);
-    if(event.combo>=15){
+  const previousReward = Number.isFinite(session.rewardProgress) ? session.rewardProgress
+    : Math.max(0, event.combo - 1) / (engine.mode === 'english' ? CONFIG.englishComboRewardScale : 1);
+  const reward = advanceComboReward(previousReward, engine.mode === 'english');
+  session.rewardProgress = reward.progress;
+  const milestone = reward.milestone;
+  const unitLabel = engine.mode === 'english' ? '個字元' : '字';
+  if(milestone){
+    session.lastRewardAtChar = engine.completedChars;
+    audio.playComboMilestone(milestone);
+    scene.playComboMilestone(milestone);
+    if(milestone>=15){
       session.shield=1;session.qi=5;save.coins+=10;
-      notify(`🐉 連續 ${event.combo} 字・龍鳳文印劍意！（銅錢＋10・內力滿・護印加持）`);
-    }else if(event.combo===10){
+      notify(`🐉 連續 ${event.combo} ${unitLabel}・龍鳳文印劍意！（銅錢＋10・內力滿・護印加持）`);
+    }else if(milestone===10){
       session.hp=Math.min(100,session.hp+10);save.coins+=5;
-      notify('⚡ 連續 10 字・驚雷流雲！（氣血＋10・銅錢＋5）');
+      notify(`⚡ 連續 ${event.combo} ${unitLabel}・驚雷流雲！（氣血＋10・銅錢＋5）`);
     }else{
       session.qi=Math.min(5,session.qi+1);
-      notify('🌪️ 連續 5 字・清風劍氣！（內力＋1）');
+      notify(`🌪️ 連續 ${event.combo} ${unitLabel}・清風劍氣！（內力＋1）`);
     }
   }
   render(); rememberSession();
@@ -793,13 +816,12 @@ engine.on('miss',event=>{
   wrongKeyTimer=setTimeout(()=>{wrongKeyCode='';render();},650);
   const qEl=$('question');
   if(qEl){qEl.classList.remove('miss-shake');void qEl.offsetWidth;qEl.classList.add('miss-shake','miss-focus');}
-  if(rapidFollowup){
-    engine.combo=lastRetainedCombo;
-    render();rememberSession();
-    return;
-  }
+  // 教學與學習紀錄不受戰鬥懲罰的緩衝時間影響。
   misses++;
   wordMisses++;
+  if (session.status) session.statusCureNeed = 2;
+  const text=engine.currentWord.text;
+  profile.weak[text]=(profile.weak[text]||0)+1;
   const expectedSym = engine.getExpectedSymbol();
   if (expectedSym) {
     profile.weakSymbols ||= {};
@@ -815,16 +837,22 @@ engine.on('miss',event=>{
       session.mistakeNotes.push({ char: noteChar, reading: noteReading, lang: isEn ? 'en-US' : 'zh-TW' });
     }
   }
+  if(rapidFollowup){
+    engine.combo=lastRetainedCombo;
+    render();rememberSession();
+    return;
+  }
   const bracer = getBracer();
   const prev=event?.previousCombo||0;
   const baseRetained=prev>=15?10:prev>=10?5:0;
   const retained=prev>=5?Math.min(prev,baseRetained+(bracer.comboGuard||0)):0;
+  const rewardProgress = Number.isFinite(session.rewardProgress) ? session.rewardProgress
+    : prev / (engine.mode === 'english' ? CONFIG.englishComboRewardScale : 1);
+  session.rewardProgress = prev > 0 ? rewardProgress * retained / prev : 0;
   lastRetainedCombo=retained;
   engine.combo=retained;
   audio.playMiss(prev);
-  const text=engine.currentWord.text;
-  profile.weak[text]=(profile.weak[text]||0)+1;
-  session.atb=Math.min(95,(session.atb||0)+(bracer.missAtbPenalty||8));
+  session.atb=Math.min(100,(session.atb||0)+(bracer.missAtbPenalty||8));
   scene.playMissParry(false,prev,retained);
   notify(retained>0?`🛡️ 護腕與劍氣護體！保留 ${retained} 連字（注意看橘色高亮注音）`:prev>=5?`💥 招式偏斜！${prev} 連字中斷，對手趁隙逼近！`:'⚠️ 按錯鍵招式偏斜，對手蓄力加快！');
   render();rememberSession();
@@ -841,10 +869,7 @@ engine.on('wordComplete',event=>{
   const qiDelta = Math.max(1, (bracer.qiGain || 1) + (loadout.qiGainMod || 0) + (isParryBreak ? 1 : 0));
   session.qi=Math.min(5,session.qi+qiDelta);
   if(loadout.healPerWord) session.hp=Math.min(100,session.hp+loadout.healPerWord);
-  // 打 2 個字以上的詞語或長句時，完全不打斷敵人集氣攻擊（僅單字題小幅壓制蓄力）
-  if (!isMultiChar) {
-    session.atb = Math.max(0, session.atb - 10);
-  }
+  // 單字題的裝備擊退統一在 applyPlayerAttack 套用；多字詞不打斷集氣。
   const atk = applyPlayerAttack('word', { wordObj: event.word, combo: engine.combo, isParryBreak, isPerfectWord });
   audio.playWeaponAttack(loadout.style === 'beast' ? (loadout.spriteKey || loadout.id) : loadout.style, true);
   audio.playWordComplete(engine.getComboTier());
@@ -855,7 +880,7 @@ engine.on('wordComplete',event=>{
   } else if (isPerfectWord) {
     scene.spawnFloatingText(scene.heroBaseX, scene.heroBaseY - 155, '✨ 行雲流水 +15%', '#72efdd', 19);
   }
-  recordQuestionHistory(profile, event.word.text, engine.mode === 'english');
+  recordQuestionResult(profile, event.word.text, engine.mode === 'english', isZeroMissWord);
   recordDailyProgress(save, datestring(), { words: 1, perfectWords: isZeroMissWord ? 1 : 0 });
   if (save.hero === 'mu') {
     const bondRes = addBeastBondExp(save, save.beast, 12);
@@ -870,10 +895,12 @@ engine.on('wordComplete',event=>{
   ensureSessionQueue();
   engine.loadWord(session.queue[session.cursor]); session.typing=null; readUntil=performance.now()+(isMultiChar?0:220);
   engine.active=true; render(); rememberSession();
-  if(!(event.combo>=5&&event.combo%5===0)){
+  if(session.lastRewardAtChar !== engine.completedChars){
     const phaseName = stage.kind === 'boss' ? `${bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0).name} · ` : '';
     const bonusLabel = isParryBreak ? '⚡看破破綻反擊！' : isPerfectWord ? '✨行雲流水！' : '';
-    notify(`${bonusLabel}${phaseName}造成 ${atk.finalDamage} 傷害（對手剩餘 ${session.enemyHp} 氣血）`);
+    notify(atk.pendingFinisher
+      ? `已破防！完成基本練習量與目前題目即可收招。`
+      : `${bonusLabel}${phaseName}造成 ${atk.finalDamage} 傷害（對手剩餘 ${session.enemyHp} 氣血）`);
   }
 });
 for(const event of ['nextChar','nextSymbol']) engine.on(event,()=>{render();rememberSession();});
@@ -1029,7 +1056,10 @@ window.addEventListener('pagehide',rememberSession);
 window.addEventListener('resize',()=>{if(view==='battle')render();});
 function tick(now){
   const dt=Math.min(100,now-lastTick);lastTick=now;
-  if(view==='battle'&&!document.hidden&&windowFocused&&now>readUntil&&now>frozenUntil){
+  const activeBattle=view==='battle'&&!document.hidden&&windowFocused;
+  // 定身使用有效戰鬥時間，選單、切換分頁或失焦都不耗掉剩餘秒數。
+  if(activeBattle) battleTime+=dt;
+  if(activeBattle&&now>readUntil&&battleTime>frozenUntil){
     const bossPhase = stage.kind === 'boss' ? bossPhaseForHp(session.enemyHp, session.enemyMaxHp, session.bossPhaseIndex || 0) : null;
     const phaseMultiplier = bossPhase ? bossPhase.speedMult : 1;
     const statusSpeedMult=session.status==='freeze'?.82:session.status==='burn'?.85:1;
