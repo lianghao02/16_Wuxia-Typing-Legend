@@ -31,6 +31,7 @@ export const ADVENTURE_WEAPONS = [
     id: 'wood_sword',
     rank: 1,
     tier: 1,
+    requiredStage: 0,
     style: 'sword',
     atk: 16,
     comboRate: 0.018,
@@ -53,6 +54,7 @@ export const ADVENTURE_WEAPONS = [
     id: 'qingfeng_sword',
     rank: 2,
     tier: 2,
+    requiredStage: 3,
     style: 'sword',
     atk: 20,
     comboRate: 0.02,
@@ -75,6 +77,7 @@ export const ADVENTURE_WEAPONS = [
     id: 'iron_spear',
     rank: 3,
     tier: 2,
+    requiredStage: 6,
     style: 'spear',
     atk: 24,
     comboRate: 0.014,
@@ -97,6 +100,7 @@ export const ADVENTURE_WEAPONS = [
     id: 'flame_saber',
     rank: 4,
     tier: 2,
+    requiredStage: 12,
     style: 'saber',
     atk: 28,
     comboRate: 0.012,
@@ -119,6 +123,7 @@ export const ADVENTURE_WEAPONS = [
     id: 'xuantie_sword',
     rank: 5,
     tier: 3,
+    requiredStage: 18,
     style: 'sword',
     atk: 34,
     comboRate: 0.022,
@@ -141,6 +146,7 @@ export const ADVENTURE_WEAPONS = [
     id: 'thunder_spear',
     rank: 6,
     tier: 3,
+    requiredStage: 24,
     style: 'spear',
     atk: 40,
     comboRate: 0.016,
@@ -166,6 +172,7 @@ export const SPIRIT_BEASTS = [
     id: 'beast_dog',
     rank: 1,
     tier: 1,
+    requiredStage: 0,
     style: 'beast',
     atk: 16,
     charBonusDmg: 0,
@@ -189,6 +196,7 @@ export const SPIRIT_BEASTS = [
     id: 'beast_eagle',
     rank: 2,
     tier: 2,
+    requiredStage: 3,
     style: 'beast',
     atk: 20,
     charBonusDmg: 0,
@@ -212,6 +220,7 @@ export const SPIRIT_BEASTS = [
     id: 'beast_toad',
     rank: 3,
     tier: 2,
+    requiredStage: 6,
     style: 'beast',
     atk: 24,
     charBonusDmg: 0,
@@ -239,6 +248,7 @@ export const SPIRIT_BEASTS = [
     id: 'beast_wolf',
     rank: 4,
     tier: 2,
+    requiredStage: 12,
     style: 'beast',
     atk: 28,
     charBonusDmg: 0,
@@ -265,6 +275,7 @@ export const SPIRIT_BEASTS = [
     id: 'beast_flame_dog',
     rank: 5,
     tier: 3,
+    requiredStage: 18,
     style: 'beast',
     atk: 34,
     charBonusDmg: 0,
@@ -288,6 +299,7 @@ export const SPIRIT_BEASTS = [
     id: 'beast_sky_wolf',
     rank: 6,
     tier: 3,
+    requiredStage: 24,
     style: 'beast',
     atk: 40,
     charBonusDmg: 0,
@@ -310,25 +322,25 @@ export const SPIRIT_BEASTS = [
 ];
 
 export const ADVENTURE_BRACERS = [
-  { id: 'cloth_bracer', name: '粗布護腕', price: 0, icon: './assets/icons/bracer_leather_v4.png',
+  { id: 'cloth_bracer', name: '粗布護腕', price: 0, requiredStage: 0, icon: './assets/icons/bracer_leather_v4.png',
     missAtbPenalty: 8, comboProtectThreshold: 10, qiGain: 1, knockbackBonus: 0, comboGuard: 0,
     desc: '入門修煉護腕，10 連字以上享劍氣護體降階保護' },
-  { id: 'leather_bracer', name: '流雲護腕', price: 120, icon: './assets/icons/bracer_leather_v4.png',
+  { id: 'leather_bracer', name: '流雲護腕', price: 120, requiredStage: 4, icon: './assets/icons/bracer_leather_v4.png',
     missAtbPenalty: 4, comboProtectThreshold: 8, qiGain: 1, knockbackBonus: 2, comboGuard: 2,
     desc: '按錯鍵時對手蓄力懲罰減半（+4%），每字多退蓄力 +2%，8 連字以上即享降階保護' },
-  { id: 'jade_bracer', name: '宗師文印護腕', price: 240, icon: './assets/icons/bracer_jade_v4.png',
+  { id: 'jade_bracer', name: '宗師文印護腕', price: 240, requiredStage: 14, icon: './assets/icons/bracer_jade_v4.png',
     missAtbPenalty: 3, comboProtectThreshold: 6, qiGain: 2, knockbackBonus: 4, comboGuard: 5,
     desc: '每完成一題獲 2 點內力（3 題即可放絕招！），失誤多保留 5 連字，每字多退蓄力 +4%' }
 ];
 
 export const ADVENTURE_ARMORS = [
-  { id: 'linen_armor', name: '青竹布衣', price: 0, icon: './assets/icons/linen_outfit_v3.png',
+  { id: 'linen_armor', name: '青竹布衣', price: 0, requiredStage: 0, icon: './assets/icons/linen_outfit_v3.png',
     maxHp: 100, dmgTaken: 15, dmgReduce: 0, resist: [], startShield: 0,
     desc: '輕便修煉布衣 · 氣血上限 100，提供基礎防護' },
-  { id: 'herbal_robe', name: '百草辟毒袍', price: 140, icon: './assets/icons/wanderer_outfit_v3.png',
+  { id: 'herbal_robe', name: '百草辟毒袍', price: 140, requiredStage: 5, icon: './assets/icons/wanderer_outfit_v3.png',
     maxHp: 115, dmgTaken: 12, dmgReduce: 3, resist: ['poison'], startShield: 0,
     desc: '百草浸染俠客袍 · 氣血上限提升至 115 · 完全免疫【☠️ 碧磷中毒】且敵人攻擊減免 20%' },
-  { id: 'scale_armor', name: '赤鱗宗師鎧', price: 280, icon: './assets/icons/grandmaster_outfit_v3.png',
+  { id: 'scale_armor', name: '赤鱗宗師鎧', price: 280, requiredStage: 15, icon: './assets/icons/grandmaster_outfit_v3.png',
     maxHp: 130, dmgTaken: 10, dmgReduce: 5, resist: ['poison', 'burn', 'freeze'], startShield: 1,
     desc: '宗師金鱗護甲 · 氣血上限提升至 130 · 免疫【☠️毒／🔥火／❄️冰】異常狀態、減傷 33%，每關開場自帶 1 層護印' }
 ];
@@ -511,7 +523,9 @@ export function newAdventure(legacy = {}) {
     hero,
     coins: Number.isFinite(Number(legacy.coins)) ? Math.max(0, Number(legacy.coins)) : 80,
     weapon: legacy.weapon || legacy.equippedWeaponId || 'wood_sword',
+    enchantedWeapon: legacy.enchantedWeapon && typeof legacy.enchantedWeapon === 'object' ? { ...legacy.enchantedWeapon } : null,
     beast: legacy.beast || legacy.equippedBeastId || 'beast_dog',
+    enchantedBeast: legacy.enchantedBeast && typeof legacy.enchantedBeast === 'object' ? { ...legacy.enchantedBeast } : null,
     owned: [...new Set(['wood_sword', 'linen_armor', ...(legacy.owned || legacy.ownedWeapons || [])])],
     ownedBeasts: [...new Set(['beast_dog', ...(legacy.ownedBeasts || [])])],
     beastBonds: legacy.beastBonds && typeof legacy.beastBonds === 'object'
@@ -598,6 +612,9 @@ export function getProfile(save) {
 
 export function getActiveLoadout(save) {
   if (save?.hero === 'mu') {
+    if (save.enchantedBeast && save.beast === save.enchantedBeast.id) {
+      return save.enchantedBeast;
+    }
     const beast = SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BEASTS[0];
     const bond = getBeastBond(save, beast.id);
     return {
@@ -607,6 +624,9 @@ export function getActiveLoadout(save) {
       bondLevel: bond.level,
       bondTitle: bond.title
     };
+  }
+  if (save?.enchantedWeapon && save.weapon === save.enchantedWeapon.id) {
+    return save.enchantedWeapon;
   }
   return ADVENTURE_WEAPONS.find(w => w.id === save?.weapon) || ADVENTURE_WEAPONS[0];
 }
@@ -904,7 +924,9 @@ export function awardStage(save, profile, stageId, stats, date) {
   const seal = pickBetterSeal(prevRec.seal, getSealForStats(stats));
   const loadout = getActiveLoadout(save);
   const bonus = loadout ? loadout.bonus : (save.weapon === 'xuantie_sword' ? 1.5 : save.weapon === 'qingfeng_sword' ? 1.25 : 1);
-  const reward = Math.round(stage.reward * bonus);
+  // 首次通關發放 100% 獎勵；重複刷關收益遞減為 40%，遏制洗錢並鼓勵探索
+  const repeatFactor = first ? 1.0 : 0.40;
+  const reward = Math.round(stage.reward * bonus * repeatFactor);
   save.coins += reward;
   profile.records[stageId] = {
     accuracy: Math.max(Number(prevRec.accuracy) || 0, Number(stats.accuracy) || 0),
@@ -929,6 +951,7 @@ export function awardStage(save, profile, stageId, stats, date) {
     reward,
     dailyBonus,
     first,
+    repeatFactor,
     seal,
     isChapterSeal,
     adventureHp: profile.adventureHp,
@@ -959,8 +982,11 @@ export function buyBeast(save, beast) {
   return true;
 }
 
-export function buyGear(save, slot, item) {
+export function buyGear(save, slot, item, profile = null) {
   if (!item) return false;
+  if (profile && item.requiredStage && (profile.stage || 0) < item.requiredStage) {
+    return false;
+  }
   if (slot === 'beast') return buyBeast(save, item);
   if (!save.owned.includes(item.id)) {
     if (save.coins < item.price) return false;
@@ -969,6 +995,153 @@ export function buyGear(save, slot, item) {
   }
   save[slot] = item.id;
   return true;
+}
+
+/**
+ * A 方案：戰中即時掉落道具庫（止血草、定心符）
+ */
+export const COMBAT_INSTANT_DROPS = [
+  {
+    id: 'herb_heal',
+    name: '止血草',
+    icon: '🌿',
+    type: 'heal',
+    value: 20,
+    desc: '採得山野止血草，立即回復 20 點氣血！'
+  },
+  {
+    id: 'serenity_rune',
+    name: '金剛定心符',
+    icon: '🛡️',
+    type: 'shield',
+    value: 1,
+    desc: '拾得金剛定心符，獲得 1 層護印（抵消一次按錯斷連擊）！'
+  }
+];
+
+export function rollCombatInstantDrop({ isParryBreak = false, isPerfectWord = false, isEnemyDefeated = false, isBoss = false, random = Math.random } = {}) {
+  let dropChance = 0.08;
+  if (isEnemyDefeated && !isBoss) {
+    dropChance = 0.65;
+  } else if (isParryBreak) {
+    dropChance = 0.35;
+  } else if (isPerfectWord) {
+    dropChance = 0.22;
+  }
+  if (random() > dropChance) return null;
+  const roll = random();
+  return roll < 0.70 ? { ...COMBAT_INSTANT_DROPS[0] } : { ...COMBAT_INSTANT_DROPS[1] };
+}
+
+/**
+ * B 方案：通關結算戰利品庫（一鍵折現額外銅錢）
+ */
+export const SETTLEMENT_SPOILS_POOL = [
+  { id: 'spoil_purse', name: '山賊私房錢袋', icon: '💰', minCoins: 15, maxCoins: 25, desc: '流寇搜刮的碎銀銅板' },
+  { id: 'spoil_gear', name: '墨家精巧齒輪', icon: '⚙️', minCoins: 20, maxCoins: 30, desc: '機關傀儡掉落的精銅零件' },
+  { id: 'spoil_silver', name: '散碎行囊銀兩', icon: '🪙', minCoins: 12, maxCoins: 20, desc: '江湖客商遺落的碎銀' },
+  { id: 'spoil_jade', name: '溫潤羊脂玉佩', icon: '💎', minCoins: 35, maxCoins: 50, desc: '首領隨身配飾，可換高額銀兩', bossOnly: true }
+];
+
+export function rollSettlementSpoils(stageId, isBoss = false, random = Math.random) {
+  const eligible = SETTLEMENT_SPOILS_POOL.filter(s => !s.bossOnly || isBoss);
+  const count = isBoss ? 2 : (random() < 0.6 ? 2 : 1);
+  const items = [];
+  let totalCoins = 0;
+  for (let i = 0; i < count; i++) {
+    const template = eligible[Math.floor(random() * eligible.length)];
+    const coins = Math.floor(template.minCoins + random() * (template.maxCoins - template.minCoins + 1));
+    items.push({ ...template, coins });
+    totalCoins += coins;
+  }
+  return { items, totalCoins };
+}
+
+/**
+ * C 方案：第 5 關與第 10 關首領戰掉落率（約 30%～50%）
+ * 1-based: 第 5、15、25 關（章節中首領）約 35%；第 10、20、30 關（章節大首領）為 50%
+ */
+export function getBossWeaponDropRate(stageId) {
+  const stageNum = stageId + 1;
+  if (stageNum % 10 === 0) return 0.50; // 第 10、20、30 關大首領：50%
+  if (stageNum % 5 === 0) return 0.35;  // 第 5、15、25 關中首領：35%
+  return 0;
+}
+
+/**
+ * C 方案：首領戰附魔傳奇神兵生成器
+ */
+export function rollBossEnchantedWeapon(stageId, heroId = 'yun', random = Math.random) {
+  const elements = [
+    { type: 'thunder', prefix: '⚡ 驚雷・', nameTag: '【雷霆附魔】', slashColor: 0x00f2fe, bonusAtk: 6, bonusKnock: 14, descMod: '命中引發電芒震懾，單字題擊退蓄力＋14%' },
+    { type: 'flame', prefix: '🔥 烈焰・', nameTag: '【熾火附魔】', slashColor: 0xff5a1f, bonusAtk: 7, bonusBurst: 0.25, descMod: '刀身燃燒水墨烈焰，多字詞爆發傷害額外＋25%' },
+    { type: 'freeze', prefix: '❄️ 寒霜・', nameTag: '【玄冰附魔】', slashColor: 0x90e0ef, bonusAtk: 5, armorPen: 1.0, descMod: '附帶極寒罡氣，無視敵方護體減傷' }
+  ];
+  const elem = elements[Math.floor(random() * elements.length)];
+
+  if (heroId === 'mu') {
+    const stageRank = Math.min(6, Math.max(2, Math.floor((stageId + 1) / 5) + 1));
+    const baseBeast = SPIRIT_BEASTS.find(b => b.rank === stageRank) || SPIRIT_BEASTS[1];
+    const cleanName = baseBeast.name.split('・')[1] || baseBeast.name;
+    const sellPrice = Math.max(150, Math.round(baseBeast.price * 0.75) + 80);
+    return {
+      ...baseBeast,
+      id: `enchanted_${baseBeast.id}_${elem.type}`,
+      baseId: baseBeast.id,
+      isEnchanted: true,
+      element: elem.type,
+      name: `${elem.prefix}${cleanName}`,
+      atk: baseBeast.atk + elem.bonusAtk,
+      bonus: Number((baseBeast.bonus + 0.15).toFixed(2)),
+      knockbackBonus: (baseBeast.knockbackBonus || 0) + (elem.bonusKnock || 6),
+      slashColor: elem.slashColor,
+      sellPrice,
+      desc: `【罕世首領掉落】${elem.prefix}${cleanName}${elem.nameTag} · 攻擊力 ${baseBeast.atk + elem.bonusAtk} · ${elem.descMod}（就地折讓可領 ${sellPrice} 銅錢）`
+    };
+  } else {
+    const stageRank = Math.min(6, Math.max(2, Math.floor((stageId + 1) / 5) + 1));
+    const baseWeapon = ADVENTURE_WEAPONS.find(w => w.rank === stageRank) || ADVENTURE_WEAPONS[1];
+    const cleanName = baseWeapon.name.split('・')[1] || baseWeapon.name;
+    const sellPrice = Math.max(150, Math.round(baseWeapon.price * 0.75) + 80);
+    return {
+      ...baseWeapon,
+      id: `enchanted_${baseWeapon.id}_${elem.type}`,
+      baseId: baseWeapon.id,
+      isEnchanted: true,
+      element: elem.type,
+      name: `${elem.prefix}${cleanName}`,
+      atk: baseWeapon.atk + elem.bonusAtk,
+      bonus: Number((baseWeapon.bonus + 0.15).toFixed(2)),
+      knockbackBonus: (baseWeapon.knockbackBonus || 0) + (elem.bonusKnock || 6),
+      armorPen: elem.armorPen ? Math.max(baseWeapon.armorPen || 0, elem.armorPen) : baseWeapon.armorPen,
+      wordBurstMult: elem.bonusBurst ? Number(((baseWeapon.wordBurstMult || 1) + elem.bonusBurst).toFixed(2)) : baseWeapon.wordBurstMult,
+      slashColor: elem.slashColor,
+      sellPrice,
+      desc: `【罕世首領掉落】${elem.prefix}${cleanName}${elem.nameTag} · 攻擊力 ${baseWeapon.atk + elem.bonusAtk} · ${elem.descMod}（就地折讓可領 ${sellPrice} 銅錢）`
+    };
+  }
+}
+
+/** 英文仍逐字元顯示連擊，實質獎勵按 4:1 字元觸發。 */
+export function advanceComboReward(progress, english = false) {
+  const previous = Number.isFinite(progress) ? Math.max(0, progress) : 0;
+  const next = previous + 1 / (english ? 4 : 1);
+  const tier = Math.floor(next / 5);
+  return { progress: next, milestone: tier > Math.floor(previous / 5) ? tier * 5 : 0 };
+}
+
+/** 錯題墨寶閣零失誤安全消去機制 */
+export function recordQuestionResult(profile, questionText, mistakesCount = 0) {
+  if (!profile || !questionText) return;
+  profile.weak ||= {};
+  if (mistakesCount === 0) {
+    if (profile.weak[questionText]) {
+      profile.weak[questionText] -= 1;
+      if (profile.weak[questionText] <= 0) delete profile.weak[questionText];
+    }
+  } else {
+    profile.weak[questionText] = (profile.weak[questionText] || 0) + mistakesCount;
+  }
 }
 
 export function buyPotion(save, potion) {

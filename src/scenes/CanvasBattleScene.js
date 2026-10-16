@@ -1646,6 +1646,45 @@ export class CanvasBattleScene {
       ctx.drawImage(heroImg, -anchorX + heroOffsetX, -anchorY + 6, targetW, targetH);
       ctx.restore();
 
+      // 罕世附魔神兵（雷電／烈焰／寒霜）高質感光效疊加層 (Screen/Lighter Blend Mode + 粒子)
+      if (weapon?.element) {
+        const element = weapon.element;
+        const fxKey = element === 'flame' ? 'fx_status_burn' : element === 'freeze' ? 'fx_status_freeze' : 'fx_combo_10';
+        const fxImg = this.getImage(fxKey, 'auto');
+        if (fxImg) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const pulse = 0.45 + Math.sin(this.breathTime * 3.5) * 0.18;
+          ctx.globalAlpha = Math.max(0.2, Math.min(0.85, pulse));
+          const fxW = targetW * 0.65;
+          const fxH = targetH * 0.65;
+          const fxX = -anchorX + heroOffsetX + targetW * 0.30;
+          const fxY = -anchorY + targetH * 0.12;
+          ctx.drawImage(fxImg, fxX, fxY, fxW, fxH);
+          ctx.restore();
+        }
+
+        if (!this.reducedMotion) {
+          ctx.save();
+          const sparkColor = element === 'flame' ? '#ff7b00' : element === 'freeze' ? '#a0f0ff' : '#00f2fe';
+          ctx.fillStyle = sparkColor;
+          ctx.shadowColor = sparkColor;
+          ctx.shadowBlur = 10;
+          const tNow = this.breathTime * 4;
+          for (let i = 0; i < 4; i++) {
+            const t = (tNow + i * 0.8) % 2.5;
+            const py = -anchorY + targetH * 0.50 - t * 24;
+            const px = -anchorX + heroOffsetX + targetW * 0.60 + Math.sin(tNow * 2.5 + i) * 10;
+            const alpha = Math.max(0, 1 - t / 2.5);
+            ctx.globalAlpha = alpha * 0.75;
+            ctx.beginPath();
+            ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+
       // 若為馴獸師，於身前繪製出戰靈獸（打字完成時產生局部撲擊位移，不遮擋中央題目區）
       if (isTamer) {
         const beastKey = this.beastConfig?.spriteKey || this.beastConfig?.id || 'beast_dog';
@@ -1666,6 +1705,22 @@ export class CanvasBattleScene {
             beastH
           );
           ctx.restore();
+
+          // 附魔靈獸元素靈氣
+          const beastElement = this.beastConfig?.element || weapon?.element;
+          if (beastElement) {
+            const bFxKey = beastElement === 'flame' ? 'fx_status_burn' : beastElement === 'freeze' ? 'fx_status_freeze' : 'fx_combo_10';
+            const bFxImg = this.getImage(bFxKey, 'auto');
+            if (bFxImg) {
+              ctx.save();
+              ctx.globalCompositeOperation = 'lighter';
+              const bPulse = 0.40 + Math.sin(this.breathTime * 3) * 0.15;
+              ctx.globalAlpha = Math.max(0.2, Math.min(0.8, bPulse));
+              const bSize = beastH * 0.7;
+              ctx.drawImage(bFxImg, -beastAnchor.x * beastW + lungeX + beastW * 0.15, -beastAnchor.y * beastH + flyOffsetY + beastH * 0.1, bSize, bSize);
+              ctx.restore();
+            }
+          }
         }
       }
     } else {

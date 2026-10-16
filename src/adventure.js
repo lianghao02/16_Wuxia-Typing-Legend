@@ -16,7 +16,9 @@ import {
   getArmorMaxHp,
   DAILY_QUEST_DEFS, getBeastBond, addBeastBondExp, feedSpiritBeast, getSealForStats, ensureDailyState, recordDailyProgress,
   newAdventure, migrateAdventureSave, getProfile, getActiveLoadout, phaseFor, bossPhaseForHp, advanceBossPhase,
-  calculateAttackDamage, stageHazard, attackDuration, awardStage, buyGear, buyPotion, favorFresh
+  calculateAttackDamage, stageHazard, attackDuration, awardStage, buyGear, buyPotion, favorFresh,
+  COMBAT_INSTANT_DROPS, rollCombatInstantDrop, SETTLEMENT_SPOILS_POOL, rollSettlementSpoils,
+  getBossWeaponDropRate, rollBossEnchantedWeapon, advanceComboReward, recordQuestionResult
 } from './engine/AdventureEngine.js';
 
 const $ = id => document.getElementById(id);
@@ -31,9 +33,9 @@ try {
   save = migrateAdventureSave(parsed);
   firstVisit = !raw;
 } catch { save = newAdventure(); firstVisit = true; storageFailed = true; }
-const getWeapon = () => ADVENTURE_WEAPONS.find(w => w.id === save.weapon) || ADVENTURE_WEAPONS[0];
-const getBeast = () => SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BEASTS[0];
 const getLoadout = () => getActiveLoadout(save);
+const getWeapon = () => getLoadout();
+const getBeast = () => save.enchantedBeast && save.beast === save.enchantedBeast.id ? save.enchantedBeast : (SPIRIT_BEASTS.find(b => b.id === save.beast) || SPIRIT_BEASTS[0]);
 const getBracer = () => ADVENTURE_BRACERS.find(b => b.id === save.bracer) || ADVENTURE_BRACERS[0];
 const getArmor = () => ADVENTURE_ARMORS.find(a => a.id === save.armor) || ADVENTURE_ARMORS[0];
 let profile = getProfile(save), stage, session, view = 'home', misses = 0, wordMisses = 0, frozenUntil = 0, shopTab = 'weapon';
@@ -533,6 +535,42 @@ function finish() {
   const answered = session.queue.slice(0, Math.max(1, session.cursor)).map(w => w.text);
   const isEn = save.grade === 'english';
   for (const text of answered) recordQuestionHistory(profile, text, isEn);
+  // B 方案：通關戰利品搜刮自動折現
+  const spoils = rollSettlementSpoils(stage.id, stage.kind === 'boss');
+  save.coins += spoils.totalCoins;
+  let spoilsHtml = '';
+  if (spoils.items.length > 0) {
+    const listStr = spoils.items.map(s => `${s.icon} ${s.name}（＋${s.coins}）`).join('、');
+    spoilsHtml = `<div class="spoils-banner">🎒 戰利品收穫：${listStr} · 自動折現 <strong>＋${spoils.totalCoins} 銅錢</strong></div>`;
+  }
+
+  // C 方案：第 5 關與第 10 關首領戰，掉落率約 30%～50%
+  let enchantedDropHtml = '';
+  const bossDropRate = getBossWeaponDropRate(stage.id);
+  const rolledWeapon = (bossDropRate > 0 && Math.random() < bossDropRate)
+    ? rollBossEnchantedWeapon(stage.id, save.hero)
+    : null;
+  if (rolledWeapon) {
+    session.pendingEnchantedWeapon = rolledWeapon;
+    const elemColor = rolledWeapon.element === 'flame' ? '#ff7b00' : rolledWeapon.element === 'freeze' ? '#48cae4' : '#00f2fe';
+    enchantedDropHtml = `
+      <div class="enchanted-drop-card shimmer-sweep" style="border-color:${elemColor};">
+        <div class="enchanted-badge">✨ 擊潰首領・罕世神兵現世！</div>
+        <div class="enchanted-content">
+          <img src="${rolledWeapon.icon}" class="enchanted-icon" alt="">
+          <div>
+            <h3 style="color:${elemColor};margin:0 0 4px 0;">${escape(rolledWeapon.name)}</h3>
+            <p style="margin:2px 0;font-size:13px;">${escape(rolledWeapon.desc)}</p>
+          </div>
+        </div>
+        <div class="enchanted-actions" id="enchanted-decision-box">
+          <button class="primary" data-action="equip-enchanted">⚔️ 立即裝備（舊兵器折讓 50% 銅錢）</button>
+          <button data-action="sell-enchanted">🪙 就地換錢（現領 ${rolledWeapon.sellPrice} 銅錢）</button>
+        </div>
+      </div>
+    `;
+  }
+
   // 江湖奇遇掉寶：首領關或達成 10+ 連字時，贈送未滿丹藥或額外紅包
   let lootHtml = '';
   if (stage.kind === 'boss' || stats.maxCombo >= 10) {
@@ -570,7 +608,7 @@ function finish() {
     : [...ADVENTURE_WEAPONS, ...ADVENTURE_BRACERS, ...ADVENTURE_ARMORS];
   const ownedList = save.hero === 'mu' ? [...(save.ownedBeasts || []), ...save.owned] : save.owned;
   const affordableGear = gearPool.find(
-    g => g.price > 0 && !ownedList.includes(g.id) && save.coins >= g.price
+    g => g.price > 0 && !ownedList.includes(g.id) && save.coins >= g.price && (!g.requiredStage || (profile.stage || 0) >= g.requiredStage)
   );
   const shopBtnLabel = affordableGear
     ? `✨ 前往客棧（可買【${affordableGear.name.split('・')[1] || affordableGear.name}】！）`
@@ -588,9 +626,9 @@ function finish() {
   view='result';
   modal(`<span class="eyebrow">${reward.ending?'六印重聚 · 主線完結':wasWeakDrill?'錯題墨寶閣 · 掃除捷報':'江湖捷報'}</span>
     <div class="result-head"><h2>${stage.name} · ${wasWeakDrill?'特訓完成':'任務完成'}</h2><span class="result-seal">${sealGrade}</span></div>
-    <p class="story">${stage.outro}</p>${sealHtml}${lootHtml}${notesHtml}
+    <p class="story">${stage.outro}</p>${sealHtml}${spoilsHtml}${enchantedDropHtml}${lootHtml}${notesHtml}
     <div class="stats"><span>實際完成 ${stats.completedWords} 題</span><span>${stats.completedChars} 字</span><span>正確率 ${stats.accuracy}%</span></div>
-    <p>銅錢 ＋${reward.reward}${reward.dailyBonus?' · 今日首次冒險 ＋20':''} · 最長連擊 ${stats.maxCombo} · 現有銅錢 ${save.coins}</p>
+    <p>銅錢 ＋${reward.reward}${!reward.first ? '（重遊關卡 40% 收益）' : ''}${reward.dailyBonus?' · 今日首次冒險 ＋20':''} · 最長連擊 ${stats.maxCombo} · 現有銅錢 ${save.coins}</p>
     <p class="muted">${profile.stage===30?'你已完成整段故事。可以隨時點選「選關」重遊任一關卡，或在設定選擇更高境界。':`下一站：${ADVENTURE_STAGES[profile.stage].name}`}</p>
     <div class="actions"><button class="primary" data-action="continue">${profile.stage===30?'查看江湖足跡':'繼續冒險'} · Enter</button><button class="${affordableGear?'shop-glow':''}" data-action="shop">${escape(shopBtnLabel)}</button><button data-action="footprints">🗺️ 選關</button><button data-action="home">休息一下</button></div>`, 'result');
 }
@@ -609,21 +647,73 @@ function shop(tab = shopTab) {
       listHtml = SPIRIT_BEASTS.map(item => {
         const owned = (save.ownedBeasts || []).includes(item.id);
         const active = save.beast === item.id;
+        const isUnlocked = !item.requiredStage || (profile.stage || 0) >= item.requiredStage;
         const bond = getBeastBond(save, item.id);
         const bondFlat = bond.atkBonusFlat || 0;
         const bondInfo = `<small class="bond-tag">🐾 羈絆 Lv.${bond.level}・${bond.title}${bond.nextExp ? `（經驗 ${bond.exp}／${bond.nextExp}）` : '（滿階）'}${bondFlat > 0 ? ` · 親密攻擊 ＋${bondFlat}` : ''}</small>`;
         const feedBtn = owned && bond.level < 5
           ? `<button type="button" data-feed-beast="${item.id}" ${save.coins < 60 ? 'disabled' : ''}>${save.coins < 60 ? '靈果 60 銅錢' : '🍖 餵食靈果 (60)'}</button>`
           : '';
-        return `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p>${bondInfo}</div><div class="item-actions"><button data-buy-slot="beast" data-buy-id="${item.id}" ${active?'disabled':''}>${active?'已隨行':owned?'出戰':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢結契`}</button>${feedBtn}</div></div>`;
+        const btnText = !isUnlocked
+          ? `🔒 需通關第 ${item.requiredStage} 關`
+          : active
+          ? '已隨行'
+          : owned
+          ? '出戰'
+          : save.coins < item.price
+          ? `還差 ${item.price - save.coins}`
+          : `${item.price} 銅錢結契`;
+        return `<div class="item ${!isUnlocked ? 'locked-item' : ''}"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p>${bondInfo}</div><div class="item-actions"><button data-buy-slot="beast" data-buy-id="${item.id}" ${active || !isUnlocked ? 'disabled' : ''}>${btnText}</button>${feedBtn}</div></div>`;
       }).join('');
     } else {
-      listHtml = ADVENTURE_WEAPONS.map(item => `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="weapon" data-buy-id="${item.id}" ${save.weapon===item.id?'disabled':''}>${save.weapon===item.id?'已裝備':save.owned.includes(item.id)?'裝備':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢購買`}</button></div>`).join('');
+      listHtml = ADVENTURE_WEAPONS.map(item => {
+        const owned = save.owned.includes(item.id);
+        const active = save.weapon === item.id;
+        const isUnlocked = !item.requiredStage || (profile.stage || 0) >= item.requiredStage;
+        const btnText = !isUnlocked
+          ? `🔒 需通關第 ${item.requiredStage} 關`
+          : active
+          ? '已裝備'
+          : owned
+          ? '裝備'
+          : save.coins < item.price
+          ? `還差 ${item.price - save.coins}`
+          : `${item.price} 銅錢購買`;
+        return `<div class="item ${!isUnlocked ? 'locked-item' : ''}"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="weapon" data-buy-id="${item.id}" ${active || !isUnlocked ? 'disabled' : ''}>${btnText}</button></div>`;
+      }).join('');
     }
   } else if (shopTab === 'bracer') {
-    listHtml = ADVENTURE_BRACERS.map(item => `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="bracer" data-buy-id="${item.id}" ${save.bracer===item.id?'disabled':''}>${save.bracer===item.id?'已穿戴':save.owned.includes(item.id)?'穿戴':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢購買`}</button></div>`).join('');
+    listHtml = ADVENTURE_BRACERS.map(item => {
+      const owned = save.owned.includes(item.id);
+      const active = save.bracer === item.id;
+      const isUnlocked = !item.requiredStage || (profile.stage || 0) >= item.requiredStage;
+      const btnText = !isUnlocked
+        ? `🔒 需通關第 ${item.requiredStage} 關`
+        : active
+        ? '已穿戴'
+        : owned
+        ? '穿戴'
+        : save.coins < item.price
+        ? `還差 ${item.price - save.coins}`
+        : `${item.price} 銅錢購買`;
+      return `<div class="item ${!isUnlocked ? 'locked-item' : ''}"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="bracer" data-buy-id="${item.id}" ${active || !isUnlocked ? 'disabled' : ''}>${btnText}</button></div>`;
+    }).join('');
   } else if (shopTab === 'armor') {
-    listHtml = ADVENTURE_ARMORS.map(item => `<div class="item"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="armor" data-buy-id="${item.id}" ${save.armor===item.id?'disabled':''}>${save.armor===item.id?'已穿戴':save.owned.includes(item.id)?'穿戴':save.coins<item.price?`還差 ${item.price-save.coins}`:`${item.price} 銅錢購買`}</button></div>`).join('');
+    listHtml = ADVENTURE_ARMORS.map(item => {
+      const owned = save.owned.includes(item.id);
+      const active = save.armor === item.id;
+      const isUnlocked = !item.requiredStage || (profile.stage || 0) >= item.requiredStage;
+      const btnText = !isUnlocked
+        ? `🔒 需通關第 ${item.requiredStage} 關`
+        : active
+        ? '已穿戴'
+        : owned
+        ? '穿戴'
+        : save.coins < item.price
+        ? `還差 ${item.price - save.coins}`
+        : `${item.price} 銅錢購買`;
+      return `<div class="item ${!isUnlocked ? 'locked-item' : ''}"><img src="${item.icon}" alt=""><div><strong>${item.name}</strong><p>${item.desc}</p></div><button data-buy-slot="armor" data-buy-id="${item.id}" ${active || !isUnlocked ? 'disabled' : ''}>${btnText}</button></div>`;
+    }).join('');
   } else {
     listHtml = ADVENTURE_POTIONS.map(item => {
       const cnt = save.potions?.[item.id] || 0;
@@ -903,6 +993,32 @@ engine.on('wordComplete',event=>{
   } else if (isPerfectWord) {
     scene.spawnFloatingText(scene.heroBaseX, scene.heroBaseY - 155, '✨ 行雲流水 +15%', '#72efdd', 19);
   }
+
+  // A 方案：戰中即時掉落（止血草 / 定心符）
+  const combatDrop = rollCombatInstantDrop({
+    isParryBreak,
+    isPerfectWord,
+    isEnemyDefeated: session.enemyHp - atk.finalDamage <= 0,
+    isBoss: stage.kind === 'boss'
+  });
+  if (combatDrop) {
+    if (combatDrop.type === 'heal') {
+      const heroMaxHp = session.maxHp || getArmorMaxHp(getArmor());
+      const healAmt = Math.min(combatDrop.value, heroMaxHp - session.hp);
+      if (healAmt > 0) {
+        session.hp += healAmt;
+        scene.spawnFloatingText(scene.heroBaseX, scene.heroBaseY - 120, `🌿 止血草 +${healAmt} HP`, '#52b788', 20);
+        notify(`🌿 戰場採得【止血草】！即時調息回復 ${healAmt} 點氣血！`);
+      }
+    } else if (combatDrop.type === 'shield') {
+      session.shield = (session.shield || 0) + 1;
+      scene.spawnFloatingText(scene.heroBaseX, scene.heroBaseY - 120, '🛡️ 金剛定心符 +1 護印', '#ffd166', 20);
+      notify('🛡️ 戰場拾得【金剛定心符】！獲得 1 層護印防護！');
+    }
+  }
+
+  // 錯題零失誤消題
+  recordQuestionResult(profile, event.word.text, isZeroMissWord ? 0 : 1);
   recordQuestionHistory(profile, event.word.text, engine.mode === 'english');
   recordDailyProgress(save, datestring(), { words: 1, perfectWords: isZeroMissWord ? 1 : 0 });
   if (save.hero === 'mu') {
@@ -952,8 +1068,12 @@ document.addEventListener('click',event=>{
     const slot=button.dataset.buySlot,id=button.dataset.buyId;
     const pool=slot==='beast'?SPIRIT_BEASTS:slot==='weapon'?ADVENTURE_WEAPONS:slot==='bracer'?ADVENTURE_BRACERS:ADVENTURE_ARMORS;
     const item=pool.find(x=>x.id===id);
-    if(buyGear(save,slot,item)){persist();setupScene();const back=resumeView;shop(shopTab);resumeView=back;notify(`已裝備【${item.name}】！`);}
-    else notify('銅錢還不夠，完成冒險再回來。');
+    if(item && item.requiredStage && (profile.stage || 0) < item.requiredStage){
+      notify(`此裝備需先通關第 ${item.requiredStage} 關方可解鎖！`);
+      return;
+    }
+    if(buyGear(save,slot,item,profile)){persist();setupScene();const back=resumeView;shop(shopTab);resumeView=back;notify(`已裝備【${item.name}】！`);}
+    else notify('銅錢還不夠或未達解鎖關卡，完成冒險再回來。');
     return;
   }
   if(button.dataset.buyPotion){
@@ -964,7 +1084,62 @@ document.addEventListener('click',event=>{
   }
   if(button.dataset.replay){begin(false,Number(button.dataset.replay));return;}
   const action=button.dataset.action;
-  if(action==='continue'){if(profile.stage===30&&!profile.session)footprints();else begin();}
+  if(action==='equip-enchanted'){
+    const item = session?.pendingEnchantedWeapon;
+    if (item) {
+      session.pendingEnchantedWeapon = null;
+      const oldWeapon = getLoadout();
+      const refund = oldWeapon.price > 0 ? Math.round(oldWeapon.price * 0.5) : 30;
+      save.coins += refund;
+      if (save.hero === 'mu') {
+        save.beast = item.id;
+        save.enchantedBeast = item;
+        save.ownedBeasts ||= ['beast_dog'];
+        if (!save.ownedBeasts.includes(item.id)) save.ownedBeasts.push(item.id);
+      } else {
+        save.weapon = item.id;
+        save.enchantedWeapon = item;
+        if (!save.owned.includes(item.id)) save.owned.push(item.id);
+      }
+      persist();
+      setupScene();
+      const box = $('enchanted-decision-box');
+      if (box) box.innerHTML = `<span style="color:#72efdd;font-weight:bold;">✅ 已裝備【${escape(item.name)}】！舊裝備折讓 ＋${refund} 銅錢！</span>`;
+      notify(`⚔️ 已裝備【${item.name}】！原裝備折讓 ＋${refund} 銅錢！`);
+    }
+    return;
+  }
+  if(action==='sell-enchanted'){
+    const item = session?.pendingEnchantedWeapon;
+    if (item) {
+      session.pendingEnchantedWeapon = null;
+      save.coins += item.sellPrice;
+      persist();
+      const box = $('enchanted-decision-box');
+      if (box) box.innerHTML = `<span style="color:#ffd166;font-weight:bold;">🪙 已將【${escape(item.name)}】售予客商，現領 ＋${item.sellPrice} 銅錢！</span>`;
+      notify(`🪙 已將【${item.name}】就地售出，獲得 ＋${item.sellPrice} 銅錢！`);
+    }
+    return;
+  }
+  if(action==='continue'){
+    if (session?.pendingEnchantedWeapon) {
+      const item = session.pendingEnchantedWeapon;
+      session.pendingEnchantedWeapon = null;
+      if (save.hero === 'mu') {
+        save.beast = item.id;
+        save.enchantedBeast = item;
+        save.ownedBeasts ||= ['beast_dog'];
+        if (!save.ownedBeasts.includes(item.id)) save.ownedBeasts.push(item.id);
+      } else {
+        save.weapon = item.id;
+        save.enchantedWeapon = item;
+        if (!save.owned.includes(item.id)) save.owned.push(item.id);
+      }
+      persist();
+      setupScene();
+    }
+    if(profile.stage===30&&!profile.session)footprints();else begin();
+  }
   if(action==='start')start();
   if(action==='home')home();
   if(action==='footprints')footprints();
