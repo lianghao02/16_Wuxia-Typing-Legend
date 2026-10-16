@@ -254,3 +254,8 @@ npm test 80／80；戰鬥診斷 1,512 組完成；語法檢查與 git diff --che
 - 使用者明確要求先發布。本輪採獨立預發行版，README／package.json／CHANGELOG 對齊版本；保留 UI 尚未驗收限制。
 - 已完成：80／80 自動測試、HTTP 200、差異檢查；正式發布結果以 GitHub Release 與遠端標籤為準。
 - 尚未完成：跨尺寸、動畫、console error、PWA 實測；與 v2.2.0 的程式整合另行處理，不宣稱已合併或部署。
+
+### 發布結果
+- 發布提交：f073af8；分支與 v2.1.1-beta.1 標籤已成功推送 origin。
+- GitHub 預發行版：https://github.com/lianghao02/16_Wuxia-Typing-Legend/releases/tag/v2.1.1-beta.1 。
+- 線上 Pages 繼續使用 master／v2.2.0；本輪未覆蓋正式網頁。後續須在保留 v2.2.0 更新的前提下整合及驗收。
