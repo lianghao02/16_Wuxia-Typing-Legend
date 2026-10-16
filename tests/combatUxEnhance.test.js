@@ -29,6 +29,7 @@ test('2. 五關文印自動補滿血 vs 一般關卡過關不補血（氣血延�
     completedWords: 10,
     completedChars: 25,
     accuracy: 95,
+    enemyHp: 0,
     heroEndHp: 75
   }, '2026-10-14');
   assert.equal(res0.isChapterSeal, false);
@@ -40,6 +41,7 @@ test('2. 五關文印自動補滿血 vs 一般關卡過關不補血（氣血延�
     completedWords: 10,
     completedChars: 28,
     accuracy: 92,
+    enemyHp: 0,
     heroEndHp: 50
   }, '2026-10-14');
   assert.equal(res1.isChapterSeal, false);
@@ -51,6 +53,7 @@ test('2. 五關文印自動補滿血 vs 一般關卡過關不補血（氣血延�
     completedWords: 10,
     completedChars: 30,
     accuracy: 96,
+    enemyHp: 0,
     heroEndHp: 35
   }, '2026-10-14');
   assert.equal(res4.isChapterSeal, true);
@@ -63,6 +66,7 @@ test('2. 五關文印自動補滿血 vs 一般關卡過關不補血（氣血延�
     completedWords: 10,
     completedChars: 30,
     accuracy: 90,
+    enemyHp: 0,
     heroEndHp: 90
   }, '2026-10-14');
   assert.equal(res5.isChapterSeal, false);
@@ -73,6 +77,7 @@ test('2. 五關文印自動補滿血 vs 一般關卡過關不補血（氣血延�
     completedWords: 10,
     completedChars: 35,
     accuracy: 98,
+    enemyHp: 0,
     heroEndHp: 40
   }, '2026-10-14');
   assert.equal(res9.isChapterSeal, true);

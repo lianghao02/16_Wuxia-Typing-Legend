@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { ADVENTURE_STAGES, CHAPTERS } from '../src/data/adventureWorld.js';
-import { newAdventure, getProfile, awardStage, attackDuration, buyWeapon } from '../src/engine/AdventureEngine.js';
+import { calculateAttackDamage, ADVENTURE_WEAPONS, newAdventure, getProfile, awardStage, attackDuration, buyWeapon } from '../src/engine/AdventureEngine.js';
 import { TypingEngine } from '../src/engine/TypingEngine.js';
 import { AudioEngine } from '../src/engine/AudioEngine.js';
 import { getGradeMixedWords } from '../src/data/textbooks.js';
@@ -65,32 +65,32 @@ test('六章場景與人物均對應現有渲染器及實際素材',()=>{
   }
   for(const match of renderer.matchAll(/'\.\/(assets\/[^']+)'/g))assert.ok(existsSync(new URL('../'+match[1],import.meta.url)),match[1]);
 });
-test('每個年級三境界都以真實輸入完成三十關，英文同樣可完結',()=>{
-  for(const grade of ['1','2','3','4','5','6','english'])for(const realm of ['easy','medium','hard']){
-    const save=newAdventure();save.grade=grade;const p=getProfile(save);p.realm=realm;
-    for(let stage=0;stage<30;stage++){
-      const queue=grade==='english'?ENGLISH_PRACTICE_BANKS[realm].slice(0,10):buildGradeQuestionQueue(getGradeMixedWords(Number(grade)),Number(grade),realm);
-      const engine=new TypingEngine();engine.active=true;
-      for(const word of queue){engine.loadWord(word);let guard=0;while(engine.getExpectedSymbol()){
-        const key=engine.getExpectedKeyInfo();assert.ok(key,`${word.text} 的輸入鍵存在`);
-        engine.handleKeyDown({code:key.code,key:key.en,preventDefault(){}});
-        assert.ok(++guard<500,'輸入能向前推進');
-      }}
-      const result=awardStage(save,p,stage,engine.getStats(),'2026-10-07');assert.equal(result.ending,stage===29);
-    }
-    assert.equal(p.stage,30);assert.equal(Object.keys(p.records).length,30);
+test('每個年級三境界都以真實輸入與傷害完成三十關，英文同樣可完結',()=>{
+ for(const grade of ['1','2','3','4','5','6','english'])for(const realm of ['easy','medium','hard']){
+  const save=newAdventure();save.grade=grade;const p=getProfile(save);p.realm=realm;
+  for(let stage=0;stage<30;stage++){
+   const queue=grade==='english'?ENGLISH_PRACTICE_BANKS[realm].slice(0,10):buildGradeQuestionQueue(getGradeMixedWords(Number(grade)),Number(grade),realm);
+   const engine=new TypingEngine();engine.active=true;const battle=ADVENTURE_STAGES[stage];let enemyHp=battle.enemy.maxHp,answered=0;
+   while(enemyHp>0){const word=queue[answered%queue.length];engine.loadWord(word);let guard=0;
+    while(engine.getExpectedSymbol()){const key=engine.getExpectedKeyInfo();assert.ok(key);engine.handleKeyDown({code:key.code,key:key.en,preventDefault(){}});assert.ok(++guard<500);}
+    const hit=calculateAttackDamage({wordObj:word,grade,combo:engine.combo,loadout:ADVENTURE_WEAPONS[0],stage:battle,enemyHp,enemyMaxHp:battle.enemy.maxHp,isPerfectWord:true});
+    enemyHp=Math.max(0,enemyHp-hit.finalDamage);assert.ok(++answered<100);
+   }
+   const result=awardStage(save,p,stage,{...engine.getStats(),enemyHp},'2026-10-16');assert.equal(result.ending,stage===29);
   }
+  assert.equal(p.stage,30);assert.equal(Object.keys(p.records).length,30);
+ }
 });
-test('九題不能通關或領獎，每日獎勵只發一次',()=>{
+test('對手未倒下不能領獎，每日獎勵只發一次',()=>{
   const save=newAdventure();const p=getProfile(save);const coins=save.coins;
   assert.throws(()=>awardStage(save,p,0,{completedWords:9},'today'));assert.equal(save.coins,coins);
-  const stats={completedWords:10,completedChars:10,accuracy:100};
+  const stats={completedWords:10,completedChars:10,accuracy:100,enemyHp:0};
   assert.equal(awardStage(save,p,0,stats,'today').dailyBonus,20);
   assert.equal(awardStage(save,p,1,stats,'today').dailyBonus,0);
 });
 test('通關後重遊不倒退主線、不誤報結局，記錄本局境界',()=>{
   const save=newAdventure(),p=getProfile(save);p.stage=30;p.records[0]={accuracy:100};p.realm='hard';
-  const result=awardStage(save,p,0,{completedWords:10,completedChars:10,accuracy:100,realm:'easy'},'today');
+  const result=awardStage(save,p,0,{completedWords:10,completedChars:10,accuracy:100,enemyHp:0,realm:'easy'},'today');
   assert.equal(p.stage,30);assert.equal(result.ending,false);assert.equal(p.records[0].realm,'easy');
 });
 test('年級進度分離、舊財產單向複製且不修改舊物件',()=>{
@@ -228,7 +228,7 @@ test('v2.1.0 RPG 血量與傷害系統、長度平方根公平曲線、Boss 三�
   assert.ok(swordHit.comboMultiplier > saberHit.comboMultiplier);
   assert.ok(saberHit.schoolBonus >= 1.28);
   assert.ok(spearHit.defenseFactor > swordHit.defenseFactor);
-  assert.ok(spearHit.atbBreak > swordHit.atbBreak);
+  assert.equal(spearHit.atbBreak,0);assert.equal(swordHit.atbBreak,0);
 
   // 4. Boss HP 三階段：100%~70% 試探、70%~30% 破防、30% 以下決勝，大招跨階段直接進入最終階段
   assert.equal(bossPhaseForHp(400, 420, 0).name, '試探');
@@ -443,7 +443,7 @@ test('全部 30 關統一採用 RPG 氣血制，且多字詞須整題打完才�
   const charCheck = calculateAttackDamage({ actionType: 'char', loadout: ADVENTURE_WEAPONS[0] });
   const wordCheck = calculateAttackDamage({ actionType: 'word', wordObj: { text: '俠' }, loadout: ADVENTURE_WEAPONS[0] });
   assert.ok(charCheck.atbBreak >= 18);
-  assert.ok(wordCheck.atbBreak >= 40);
+  assert.equal(wordCheck.atbBreak,10);
 });
 
 test('教育性、遊戲性與黏著度六大深化機制：詞語例詞、自訂聯絡簿、看破破綻、印章保存、每日懸賞與靈獸羈絆', async () => {
@@ -493,7 +493,7 @@ test('教育性、遊戲性與黏著度六大深化機制：詞語例詞、自�
   });
   assert.ok(perfectWord.finalDamage > baseWord.finalDamage, '行雲流水零失誤應提高招式傷害');
   assert.ok(parryWord.finalDamage > perfectWord.finalDamage, '看破破綻危急反擊應造成更高傷害');
-  assert.equal(parryWord.atbBreak, 100, '看破破綻應清空敵人 100% 蓄力');
+  assert.equal(parryWord.atbBreak, 0, '多字詞看破破綻保留增傷，不中斷敵人蓄力');
 
   // 4. 遊戲性：每關最高評價印章（神乎其技 > 爐火純青 > 勤學苦練）自動保留最高紀錄
   assert.equal(getSealForStats({ accuracy: 96, maxCombo: 12 }), '神乎其技');

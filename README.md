@@ -1,6 +1,6 @@
 # 武俠打字傳 (Wuxia Typing Legend)
 
-[![Version](https://img.shields.io/badge/version-v2.1.0-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
+[![Version](https://img.shields.io/badge/version-v2.2.3-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
 [![Platform](https://img.shields.io/badge/Platform-Pure%20Web%20%2F%20HTML5%20Canvas-emerald.svg)](https://lianghao02.github.io/16_Wuxia-Typing-Legend/)
 [![Dictionary](https://img.shields.io/badge/MOE%20Mini%20Dict-4%2C311%20Chars-blue.svg)](https://dict.mini.moe.edu.tw/)
 
@@ -8,7 +8,13 @@
 > **線上即玩網址**：[https://lianghao02.github.io/16_Wuxia-Typing-Legend/](https://lianghao02.github.io/16_Wuxia-Typing-Legend/)
 > **GitHub 儲存庫**：[https://github.com/lianghao02/16_Wuxia-Typing-Legend](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
 
-《武俠打字傳》是一款專為臺灣國小學童與注音／英打修煉者設計的「**新國風水墨動畫 × 打字闖關戰鬥**」教育網頁遊戲。**v2.1.0 正式版**在「**文印江湖**」六章三十關主線冒險（預設首頁 [`index.html`](index.html)，相容入口 [`adventure.html`](adventure.html)，原版 v1.0 修煉模式保留於 [`classic.html`](classic.html)）基礎上，全面升級為真正的 **RPG 血量傷害系統**、新增第三角色「**馴獸師・林牧風**」與四大靈獸、整合 **19 組 76 張水墨多姿態戰鬥動畫**，並活化教育部離線字典例詞與 **完整題庫循環防重**。
+《武俠打字傳》是一款專為臺灣國小學童與注音／英打修煉者設計的「**新國風水墨動畫 × 打字闖關戰鬥**」教育網頁遊戲。遊戲自 **v2.1.0** 起，在「**文印江湖**」六章三十關主線冒險（預設首頁 [`index.html`](index.html)，相容入口 [`adventure.html`](adventure.html)，原版 v1.0 修煉模式保留於 [`classic.html`](classic.html)）基礎上，全面升級為真正的 **RPG 血量傷害系統**、新增第三角色「**馴獸師・林牧風**」與四大靈獸、整合 **19 組 76 張水墨多姿態戰鬥動畫**，並活化教育部離線字典例詞與 **完整題庫循環防重**。
+
+### v2.2.3 桌面修正版（2026-10-16）
+
+以 v2.2.2 為基礎，修正錯題重複計數、續玩零失誤誤判、特訓覆蓋主線、快速連錯漏記、敵人蓄力倒退、暫停耗盡定身及領獎條件。單字題正確套用一般／附魔裝備與護腕擊退，多字詞仍只增傷而不中斷敵方蓄力。
+
+目標為電腦實體鍵盤遊玩；本輪不加入 PWA 或手機／平板操作。保留 v2.2.2 音效、首領 20% 掉落、護甲血量、章節回血及重遊收益；不加入最低 24 次按鍵收招門檻，也不更改英文獎勵節奏。以下 v2.1.0 段落保留為既有功能說明。
 
 ### 🚀 v2.1.0 RPG 深化、19 組 76 張戰鬥姿態動畫與離線題庫擴充亮點
 - **全 30 關統一 RPG 血量與傷害系統**：六章三十關全面取消固定 10 題限制，統一改為**敵人 HP 歸零即獲勝**；單音聚氣、**整道題目（含四字詞或長句）完整打完才一次出招扣除敵人血量**，且 **2 字以上的詞語與句子不會打斷或扣減敵人集氣攻擊**（讓敵人能持續蓄力至滿氣出招，維持雙向對決張力），採用平方根長度公平曲線與年級傷害公平係數。首領依血量比例推進三階段（`100%～70%` 試探、`70%～30%` 破防、`30%` 以下決勝，大招跨階段直接跳轉不卡動畫）。

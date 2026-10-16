@@ -212,14 +212,12 @@ export function recordQuestionHistory(profile, completedWords = [], isEnglish = 
   const texts = list.map(w => (typeof w === 'string' ? w : w?.text)).filter(Boolean);
   for (const t of texts) {
     profile.practiced[t] = (profile.practiced[t] || 0) + 1;
-    if (profile.weak[t]) {
-      profile.weak[t] = Math.max(0, profile.weak[t] - 1);
-    }
   }
+  const recent = history => [...new Set([...(history || []).filter(t => !texts.includes(t)), ...texts])].slice(-60);
   if (isEnglish) {
-    profile.recentEn = [...new Set([...(profile.recentEn || []), ...texts])].slice(-60);
+    profile.recentEn = recent(profile.recentEn);
   } else {
-    profile.recentZh = [...new Set([...(profile.recentZh || []), ...texts])].slice(-60);
+    profile.recentZh = recent(profile.recentZh);
   }
-  profile.recent = [...new Set([...(profile.recent || []), ...texts])].slice(-60);
+  profile.recent = recent(profile.recent);
 }

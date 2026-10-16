@@ -6,6 +6,8 @@ export const CONFIG = {
   freezeMs: 8000,
   damage: 15,
   hp: 100,
+  weakDrillReward: 35,
+  singleWordKnockbackAtb: 10,
   bossPoisonCap: 35,
   intervals: { easy: 6800, medium: 4500, hard: 2800 },
   perCharMs: { easy: 1400, medium: 950, hard: 600 },
@@ -856,7 +858,9 @@ export function calculateAttackDamage({
   }
 
   const totalDamage = primaryDamage + multiHitDamage + poisonDamage;
-  const knockbackAtb = isParryBreak ? 100 : (CONFIG.knockbackAtb + 15 + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0) * 2);
+  const knockbackAtb = rawLen === 1
+    ? (isParryBreak ? 100 : Math.min(100, CONFIG.singleWordKnockbackAtb + (item.knockbackBonus || 0) + (bracer?.knockbackBonus || 0)))
+    : 0;
   const lenFixed = Number(lengthMultiplier.toFixed(2));
 
   return {
@@ -905,13 +909,16 @@ export function attackDuration(word, grade, realm, kind = 'duel') {
 
 export function awardStage(save, profile, stageId, stats, date) {
   const stage = ADVENTURE_STAGES[stageId];
+  if (!stage) throw new Error("找不到有效關卡。");
   const isCombat = Boolean(stage?.isCombat);
-  const defeatedByHp = stats?.enemyDefeated === true || (typeof stats?.enemyHp === 'number' && stats.enemyHp <= 0);
+  const defeatedByHp = typeof stats?.enemyHp === 'number'
+    ? Number.isFinite(stats.enemyHp) && stats.enemyHp <= 0
+    : stats?.enemyDefeated === true;
   const completedTen = (stats?.completedWords ?? 0) >= CONFIG.questions;
 
   if (isCombat) {
-    if (!defeatedByHp && !completedTen) {
-      throw new Error('必須擊敗對手或完成十題才能通關。');
+    if (!defeatedByHp) {
+      throw new Error('必須擊敗對手才能通關。');
     }
   } else if (!completedTen) {
     throw new Error('必須實際完成十題才能通關。');
