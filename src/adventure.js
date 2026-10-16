@@ -306,6 +306,7 @@ function begin(resume = true, replayId = null, weakDrill = false) {
   const targetStageId = resume && valid ? savedSession.stageId : (replayId ?? Math.min(profile.stage, 29));
   stage = ADVENTURE_STAGES[targetStageId] || ADVENTURE_STAGES[0];
   const heroMaxHp = getArmorMaxHp(getArmor());
+  const enemyMaxHp = stage.enemy?.maxHp || 100;
   const carryHp = (profile.adventureHp !== null && profile.adventureHp !== undefined) ? profile.adventureHp : heroMaxHp;
   const initialHp = Math.min(heroMaxHp, Math.max(15, Number(carryHp) || heroMaxHp));
   session = resume && valid ? savedSession : {
@@ -316,8 +317,8 @@ function begin(resume = true, replayId = null, weakDrill = false) {
     cursor: 0,
     hp: initialHp,
     maxHp: heroMaxHp,
-    enemyMaxHp: maxHp,
-    enemyHp: maxHp,
+    enemyMaxHp: enemyMaxHp,
+    enemyHp: enemyMaxHp,
     bossPhaseIndex: 0,
     enemyPoisonTurns: 0,
     qi: 0,
@@ -332,7 +333,7 @@ function begin(resume = true, replayId = null, weakDrill = false) {
   session.realm = profile.realm;
   session.maxHp = heroMaxHp;
   session.deathToll ||= 0;
-  session.enemyMaxHp ||= maxHp;
+  session.enemyMaxHp ||= enemyMaxHp;
   if (typeof session.enemyHp !== 'number') {
     session.enemyHp = Math.max(10, Math.round(session.enemyMaxHp * (1 - (session.cursor || 0) / 10)));
   }
@@ -362,10 +363,17 @@ function begin(resume = true, replayId = null, weakDrill = false) {
     <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'打完每個單字可壓制對手蓄力，整題打完即出招造成傷害；在對手「⚡即將出招」瞬間完成整題可觸發【看破破綻】反擊！'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
     <button class="primary" data-action="start">${session.cursor||session.typing?'接續交手':'踏入江湖'} · Enter</button>`, 'intro');
 }
+function getBattleBgm(st = stage) {
+  if (!st) return 'battle';
+  if (st.kind === 'boss') return 'boss';
+  const ch = Number(st.chapter) || 0;
+  return `ch${ch + 1}`; // 每五關換一個風格（ch1~ch6）
+}
+
 function start() {
   $('battle').hidden=false; $('journey-hud').hidden=false; $('controls').hidden=false;
   readUntil=performance.now()+CONFIG.graceMs;
-  audio.switchBgm(stage?.kind === 'boss' ? 'boss' : 'battle');
+  audio.switchBgm(getBattleBgm(stage));
   closePanel();
   if(session.hp<=0){failed();return;}
   rememberSession();
@@ -540,6 +548,7 @@ function finish() {
   save.coins += spoils.totalCoins;
   let spoilsHtml = '';
   if (spoils.items.length > 0) {
+    audio.playCoin();
     const listStr = spoils.items.map(s => `${s.icon} ${s.name}（＋${s.coins}）`).join('、');
     spoilsHtml = `<div class="spoils-banner">🎒 戰利品收穫：${listStr} · 自動折現 <strong>＋${spoils.totalCoins} 銅錢</strong></div>`;
   }
@@ -1072,13 +1081,13 @@ document.addEventListener('click',event=>{
       notify(`此裝備需先通關第 ${item.requiredStage} 關方可解鎖！`);
       return;
     }
-    if(buyGear(save,slot,item,profile)){persist();setupScene();const back=resumeView;shop(shopTab);resumeView=back;notify(`已裝備【${item.name}】！`);}
+    if(buyGear(save,slot,item,profile)){persist();setupScene();audio.playCoin();const back=resumeView;shop(shopTab);resumeView=back;notify(`已裝備【${item.name}】！`);}
     else notify('銅錢還不夠或未達解鎖關卡，完成冒險再回來。');
     return;
   }
   if(button.dataset.buyPotion){
     const item=ADVENTURE_POTIONS.find(x=>x.id===button.dataset.buyPotion);
-    if(buyPotion(save,item)){persist();const back=resumeView;shop('potion');resumeView=back;notify(`已添購【${item.name}】！`);}
+    if(buyPotion(save,item)){persist();audio.playCoin();const back=resumeView;shop('potion');resumeView=back;notify(`已添購【${item.name}】！`);}
     else notify('銅錢不足或已達攜帶上限。');
     return;
   }
@@ -1199,7 +1208,7 @@ document.addEventListener('click',event=>{
   }
   if(action==='shop')shop(shopTab);
   if(action==='settings')settings();
-  if(action==='return'){if(resumeView==='battle'){audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}else home();}
+  if(action==='return'){if(resumeView==='battle'){audio.switchBgm(getBattleBgm(stage));closePanel();}else home();}
   if(action==='recover'){
     const heroMaxHp = session?.maxHp || getArmorMaxHp(getArmor());
     session.hp = heroMaxHp;
@@ -1210,7 +1219,7 @@ document.addEventListener('click',event=>{
     session.slow = (session.slow || 1) * 1.25;
     readUntil = performance.now() + 3500;
     scene.startCountdown(3, '雙手就位・準備出招！');
-    audio.switchBgm(stage?.kind === 'boss' ? 'boss' : 'battle');
+    audio.switchBgm(getBattleBgm(stage));
     closePanel();
     rememberSession();
     render();
@@ -1240,7 +1249,7 @@ document.addEventListener('click',event=>{
     save.audioSettings={bgm:bgmChecked,sfx:sfxChecked,speech:speechChecked,muted:muteChecked};
     audio.applySettings(save.audioSettings);
     profile=getProfile(save);profile.realm=$('realm-select').value;if(session&&!changed)session.realm=profile.realm;persist();setupScene();
-    if(changed||resumeView!=='battle')home();else{audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}
+    if(changed||resumeView!=='battle')home();else{audio.switchBgm(getBattleBgm(stage));closePanel();}
   }
 });
 $('home').onclick=home; $('shop').onclick=()=>shop(shopTab); $('settings').onclick=settings; $('ultimate').onclick=ultimate;
@@ -1321,7 +1330,7 @@ engine.on('imeCleared', () => showImeWarning(false));
 if ($('fullscreen-btn')) $('fullscreen-btn').onclick = toggleFullscreen;
 if ($('fullscreen-control-btn')) $('fullscreen-control-btn').onclick = toggleFullscreen;
 
-$('panel').addEventListener('cancel',event=>{event.preventDefault();if(view==='shop'&&resumeView==='battle'){audio.switchBgm(stage?.kind==='boss'?'boss':'battle');closePanel();}else home();});
+$('panel').addEventListener('cancel',event=>{event.preventDefault();if(view==='shop'&&resumeView==='battle'){audio.switchBgm(getBattleBgm(stage));closePanel();}else home();});
 document.addEventListener('keydown',event=>{
   audio.init(); if(audio.bgmEnabled&&!audio.muted&&!audio.bgmRunning)audio.startBgm(audio.currentBgmTheme);
   if(!windowFocused){windowFocused=true;engine.setPaused(document.hidden||view!=='battle');lastTick=performance.now();}
@@ -1391,6 +1400,7 @@ function tick(now){
       if(session.shield){
         session.shield=0;
         scene.playMissParry(true);
+        audio.playShieldBlock();
         notify('🛡️ 守護護印擋住了對手回擊！');
       }else{
         const armor=getArmor();

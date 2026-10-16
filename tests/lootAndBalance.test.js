@@ -103,16 +103,12 @@ test('4. B 方案通關戰利品搜刮折現（Settlement Spoils）：隨機掉�
   assert.ok(bossSpoils.totalCoins >= 30);
 });
 
-test('5. C 方案首領戰附魔神兵掉落率（第 5 關 35%、第 10 關 50%）與屬性生成', () => {
-  // 第 5 關（stageId: 4）掉落率為 35%
-  assert.equal(getBossWeaponDropRate(4), 0.35);
-
-  // 第 10 關（stageId: 9）掉落率為 50%
-  assert.equal(getBossWeaponDropRate(9), 0.50);
-
-  // 第 15 關（stageId: 14）為 35%，第 20 關（stageId: 19）為 50%
-  assert.equal(getBossWeaponDropRate(14), 0.35);
-  assert.equal(getBossWeaponDropRate(19), 0.50);
+test('5. C 方案每五關首領戰附魔神兵掉落率（20%）與屬性生成', () => {
+  // 每五關首領關卡（第 5、10、15、20 關等）掉落率為 20%
+  assert.equal(getBossWeaponDropRate(4), 0.20);
+  assert.equal(getBossWeaponDropRate(9), 0.20);
+  assert.equal(getBossWeaponDropRate(14), 0.20);
+  assert.equal(getBossWeaponDropRate(19), 0.20);
 
   // 一般關卡（如第 1 關 stageId: 0）掉落率為 0%
   assert.equal(getBossWeaponDropRate(0), 0);

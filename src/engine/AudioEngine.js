@@ -9,6 +9,31 @@
  * - 通關勝利：東方五聲音階（宮商角徵羽）古箏琶音
  */
 
+export const SFX_FILES = {
+  key_hit: 'assets/audio/sfx/key_hit.mp3',
+  char_slash: 'assets/audio/sfx/char_slash.mp3',
+  word_complete: 'assets/audio/sfx/word_complete.mp3',
+  miss: 'assets/audio/sfx/miss.mp3',
+  hurt: 'assets/audio/sfx/hurt.mp3',
+  shield: 'assets/audio/sfx/shield.mp3',
+  coins: 'assets/audio/sfx/coins.mp3',
+  combo_milestone: 'assets/audio/sfx/combo_milestone.mp3',
+};
+
+export const BGM_FILES = {
+  title: 'assets/audio/bgm/bgm_title.mp3', // 江湖首頁：古箏清靈
+  ch1:   'assets/audio/bgm/bgm_ch1.mp3',   // 第 1 章（1~5 關）：青竹流水絲竹
+  ch2:   'assets/audio/bgm/bgm_ch2.mp3',   // 第 2 章（6~10 關）：盛世洛陽二胡揚琴
+  ch3:   'assets/audio/bgm/bgm_ch3.mp3',   // 第 3 章（11~15 關）：西域塞外荒漠駝鈴
+  ch4:   'assets/audio/bgm/bgm_ch4.mp3',   // 第 4 章（16~20 關）：華山絕頂高寒古琴
+  ch5:   'assets/audio/bgm/bgm_ch5.mp3',   // 第 5 章（21~25 關）：黑木幽谷暗流戰鼓
+  ch6:   'assets/audio/bgm/bgm_ch6.mp3',   // 第 6 章（26~30 關）：紫禁之巔金戈鐵馬大決戰
+  boss:  'assets/audio/bgm/bgm_boss.mp3',  // 章節首領戰：暴風大堂鼓對決
+  inn:   'assets/audio/bgm/bgm_inn.mp3',   // 古驛客棧：江南茶肆休閒絲竹
+  story: 'assets/audio/bgm/bgm_title.mp3', // 劇情捷報：古箏名曲
+  battle: 'assets/audio/bgm/bgm_ch1.mp3',  // 兜底預設戰鬥
+};
+
 export class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -20,6 +45,27 @@ export class AudioEngine {
     this.currentBgmTheme = 'title';
     this.lastAutoSpeakAt = 0;
     this.lastAutoWord = '';
+    this.bgmAudio = null;
+    this.currentBgmFile = null;
+  }
+
+  /**
+   * 播放高品質開源真實錄音 SFX（冷兵器、擊鍵、破題、受擊、金鐘護印、銅錢）
+   */
+  playSfx(key, playbackRate = 1.0, volumeScale = 1.0) {
+    if (this.muted || !this.sfxEnabled) return false;
+    const file = SFX_FILES[key];
+    if (!file || typeof Audio === 'undefined') return false;
+    try {
+      const audio = new Audio(file);
+      audio.playbackRate = playbackRate;
+      audio.volume = Math.min(1.0, Math.max(0.01, this.volume * volumeScale));
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   init() {
@@ -164,6 +210,7 @@ export class AudioEngine {
    */
   playKeyHit(combo = 1) {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('key_hit', 1.0 + ((combo - 1) % 8) * 0.025, 0.75)) return;
     this.init();
     if (!this.ctx) return;
 
@@ -196,6 +243,7 @@ export class AudioEngine {
    */
   playCharSlash(comboTier = 0) {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('char_slash', 1.0 + comboTier * 0.05, 0.85)) return;
     this.init();
     if (!this.ctx) return;
 
@@ -234,6 +282,7 @@ export class AudioEngine {
    */
   playWordComplete(comboTier = 0) {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('word_complete', 1.0, 1.0)) return;
     this.init();
     if (!this.ctx) return;
 
@@ -315,6 +364,7 @@ export class AudioEngine {
    */
   playMiss(previousCombo = 0) {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('miss', 1.0, 0.9)) return;
     if (this.playCustomSound(previousCombo >= 5 ? 'miss_break' : 'miss')) return;
     this.init();
     if (!this.ctx) return;
@@ -358,6 +408,7 @@ export class AudioEngine {
    */
   playComboMilestone(combo = 5) {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx(combo >= 15 ? 'shield' : 'combo_milestone', 1.0, 1.0)) return;
     const tierKey = combo >= 15 ? 'combo_15' : combo >= 10 ? 'combo_10' : 'combo_5';
     if (this.playCustomSound(tierKey)) return;
     this.init();
@@ -467,6 +518,7 @@ export class AudioEngine {
    */
   playPlayerHurt() {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('hurt', 1.0, 0.95)) return;
     this.init();
     if (!this.ctx) return;
 
@@ -487,10 +539,20 @@ export class AudioEngine {
   }
 
   /**
+   * 6.5 金鐘護盾抵擋音效
+   */
+  playShieldBlock() {
+    if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('shield', 1.0, 1.05)) return;
+    this.playVictory();
+  }
+
+  /**
    * 7. 銅錢與商店購買音效
    */
   playCoin() {
     if (this.muted || !this.sfxEnabled) return;
+    if (this.playSfx('coins', 1.0, 0.85)) return;
     this.init();
     if (!this.ctx) return;
 
@@ -750,19 +812,49 @@ export class AudioEngine {
   }
 
   /**
-   * 13. 情境國風背景音樂 (BGM) — 公共領域（Public Domain）傳統武俠古曲緊湊編曲版
-   * 採用 100% 無版權爭議之傳世古曲樂譜與琵琶掃弦／古箏撥弦／大堂鼓合成：
-   * - 'boss'   (首領決戰)：琵琶古曲《十面埋伏》（雞鳴山小戰・九里山大戰，135ms 高速急奏＋掃弦＋堂鼓竹板）
-   * - 'battle' (一般戰鬥)：古曲《將軍令》（武俠男兒當自強原型古曲，165ms 緊湊行軍戰鼓變奏）
-   * - 'inn'    (古驛客棧)：傳統名曲《步步高》（210ms 輕快茶肆絲竹小調）
-   * - 'story'  (劇情捷報)：琵琶古曲《陽春白雪》（230ms 明朗慶賀五聲旋律）
-   * - 'title'  (江湖首頁)：古箏名曲《漁舟唱晚・高山流水》（240ms 行雲流水五聲琶音）
+   * 13. 情境國風背景音樂 (BGM) — 每五關換一種風格！
+   * 優先採用高品質實錄國風民樂（古箏、二胡、琵琶、大堂鼓），載入失敗或離線時無縫回退至 WebAudio 程式碼合成音
    */
   startBgm(theme = this.currentBgmTheme || 'title') {
     this.currentBgmTheme = theme || 'title';
     if (this.muted || !this.bgmEnabled) return false;
-    if (this.bgmTimer && this.bgmRunning) return true;
     this.init();
+
+    const bgmFile = BGM_FILES[theme] || BGM_FILES.title;
+    if (typeof Audio !== 'undefined' && bgmFile) {
+      try {
+        if (this.bgmAudio && this.currentBgmFile === bgmFile && !this.bgmAudio.paused) {
+          this.bgmRunning = true;
+          return true;
+        }
+        if (this.bgmAudio) {
+          try { this.bgmAudio.pause(); } catch {}
+          this.bgmAudio = null;
+        }
+        const audio = new Audio(bgmFile);
+        audio.loop = true;
+        audio.volume = Math.min(1.0, Math.max(0.01, this.volume * 0.45));
+        const p = audio.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {
+            this.startWebAudioBgm(theme);
+          });
+        }
+        this.bgmAudio = audio;
+        this.currentBgmFile = bgmFile;
+        this.bgmRunning = true;
+        return true;
+      } catch {
+        // 進入 WebAudio 降級
+      }
+    }
+
+    return this.startWebAudioBgm(theme);
+  }
+
+  startWebAudioBgm(theme = this.currentBgmTheme || 'title') {
+    if (this.muted || !this.bgmEnabled) return false;
+    if (this.bgmTimer && this.bgmRunning) return true;
     if (!this.ctx) return false;
 
     const themes = {
@@ -969,18 +1061,19 @@ export class AudioEngine {
     const changed = this.currentBgmTheme !== theme;
     this.currentBgmTheme = theme;
     if (this.muted || !this.bgmEnabled) return;
-    if (!this.bgmRunning) {
-      this.startBgm(theme);
-    } else if (changed && this.bgmTimer) {
-      clearTimeout(this.bgmTimer);
-      this.bgmTimer = null;
-      this.bgmRunning = false;
+    if (!this.bgmRunning || changed) {
+      this.stopBgm();
       this.startBgm(theme);
     }
   }
 
   stopBgm() {
     this.bgmRunning = false;
+    if (this.bgmAudio) {
+      try { this.bgmAudio.pause(); } catch {}
+      this.bgmAudio = null;
+      this.currentBgmFile = null;
+    }
     if (this.bgmTimer) {
       clearTimeout(this.bgmTimer);
       this.bgmTimer = null;

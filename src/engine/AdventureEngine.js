@@ -1058,13 +1058,11 @@ export function rollSettlementSpoils(stageId, isBoss = false, random = Math.rand
 }
 
 /**
- * C 方案：第 5 關與第 10 關首領戰掉落率（約 30%～50%）
- * 1-based: 第 5、15、25 關（章節中首領）約 35%；第 10、20、30 關（章節大首領）為 50%
+ * C 方案：每五關首領關卡（第 5, 10, 15, 20, 25, 30 關）掉落率為 20%
  */
 export function getBossWeaponDropRate(stageId) {
   const stageNum = stageId + 1;
-  if (stageNum % 10 === 0) return 0.50; // 第 10、20、30 關大首領：50%
-  if (stageNum % 5 === 0) return 0.35;  // 第 5、15、25 關中首領：35%
+  if (stageNum % 5 === 0) return 0.20;
   return 0;
 }
 
