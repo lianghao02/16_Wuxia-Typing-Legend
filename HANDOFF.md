@@ -2,6 +2,63 @@
 
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
+- **Branch**：feat/jianghu-adventure
+- **Commit SHA**：618044af719a90a50b7dbd0b62268cfe8a3c2b60（本輪修改前基準；本輪尚未提交）
+- **Skill Version**：v1.0.0
+- **Task Type**：HANDOFF
+- **Local Path Hint**：16_Wuxia-Typing-Legend
+
+## 目前狀態
+2026-10-16：目前工作分支為 feat/jianghu-adventure，對應獨立 v2.1.1-beta.1；正式 master 已更新至 v2.2.2。兩邊尚未整合。
+
+## 本輪目標
+釐清正式分支、預發行分支與歷史交接待辦，避免混用版本和測試數。
+
+## 基準與已確認事實 (Baseline & Confirmed Facts)
+本機原始碼未改；origin/master 為 6c8830c，package.json 2.2.2。下列舊版提交待辦與測試數均屬歷史快照。
+
+## 已完成 (Completed)
+核對遠端 master 的版本來源與本機 beta 分支差異；本次只校正本分支交接現況。依本次使用者提供查核，正式 GitHub Release 仍為 v2.2.0，v2.2.2 標籤不等於已建立同版 Release。
+
+## 異動檔案 (Changed Files)
+HANDOFF.md。
+
+## 刻意未修改 (Do Not Do / Deliberately Omitted)
+未修改來源資產、既有發布包、全域憲法與共用 Skills；未提交、推送或建立新版 Release。
+
+## 尚未完成 (Remaining Work)
+- **P1 (阻斷/必須)**：本輪已重現的 Google 相簿阻斷缺陷已修正；舊發布包仍待正式修補。
+- **P2 (重要/當次)**：master 的 HANDOFF.md 仍有歷史資訊落差；本輪未修改另一分支檔案。beta 的畫面／PWA 驗收與正式版整合仍待處理。
+- **P3 (改善建議/暫緩)**：其他專案重構不在本輪範圍。
+
+## 驗證結果 (Validation)
+### 已執行測試與結果
+本輪僅核對 Git 分支、追蹤關係、遠端 package.json 與交接文字，未重跑遊戲測試；既有 80 項 beta 測試與 master 的測試數不可互相取代。
+### 尚未驗證項目
+master 的 HANDOFF.md 仍有歷史資訊落差；本輪未修改另一分支檔案。beta 的畫面／PWA 驗收與正式版整合仍待處理。
+### 已知風險 (Known Risks)
+原始碼修正不會自動更新既有下載包或正式部署。
+
+## Git 狀態
+- Commit：本輪尚未提交，基準如上。
+- Push：否。
+- Working Tree：Modified（本輪差異）。
+- Branch：feat/jianghu-adventure。
+
+## 下一步建議動作 (Next Recommended Action)
+另於 master 校正正式版交接；依授權處理正式 Release，保留 beta 分支待辦。
+
+## 發布狀態 (Release Status)
+beta 已有獨立預發行版；本輪未建立任何 Release。
+
+---
+
+## 歷史交接快照（以下不是當前待辦或測試結果）
+
+# HANDOFF
+
+## 核心元資料 (Metadata)
+- **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：master
 - **Commit SHA**：bc48244（v2.1.0 開發前基準；最新提交以 Git 歷史為準）
 - **Skill Version**：v1.0.0
