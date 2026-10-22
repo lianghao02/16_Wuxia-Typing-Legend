@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import { readFileSync } from 'node:fs';
 import { battleHarness, section } from './helpers/adventureHarness.js';
 import { recordQuestionHistory } from '../src/data/gradeQuestionMix.js';
 import { newAdventure, getProfile, awardStage, calculateAttackDamage, ADVENTURE_WEAPONS, ADVENTURE_BRACERS, rollBossEnchantedWeapon, getBossWeaponDropRate } from '../src/engine/AdventureEngine.js';
@@ -150,4 +151,13 @@ test('回春丹依裝備血量上限補血，滿血無異常不消耗且淨化�
   c.save.potions.heal_potion=0;c.session.hp=10;c.session.status='poison';
   assert.equal(c.useHealPotion(false),false);assert.equal(c.session.hp,10);assert.equal(c.session.status,'poison');
  }
+});
+
+test('戰鬥資訊分層：氣血連擊與銅錢丹藥分開顯示，蓄力條有文字標示', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  assert.ok(html.includes('id="hero-items"'));
+  assert.ok(html.includes('id="atb-label"'));
+  const source = readFileSync(new URL('../src/adventure.js', import.meta.url), 'utf8');
+  assert.ok(source.includes("$('hero-items')"));
+  assert.ok(source.includes('對手蓄力滿了'));
 });
