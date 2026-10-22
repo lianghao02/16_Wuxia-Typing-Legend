@@ -3,20 +3,19 @@
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：master
-- **Commit SHA**：91c604f（本輪修改前基準；本輪測試與交接尚未提交）
+- **Commit SHA**：4656237（master；已含 PR #1 合併，版本仍為 v2.2.3，未升版）
 - **Skill Version**：v1.0.0
-- **Task Type**：AUDIT / IMPROVE / HANDOFF
+- **Task Type**：AUDIT / IMPROVE / HANDOFF（2026-10-22 雲端評估與介面修正）
 - **Local Path Hint**：.codex/worktrees/wuxia-v2.2.3
 
 ## 目前狀態
 
-使用者已於本輪授權依專案／分支分開提交與推送；下列未提交描述為提交前斷點，最終提交與遠端同步結果見控制中心本輪計畫及 Git。
-2026-10-22：完成舊 beta 功能差異審查，保留正式玩法；新增三組狀態回歸，npm test 97/97 通過。本輪僅測試與交接修改，尚未提交、推送或升版。舊 beta 與備份保留，不整批合併。
+2026-10-22（雲端）：整體評估、遊戲性分析與介面檢測已完成，PR #1 已合併進 master（合併提交 4656237）。npm test 99／99 通過，GitHub Actions 的 npm-test 在 push 與 PR 皆成功。前一段「補毒火冰／丹藥測試」已提交（5085622），不再是未提交狀態。未升版、未建立新標籤或 Release。
 
 2026-10-16：v2.2.3 已正式提交並推送 master、建立標籤與正式 GitHub Release。Pages 工作 38886747909 成功，正式網站版本檔及遊戲程式與發布標籤位元組一致。原 beta 工作目錄保留；其本輪文件狀態見該分支交接。
 
 ## 本輪目標
-本輪（2026-10-22）：確認舊 beta 修復是否已移入，補毒火冰解除、絕招條件與回春丹血量上限／消耗測試。以下 v2.2.3 發布資訊為前輪成果。
+本輪（2026-10-22 雲端）：以 Playwright 實際操作遊戲（1366×768、1024×768、1920×1080），檢測操作性與介面直覺，並處理發現的問題；不更動數值與存檔結構。以下 v2.2.3 發布資訊為前輪成果。
 
 只移入經查證且適用電腦實體鍵盤的錯題、續玩、特訓、戰鬥狀態及領獎修正，作為新版本 v2.2.3。
 
@@ -25,6 +24,10 @@
 - 從正式版建立獨立修訂工作目錄，沒有整批合併舊 beta。
 
 ## 已完成 (Completed)
+- 2026-10-22 雲端（PR #1）：戰鬥資訊分層，氣血與連擊放大，銅錢與丹藥移到次要小字（新增 `#hero-items`）；蓄力條加「對手蓄力」文字，滿時顯示「⚡ 對手蓄力滿了！快打完整題反擊」（新增 `#atb-label`）；戰鬥中隱藏右上角全螢幕懸浮鈕，保留底部操作列那顆；關卡劇情頁改為短句條列。
+- 錯題墨寶閣「清空錯題紀錄」改為二次確認，避免誤觸。
+- `adventure.html` 改為轉址到 `index.html`（保留舊書籤）；`AGENTS.md` 路徑更正為 `src/…`；新增 `.github/workflows/test.yml`（Node 22 跑 npm test）；新增 2 項回歸測試（tests/desktopRevision.test.js）。
+- 數值平衡以按鍵數試算（一年級每關約 30～80 鍵、六年級約 140～300 鍵）；低年級打字較慢，實際耗時相近，判定不需調整。
 - 本輪新增三組正式事件流程測試，涵蓋毒／火／冰中途錯鍵、非戰鬥與未滿氣不得施招、施招清氣不可重複、丹藥 100／115／130 血量上限與零庫存。未改產品程式。
 - 基準 94/94、修改後 97/97；測試語法與差異格式檢查通過。完整分支審查另保存於 beta 分支的 docs/branch-integration-review.md。
 - 錯鍵逐次記錄；作答歷史不消除錯題，後續零失誤才降低一次，結算不再重複計題；近期題目依真正重練順序排列。
@@ -45,7 +48,7 @@ docs/releases/v2.2.3.md、package.json、src/adventure.js、src/data/gradeQuesti
 ## 尚未完成 (Remaining Work)
 - **P1 (阻斷/必須)**：無已確認未處理阻斷問題。
 - **P2 (重要/當次)**：本輪測試與交接待提交推送；前輪正式 Release 與 Pages 證據見 docs/releases/v2.2.3.md。本輪沒有重新核對線上部署。
-- **P3 (改善建議/暫緩)**：完整真人三十關遊玩、其他電腦與輸入法環境驗收。
+- **P3 (改善建議/暫緩)**：完整真人三十關遊玩、其他電腦與微軟注音輸入法環境驗收；拆分 main.js（約 1830 行）與 CanvasBattleScene.js（約 2070 行）；確認出招時少俠衝過虛擬鍵盤、短暫擋住下一鍵高亮是否影響孩童（屬攻擊演出，依規範未壓縮人物）；多字英文題排版與蓄力音效尚未檢查。
 
 ## 驗證結果 (Validation)
 ### 已執行測試與結果
@@ -58,13 +61,13 @@ docs/releases/v2.2.3.md、package.json、src/adventure.js、src/data/gradeQuesti
 v2.2.3 已發布；舊版本已遺失的錯題與計數不會自動重建。
 
 ## Git 狀態
-- Commit：本輪尚未提交；基準 91c604f。
-- Push：本輪否；前輪 v2.2.3 已發布。
-- Working Tree：Modified，僅本輪測試與交接。
-- Branch：master；起始與本機 origin/master 相同，本輪未 fetch。
+- Commit：4656237（master，PR #1 合併提交）；內含 4a7dc82、93393c2。
+- Push：已推送；開發分支 claude/github-project-access-p7ceub 的內容已合併，GitHub 上可刪除。
+- Working Tree：本檔更新前為 clean。
+- 本機接手前請先 `git checkout master` 與 `git pull origin master`。
 
 ## 下一步建議動作 (Next Recommended Action)
-維持正式 master 為開發基準。舊 beta 與其本機交接修改仍保留，清理須另依使用者指示。
+維持正式 master 為開發基準。優先做教室電腦的真人驗證（真實微軟注音輸入法），再依觀察結果調整；舊 beta 與其本機交接修改仍保留，清理須另依使用者指示。
 
 ## 發布狀態 (Release Status)
 已正式發布：https://github.com/lianghao02/16_Wuxia-Typing-Legend/releases/tag/v2.2.3 。線上 Pages 已通過部署與程式雜湊核對。
