@@ -52,6 +52,7 @@ docs/releases/v2.2.3.md、package.json、src/adventure.js、src/data/gradeQuesti
 
 ## 驗證結果 (Validation)
 ### 已執行測試與結果
+- 2026-10-22 雲端：npm test 99／99 通過；GitHub Actions npm-test 於 push 與 PR 皆成功。Playwright 實測 1366×768、1024×768、1920×1080，版面無重疊、console error 0；蓄力警示與紅色光圈、清空錯題二段式、adventure.html 轉址皆已實際確認。未驗證：真實微軟注音輸入法、其他電腦環境。
 - npm test：94／94 通過，包含各年級三境界三十關實際鍵碼與傷害計算、既有素材／音效與掉落測試、新增桌面回歸。
 - 內建瀏覽器於獨立 localhost：英文實際錯鍵及完成題目、離開後重新載入、逐字接續、錯題保留通過；console error 0。測試使用獨立來源的瀏覽器資料，不操作正式站存檔。
 - 補驗中文實體按鍵：聲母提示、一聲空白鍵、題目推進與敵人血量同步更新通過；新分頁 console error 0。先前發布檢查發現的中文提示阻斷已排除。
