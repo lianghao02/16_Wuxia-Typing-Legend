@@ -99,3 +99,55 @@ for (const sample of [
  assert.ok(nodes.get('hero-detail').textContent.includes('氣血'));
  assert.ok(nodes.get('enemy-detail').textContent.includes('氣血'));
 });
+
+
+test('異常狀態須連續完成兩字，中途錯鍵重新計數',()=>{
+ for(const status of ['poison','burn','freeze']){
+  const c=battleHarness({text:'口口口',bopomofo:['ㄎㄡˇ','ㄎㄡˇ','ㄎㄡˇ']});
+  c.session.status=status;c.session.statusCureNeed=2;
+  const completeChar=()=>{
+   const index=c.engine.charIndex;
+   while(c.engine.charIndex===index&&c.engine.getExpectedSymbol())c.engine.processSymbolInput(c.engine.getExpectedSymbol());
+  };
+  completeChar();assert.equal(c.session.statusCureNeed,1);
+  c.engine.processSymbolInput('ㄅ');assert.equal(c.session.statusCureNeed,2);
+  completeChar();assert.equal(c.session.status,status);
+  completeChar();assert.equal(c.session.status,null);assert.equal(c.session.statusCureNeed,0);
+ }
+});
+
+test('絕招僅能在戰鬥且滿氣時施放，清氣後不可重複造成傷害',()=>{
+ for(const weapon of [ADVENTURE_WEAPONS[0],ADVENTURE_WEAPONS[5]]){
+  const c=english();c.getLoadout=()=>weapon;c.frozenUntil=0;
+  vm.runInContext(section('function ultimate()', 'function failed()'),c);
+  const hp=c.session.enemyHp;
+  c.session.qi=5;c.view='settings';c.ultimate();
+  assert.equal(c.session.enemyHp,hp);assert.equal(c.session.qi,5);
+  c.view='battle';c.session.qi=4;c.ultimate();
+  assert.equal(c.session.enemyHp,hp);assert.equal(c.session.qi,4);
+  c.session.qi=5;c.session.hp=60;c.session.status='burn';c.session.statusCureNeed=2;
+  c.ultimate();
+  assert.equal(c.session.qi,0);assert.equal(c.session.shield,1);
+  assert.equal(c.session.status,null);assert.equal(c.session.statusCureNeed,0);
+  assert.ok(c.session.enemyHp<hp);
+  assert.equal(c.frozenUntil-c.battleTime,weapon.style==='spear'?10000:8000);
+  assert.equal(c.session.hp,weapon.style==='spear'?80:60);
+  const after=c.session.enemyHp;c.ultimate();assert.equal(c.session.enemyHp,after);
+ }
+});
+
+test('回春丹依裝備血量上限補血，滿血無異常不消耗且淨化只扣一份',()=>{
+ for(const maxHp of [100,115,130]){
+  const c=english();c.session.maxHp=maxHp;c.session.hp=maxHp;
+  vm.runInContext(section('function useHealPotion(', 'function ultimate()'),c);
+  const initial=c.save.potions.heal_potion;assert.ok(initial>0);
+  assert.equal(c.useHealPotion(false),false);assert.equal(c.save.potions.heal_potion,initial);
+  c.session.hp=maxHp-20;c.session.status='freeze';c.session.statusCureNeed=2;
+  assert.equal(c.useHealPotion(false),true);assert.equal(c.session.hp,maxHp);
+  assert.equal(c.session.status,null);assert.equal(c.session.statusCureNeed,0);
+  assert.equal(c.save.potions.heal_potion,initial-1);
+  assert.equal(c.useHealPotion(false),false);assert.equal(c.save.potions.heal_potion,initial-1);
+  c.save.potions.heal_potion=0;c.session.hp=10;c.session.status='poison';
+  assert.equal(c.useHealPotion(false),false);assert.equal(c.session.hp,10);assert.equal(c.session.status,'poison');
+ }
+});
