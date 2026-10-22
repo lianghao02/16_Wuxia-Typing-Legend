@@ -795,6 +795,7 @@ function customWordsModal() {
       <button type="button" data-action="home">返回首頁</button>
     </div>`, 'custom-words');
 }
+let clearWeakArmed = false;
 function weakDojoModal() {
   const symEntries = Object.entries(profile.weakSymbols || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 4);
   const weakEntries = Object.entries(profile.weak || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 12);
@@ -817,7 +818,7 @@ function weakDojoModal() {
     <div class="mistake-notes"><strong>📝 待掃除錯字名單（點擊可聽發音）：</strong><div class="mistake-list">${wordsHtml}</div></div>
     <div class="actions">
       <button class="primary" data-action="start-weak-drill" ${weakEntries.length ? '' : 'disabled'}>⚔️ 啟動錯題掃除特訓（完成 ＋35 銅錢）</button>
-      <button type="button" data-action="clear-weak-log" ${weakEntries.length || symEntries.length ? '' : 'disabled'}>🧹 清空錯題紀錄</button>
+      <button type="button" data-action="clear-weak-log" ${weakEntries.length || symEntries.length ? '' : 'disabled'}>${clearWeakArmed ? '⚠️ 再按一次確認清空' : '🧹 清空錯題紀錄'}</button>
       <button type="button" data-action="home">返回首頁</button>
     </div>`, 'weak-dojo');
 }
@@ -1158,7 +1159,7 @@ document.addEventListener('click',event=>{
   if(action==='home')home();
   if(action==='footprints')footprints();
   if(action==='custom-words')customWordsModal();
-  if(action==='weak-dojo')weakDojoModal();
+  if(action==='weak-dojo'){clearWeakArmed = false;weakDojoModal();}
   if(action==='dict-lookup'){
     const q = ($('dict-lookup-input')?.value || '').trim();
     const out = $('dict-lookup-result');
@@ -1199,11 +1200,18 @@ document.addEventListener('click',event=>{
     }
     return;
   }
+  if(action!=='clear-weak-log')clearWeakArmed = false;
   if(action==='start-weak-drill'){
     begin(false, Math.min(profile.stage || 0, 29), true);
     return;
   }
   if(action==='clear-weak-log'){
+    if(!clearWeakArmed){
+      clearWeakArmed = true;
+      weakDojoModal();
+      return;
+    }
+    clearWeakArmed = false;
     profile.weak = {};
     profile.weakSymbols = {};
     persist();

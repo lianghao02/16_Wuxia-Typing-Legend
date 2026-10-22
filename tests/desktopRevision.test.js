@@ -161,3 +161,10 @@ test('戰鬥資訊分層：氣血連擊與銅錢丹藥分開顯示，蓄力條�
   assert.ok(source.includes("$('hero-items')"));
   assert.ok(source.includes('對手蓄力滿了'));
 });
+
+test('清空錯題紀錄需二次確認，且相容入口轉址到首頁', () => {
+  const source = readFileSync(new URL('../src/adventure.js', import.meta.url), 'utf8');
+  assert.ok(source.includes('再按一次確認清空'));
+  const legacy = readFileSync(new URL('../adventure.html', import.meta.url), 'utf8');
+  assert.ok(legacy.includes('url=./index.html'));
+});
