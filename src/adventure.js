@@ -360,12 +360,10 @@ function begin(resume = true, replayId = null, weakDrill = false) {
   audio.switchBgm('story');
   const loadout = getLoadout();
   const hazard = stageHazard(stage);
-  const hazardTip = hazard ? `<br>${hazard.icon} 本關對手招式帶有「<strong>${hazard.label}</strong>」，若受擊染上狀態，<strong>連續打對 2 個字</strong>即可運功化解！` : '';
   const chapterIntro = !session.isWeakDrill && session.cursor===0 && !session.typing && stage.id%5===0 ? CHAPTERS[stage.chapter].intro : '';
-  const victoryTip = `氣血對決（對手氣血 ${session.enemyHp}／${session.enemyMaxHp}）：每完整打完一道題目，即可依字數、連擊、${save.hero==='mu'?'靈獸戰技':'兵器流派'}施展招式削減對手氣血，歸零即獲勝！`;
   modal(`<span class="eyebrow">${session.isWeakDrill ? '📖 錯題墨寶閣 · 掃除特訓' : `第 ${stage.chapter+1} 章 · ${stage.chapterName}`}</span><h2>${session.isWeakDrill ? `${stage.name}（錯題掃除戰）` : stage.name}</h2>
     ${chapterIntro?`<p>${escape(chapterIntro)}</p>`:''}<p class="story">${session.isWeakDrill ? '集中演練近期曾按錯的字詞與注音，零失誤作答可逐步降低待複習次數，擊破對手獲贈勤學特訓賞金 ＋35 銅錢！' : stage.intro}</p>
-    <p class="muted">${stage.kind==='boss'?'首領三階切磋（100%～70% 試探 → 70%～30% 破防 → 30% 以下決勝），攻勢隨血量變化。':'打完每個單字可壓制對手蓄力，整題打完即出招造成傷害；在對手「⚡即將出招」瞬間完成整題可觸發【看破破綻】反擊！'}${hazardTip}<br>${victoryTip} 絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</p>
+    <ul class="tips">${stage.kind==='boss'?'<li>首領會隨氣血變強：100%～70% 試探，70%～30% 破防，30% 以下決勝。</li>':''}<li>打完一個字，對手的蓄力條會往回退。</li><li>打完整題就出招，削減對手氣血，歸零即獲勝。</li><li>看到「⚡即將出招」時趕快打完整題，可以反擊！</li><li>絕招滿五點後可施展${loadout.ultName||'守護絕招'}。</li>${hazard?`<li>${hazard.icon} 本關對手招式帶有「<strong>${hazard.label}</strong>」，染上狀態後連續打對 2 個字即可化解。</li>`:''}</ul>
     <button class="primary" data-action="start">${session.cursor||session.typing?'接續交手':'踏入江湖'} · Enter</button>`, 'intro');
 }
 function getBattleBgm(st = stage) {
@@ -459,13 +457,17 @@ function render() {
   $('hero-status').dataset.comboTier=String(tier);
   $('hero-status').dataset.status=session.status||'';
   $('question').dataset.comboTier=String(tier);
-  $('hero-detail').textContent=`氣血 ${session.hp}／${heroMaxHp}${statusText} · 連擊 ${engine.combo}${comboBadge?` (${comboBadge})`:''} · 銅錢 ${save.coins} · 🧪回春×${healCnt}(Alt+2)·清心×${antiCnt}`;
+  $('hero-detail').textContent=`氣血 ${session.hp}／${heroMaxHp}${statusText} · 連擊 ${engine.combo}${comboBadge?` (${comboBadge})`:''}`;
+  const heroItems=$('hero-items');
+  if(heroItems)heroItems.textContent=`銅錢 ${save.coins} · 🧪回春×${healCnt}(Alt+2) · 清心×${antiCnt}`;
   const hazard = stageHazard(stage);
   const hazardBadge = hazard ? ` · ${hazard.icon}${hazard.label}` : '';
   const isDanger = session.atb > 75;
   scene.setEnemyDangerAlert(isDanger);
   const baseEnemyName = stage.name;
   $('enemy-name').textContent = isDanger ? `⚡即將出招！${baseEnemyName}` : baseEnemyName;
+  const atbLabel=$('atb-label');
+  if(atbLabel)atbLabel.textContent = isDanger ? '⚡ 對手蓄力滿了！快打完整題反擊' : '對手蓄力';
   const maxHp = session.enemyMaxHp || stage.enemy?.maxHp || 100;
   const poisonTag = session.enemyPoisonTurns > 0 ? ` · ☠️中毒(${session.enemyPoisonTurns})` : '';
   $('enemy-hp').value = Math.max(0, Math.min(100, Math.round((session.enemyHp / maxHp) * 100)));
@@ -793,6 +795,7 @@ function customWordsModal() {
       <button type="button" data-action="home">返回首頁</button>
     </div>`, 'custom-words');
 }
+let clearWeakArmed = false;
 function weakDojoModal() {
   const symEntries = Object.entries(profile.weakSymbols || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 4);
   const weakEntries = Object.entries(profile.weak || {}).filter(([, c]) => c > 0).sort((a, b) => b[1] - a[1]).slice(0, 12);
@@ -815,7 +818,7 @@ function weakDojoModal() {
     <div class="mistake-notes"><strong>📝 待掃除錯字名單（點擊可聽發音）：</strong><div class="mistake-list">${wordsHtml}</div></div>
     <div class="actions">
       <button class="primary" data-action="start-weak-drill" ${weakEntries.length ? '' : 'disabled'}>⚔️ 啟動錯題掃除特訓（完成 ＋35 銅錢）</button>
-      <button type="button" data-action="clear-weak-log" ${weakEntries.length || symEntries.length ? '' : 'disabled'}>🧹 清空錯題紀錄</button>
+      <button type="button" data-action="clear-weak-log" ${weakEntries.length || symEntries.length ? '' : 'disabled'}>${clearWeakArmed ? '⚠️ 再按一次確認清空' : '🧹 清空錯題紀錄'}</button>
       <button type="button" data-action="home">返回首頁</button>
     </div>`, 'weak-dojo');
 }
@@ -1156,7 +1159,7 @@ document.addEventListener('click',event=>{
   if(action==='home')home();
   if(action==='footprints')footprints();
   if(action==='custom-words')customWordsModal();
-  if(action==='weak-dojo')weakDojoModal();
+  if(action==='weak-dojo'){clearWeakArmed = false;weakDojoModal();}
   if(action==='dict-lookup'){
     const q = ($('dict-lookup-input')?.value || '').trim();
     const out = $('dict-lookup-result');
@@ -1197,11 +1200,18 @@ document.addEventListener('click',event=>{
     }
     return;
   }
+  if(action!=='clear-weak-log')clearWeakArmed = false;
   if(action==='start-weak-drill'){
     begin(false, Math.min(profile.stage || 0, 29), true);
     return;
   }
   if(action==='clear-weak-log'){
+    if(!clearWeakArmed){
+      clearWeakArmed = true;
+      weakDojoModal();
+      return;
+    }
+    clearWeakArmed = false;
     profile.weak = {};
     profile.weakSymbols = {};
     persist();
@@ -1386,6 +1396,8 @@ function tick(now){
     if(isDanger!==wasDanger){
       const baseEnemyName=stage.name;
       $('enemy-name').textContent=isDanger?`⚡即將出招！${baseEnemyName}`:baseEnemyName;
+      const atbLabel=$('atb-label');
+      if(atbLabel)atbLabel.textContent=isDanger?'⚡ 對手蓄力滿了！快打完整題反擊':'對手蓄力';
     }
     // 中毒與灼傷持續微幅耗損氣血（保底 15 點不致死）
     if(session.status==='poison'||session.status==='burn'){

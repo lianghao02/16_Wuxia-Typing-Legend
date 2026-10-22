@@ -7,8 +7,8 @@
 <main id="battle" tabindex="-1" hidden>
   <section id="question" aria-label="打字題目"><small id="phase"></small><div id="context"></div><div id="characters"></div><p id="usage"></p><div id="next-key"></div><div id="ime-warning" class="ime-warning" hidden>⚠️ 偵測到中文輸入法（微軟新注音）！請按下鍵盤【Shift】切換為英數模式，即可順暢出招！</div></section>
   <section id="keyboard" aria-label="指法鍵盤"><div class="keyboard-head"><span id="keyboard-label">大千注音・F／J 定位點</span><button id="hide-keyboard">收起 Tab</button></div><div id="keys"></div></section>
-  <aside id="hero-status"><strong id="hero-name"></strong><progress id="hp" value="100" max="100"></progress><span id="hero-detail"></span></aside>
-  <aside id="enemy-status"><strong id="enemy-name"></strong><progress id="enemy-hp" value="100" max="100"></progress><span id="enemy-detail"></span><progress id="atb" value="0" max="100"></progress></aside>
+  <aside id="hero-status"><strong id="hero-name"></strong><progress id="hp" value="100" max="100"></progress><span id="hero-detail"></span><span id="hero-items"></span></aside>
+  <aside id="enemy-status"><strong id="enemy-name"></strong><progress id="enemy-hp" value="100" max="100"></progress><span id="enemy-detail"></span><small id="atb-label">對手蓄力</small><progress id="atb" value="0" max="100"></progress></aside>
 </main>
 <nav id="controls" hidden aria-label="遊戲操作"><button id="home">江湖首頁</button><button id="shop">客棧</button><button id="settings">設定</button><button id="ultimate" disabled>絕招 0／5 · Alt＋1</button><button id="show-keyboard" hidden>鍵盤 Tab</button><button id="fullscreen-control-btn" title="切換全螢幕 (F11)">⛶ 全螢幕</button></nav>
 <div id="notice" role="status" aria-live="polite"></div>

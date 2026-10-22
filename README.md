@@ -181,7 +181,7 @@
 ```text
 16_Wuxia-Typing-Legend/
 ├── index.html                    # 預設首頁（v2.1.0 文印江湖六章冒險主入口）
-├── adventure.html                # 文印江湖相容入口
+├── adventure.html                # 舊連結相容入口（自動轉址至 index.html）
 ├── classic.html                  # 原版 v1.0 三大境界修煉模式入口
 ├── prototype-input.html          # 注音免選字輸入核心驗證與事件診斷實驗室
 ├── start_game.bat                # Windows 一鍵啟動本機 HTTP 伺服器並開啟瀏覽器

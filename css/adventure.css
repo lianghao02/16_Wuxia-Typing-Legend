@@ -1090,3 +1090,30 @@ body:has(#keyboard:not([hidden])) #question.sentence #context {
   border-color: #475569 !important;
   cursor: not-allowed;
 }
+/* 戰鬥資訊可讀性：氣血與連擊放大，銅錢與丹藥降為次要資訊 */
+#hero-detail {
+  font-size:14px;
+  font-weight:600;
+  line-height:1.45;
+  margin-top:4px}
+#enemy-detail {
+  font-size:13px;
+  margin-top:4px}
+#hero-items {
+  font-size:11px;
+  opacity:.8;
+  margin-top:3px}
+#atb-label {
+  display:block;
+  font-size:12px;
+  margin:6px 0 2px;
+  color:#e1ad4f}
+/* 全螢幕按鈕在戰鬥中只保留底部操作列那一顆，避免蓋住對手資訊 */
+body:has(#battle:not([hidden])) #fullscreen-btn {
+  display:none}
+.tips {
+  margin:10px 0 14px;
+  padding-left:22px;
+  font-size:15px;
+  line-height:1.7;
+  color:#d6dee6}
