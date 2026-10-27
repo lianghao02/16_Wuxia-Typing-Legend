@@ -3,7 +3,7 @@
 ## 核心元資料 (Metadata)
 - **Repository**：lianghao02/16_Wuxia-Typing-Legend
 - **Branch**：feat/jianghu-adventure
-- **Commit SHA**：4a78588（本輪修改前基準；本輪文件尚未提交）
+- **Commit SHA**：9713f8c（審查文件提交；本輪校正後最新提交以 Git 記錄為準）
 - **Skill Version**：v1.0.0
 - **Task Type**：AUDIT / HANDOFF
 - **Local Path Hint**：16_Wuxia-Typing-Legend
@@ -12,7 +12,7 @@
 
 ## 目前狀態
 
-使用者已於本輪授權依專案／分支分開提交與推送；下列未提交描述為提交前斷點，最終提交與遠端同步結果見控制中心本輪計畫及 Git。
+審查文件已提交並推送（9713f8c）。2026-10-27 重新核對：origin/master 已前進至 8ada402（含 PR #1、#2 合併），beta 分支落後 master 19 個提交、領先 6 個且皆為 beta 專屬／文件提交；本機 `.codex/worktrees/wuxia-v2.2.3` 的 master 落後 origin/master 6 個提交，尚未快轉。
 2026-10-22：已完成與正式 v2.2.3 的功能差異審查。beta 為 v2.1.1-beta.1，保留獨立分支；後續產品開發應以正式 master 為基準。
 
 ## 本輪目標
@@ -35,7 +35,7 @@ master 為 91c604f／v2.2.3，beta 為 4a78588，備份為 d292c6f。本輪未 f
 
 ## 尚未完成 (Remaining Work)
 - **P1 (阻斷/必須)**：本輪審查無已確認未修阻斷。
-- **P2 (重要/當次)**：兩工作樹修改尚未提交推送；正式版可獨立提交測試，本分支可獨立提交文件。
+- **P2 (重要/當次)**：無。審查文件與正式版測試均已提交；僅剩本機 master 工作樹落後遠端 6 個提交，需要時再快轉。
 - **P3 (改善建議/暫緩)**：PWA 與備份題庫分級屬於獨立功能決策；未驗證前保留分支。
 
 ## 驗證結果 (Validation)
@@ -47,13 +47,13 @@ master 為 91c604f／v2.2.3，beta 為 4a78588，備份為 d292c6f。本輪未 f
 相同功能曾以不同程式實作移入；不能僅憑 merge-base 或提交未合併就判定功能遺失。
 
 ## Git 狀態
-- Commit：本輪尚未提交；基準 4a78588。
-- Push：否。
-- Working Tree：Modified，僅本輪兩份文件。
+- Commit：審查文件 9713f8c；本輪 HANDOFF 校正另以後續 docs 提交保存。
+- Push：審查文件已推送；校正提交推送狀態以 `git status -sb` 為準。
+- Working Tree：提交後 Clean。
 - Branch：feat/jianghu-adventure。
 
 ## 下一步建議動作 (Next Recommended Action)
-依授權分別提交正式版測試與本分支審查文件；維持 master 為開發基準，保留 beta 與備份，日後只依明確功能需求挑選移入。
+維持 master 為開發基準，不將 beta 併回，保留 beta 與備份，日後只依明確功能需求挑選移入。
 
 ## 發布狀態 (Release Status)
 本輪未升版或發布；正式版仍 v2.2.3，beta 仍 v2.1.1-beta.1。
