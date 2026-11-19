@@ -1,6 +1,6 @@
 # 武俠打字傳 (Wuxia Typing Legend)
 
-[![Version](https://img.shields.io/badge/version-v2.2.3-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
+[![Version](https://img.shields.io/badge/version-v2.2.4-amber.svg)](https://github.com/lianghao02/16_Wuxia-Typing-Legend)
 [![Platform](https://img.shields.io/badge/Platform-Pure%20Web%20%2F%20HTML5%20Canvas-emerald.svg)](https://lianghao02.github.io/16_Wuxia-Typing-Legend/)
 [![Dictionary](https://img.shields.io/badge/MOE%20Mini%20Dict-4%2C311%20Chars-blue.svg)](https://dict.mini.moe.edu.tw/)
 
